@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f5f6f2">
 <title>Swap Outreach</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -179,6 +181,58 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── MOBILE ── */
+.mobile-shell { display: none; flex-direction: column; height: 100vh; height: 100dvh; background: var(--bg); }
+.mobile-header { padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top)); background: var(--surface); border-bottom: 1px solid var(--border); }
+.mobile-header h1 { font-family: var(--font-mono); font-size: 14px; color: var(--accent); font-weight: 500; }
+.mobile-header .mh-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.mobile-progress { height: 4px; background: var(--surface3); margin-top: 10px; border-radius: 2px; overflow: hidden; }
+.mobile-progress-fill { height: 100%; background: var(--accent); transition: width .25s; }
+.mobile-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.mobile-panel { display: none; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+.mobile-panel.active { display: block; }
+.mobile-nav { display: flex; border-top: 1px solid var(--border); background: var(--surface); padding-bottom: env(safe-area-inset-bottom); }
+.mobile-nav-btn { flex: 1; padding: 12px 8px; border: none; background: transparent; color: var(--text3); font-size: 11px; font-family: var(--font-sans); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.mobile-nav-btn.active { color: var(--accent); font-weight: 600; }
+.mobile-nav-btn .nav-icon { font-size: 20px; line-height: 1; }
+.mobile-call-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+.mobile-call-name { font-size: 22px; font-weight: 600; line-height: 1.25; margin-bottom: 8px; }
+.mobile-call-loc { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
+.mobile-call-phone { font-family: var(--font-mono); font-size: 28px; font-weight: 500; color: var(--accent); margin: 20px 0; letter-spacing: .02em; }
+.mobile-call-huge { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 18px; font-size: 20px; font-weight: 700; border-radius: 12px; background: var(--accent); color: #fff; text-decoration: none; border: none; margin-bottom: 16px; }
+.mobile-call-huge:active { background: var(--accent2); }
+.mobile-quick-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.mobile-quick-btn { padding: 14px 10px; border-radius: 10px; font-size: 13px; font-weight: 600; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-family: var(--font-sans); cursor: pointer; }
+.mobile-quick-btn.primary { background: rgba(47,107,58,.12); border-color: rgba(47,107,58,.35); color: var(--accent); }
+.mobile-quick-btn.warn { background: rgba(192,86,33,.1); border-color: rgba(192,86,33,.3); color: var(--orange); }
+.mobile-quick-btn.danger { background: rgba(197,48,48,.08); border-color: rgba(197,48,48,.25); color: var(--red); }
+.mobile-skip-btn { width: 100%; padding: 12px; background: transparent; border: 1px dashed var(--border2); color: var(--text3); border-radius: 10px; font-size: 13px; cursor: pointer; font-family: var(--font-sans); }
+.mobile-empty { text-align: center; padding: 48px 24px; color: var(--text3); }
+.mobile-empty h2 { font-size: 18px; color: var(--text2); margin-bottom: 8px; }
+.mobile-email-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+.mobile-email-item h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.mobile-email-item .mei-meta { font-size: 12px; color: var(--text3); margin-bottom: 10px; }
+.mobile-email-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.mobile-email-actions a, .mobile-email-actions button { flex: 1; min-width: 120px; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 600; text-align: center; text-decoration: none; font-family: var(--font-sans); cursor: pointer; border: none; }
+.mobile-send-btn { background: var(--blue); color: #fff; }
+.mobile-draft-preview { font-size: 12px; color: var(--text2); line-height: 1.5; margin-top: 8px; max-height: 60px; overflow: hidden; }
+.mobile-banner { background: var(--accent-dim); border: 1px solid rgba(47,107,58,.25); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+.mobile-settings { padding: 16px; }
+.mobile-settings label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); font-family: var(--font-mono); display: block; margin-bottom: 6px; }
+.mobile-settings input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-mono); font-size: 12px; margin-bottom: 16px; }
+.mobile-list-item { padding: 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.mobile-list-item:active { background: var(--surface2); }
+.mobile-badge { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+
+@media (max-width: 768px) {
+  .shell { display: none !important; }
+  .mobile-shell { display: flex !important; }
+  .topbar-stats { display: none; }
+}
+@media (min-width: 769px) {
+  .mobile-shell { display: none !important; }
+}
 </style>
 </head>
 <body>
@@ -277,6 +331,35 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   </main>
 </div>
 
+<!-- Mobile outreach mode -->
+<div class="mobile-shell" id="mobile-shell">
+  <header class="mobile-header">
+    <h1>swap/outreach</h1>
+    <div class="mh-sub" id="mobile-header-sub">Call queue</div>
+    <div class="mobile-progress"><div class="mobile-progress-fill" id="mobile-progress-fill" style="width:0%"></div></div>
+  </header>
+  <div class="mobile-body">
+    <div id="mobile-panel-call" class="mobile-panel active"></div>
+    <div id="mobile-panel-emails" class="mobile-panel"></div>
+    <div id="mobile-panel-list" class="mobile-panel"></div>
+    <div id="mobile-panel-settings" class="mobile-panel mobile-settings"></div>
+  </div>
+  <nav class="mobile-nav">
+    <button type="button" class="mobile-nav-btn active" data-mobile-tab="call" onclick="switchMobileTab('call',this)">
+      <span class="nav-icon">📞</span>Calls
+    </button>
+    <button type="button" class="mobile-nav-btn" data-mobile-tab="emails" onclick="switchMobileTab('emails',this)">
+      <span class="nav-icon">✉️</span>Emails
+    </button>
+    <button type="button" class="mobile-nav-btn" data-mobile-tab="list" onclick="switchMobileTab('list',this)">
+      <span class="nav-icon">☰</span>List
+    </button>
+    <button type="button" class="mobile-nav-btn" data-mobile-tab="settings" onclick="switchMobileTab('settings',this)">
+      <span class="nav-icon">⚙️</span>Settings
+    </button>
+  </nav>
+</div>
+
 <script>
 // ── STATE ──────────────────────────────────────────────────
 let contacts = [];      // all loaded contacts
@@ -285,9 +368,30 @@ let currentId = null;
 let filterStatus = 'all';
 let filterType = 'all';
 let searchQ = '';
+let mobileCallIndex = 0;
+let emailGenRunning = false;
 const STORAGE_KEY = 'swap_outreach_v1';
 const KEY_KEY = 'swap_anthropic_key';
+const EMAIL_GEN_DONE_KEY = 'swap_email_gen_done_v1';
 const CONTACTS_URL = 'contacts.csv';
+
+function isMobileView() {
+  return window.matchMedia('(max-width: 768px)').matches;
+}
+function hasPhone(c) {
+  return !!(c.phone && c.phone.replace(/\D/g, '').length >= 7);
+}
+function hasEmail(c) {
+  return !!(c.email && c.email.includes('@'));
+}
+function telHref(phone) {
+  return 'tel:' + phone.replace(/[^\d+]/g, '');
+}
+function mailtoHref(c, body) {
+  const subj = encodeURIComponent('Gear Swap Management Tool');
+  const b = encodeURIComponent(body || '');
+  return `mailto:${c.email}?subject=${subj}&body=${b}`;
+}
 
 // ── PERSISTENCE ────────────────────────────────────────────
 function saveOutreach() {
@@ -341,14 +445,30 @@ function normalizeContact(row) {
   return { id, name, loc, type: type.toLowerCase(), email, phone, facebook, website, sourceNotes: notes };
 }
 
-function loadContactsFromText(text) {
-  const rows = parseCSV(text);
-  contacts = rows.map(normalizeContact).filter(c => c.name);
+function onContactsLoaded(sourceLabel) {
   document.getElementById('empty-state').style.display = contacts.length ? 'none' : '';
   document.getElementById('contact-detail').style.display = contacts.length ? '' : 'none';
   renderAll();
-  if(contacts.length && !currentId) selectContact(contacts[0].id);
-  else if(currentId && contacts.find(c => c.id === currentId)) selectContact(currentId);
+  renderMobileAll();
+  if(isMobileView()) {
+    mobileCallIndex = 0;
+    switchMobileTab('call', document.querySelector('[data-mobile-tab="call"]'));
+  } else if(contacts.length && !currentId) {
+    selectContact(contacts[0].id);
+  } else if(currentId && contacts.find(c => c.id === currentId)) {
+    selectContact(currentId);
+  }
+  startAutoEmailGeneration();
+  if(sourceLabel) {
+    const sub = document.getElementById('empty-sub');
+    if(sub) sub.textContent = `Loaded ${contacts.length} contacts. Progress saved in this browser.`;
+  }
+}
+
+function loadContactsFromText(text) {
+  const rows = parseCSV(text);
+  contacts = rows.map(normalizeContact).filter(c => c.name);
+  onContactsLoaded();
 }
 
 async function loadContactsFromUrl(url) {
@@ -356,8 +476,6 @@ async function loadContactsFromUrl(url) {
     const res = await fetch(url);
     if(!res.ok) throw new Error('not found');
     loadContactsFromText(await res.text());
-    const sub = document.getElementById('empty-sub');
-    if(sub) sub.textContent = `Loaded ${contacts.length} contacts from ${url}. Progress is saved in this browser.`;
     return true;
   } catch {
     const empty = document.getElementById('empty-state');
@@ -447,6 +565,19 @@ const TYPE_EMOJI = { bike:'🚲', ski:'⛷️', gear:'🎒', sports:'⚽', other
 function renderAll() {
   renderStats();
   renderList();
+  if(isMobileView()) renderMobileAll();
+}
+
+function callQueue() {
+  return contacts.filter(c => {
+    if(!hasPhone(c)) return false;
+    const s = getO(c.id).status;
+    return s === 'none' || s === 'emailed';
+  });
+}
+
+function emailQueue() {
+  return contacts.filter(c => hasEmail(c));
 }
 
 function renderStats() {
@@ -616,16 +747,26 @@ function escHtml(s) {
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
-function setStatus(id, status) {
+function setStatus(id, status, opts = {}) {
   const o = getO(id);
   o.status = status;
-  // Auto-log status changes
   const label = STATUS_INFO[status]?.label || status;
   o.log = o.log || [];
   o.log.push({ ts: fmtTs(), text: 'Status → ' + label });
   saveOutreach();
-  selectContact(id);
-  renderAll();
+  if(opts.mobileAdvance) {
+    advanceMobileCallQueue();
+  } else {
+    selectContact(id);
+    renderAll();
+  }
+}
+
+function mobileQuickStatus(status) {
+  const q = callQueue();
+  const c = q[mobileCallIndex];
+  if(!c) return;
+  setStatus(c.id, status, { mobileAdvance: true });
 }
 
 function saveNotes(id, val) {
@@ -674,17 +815,189 @@ function fmtTs() {
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
 }
 
-// ── AI EMAIL GENERATION ────────────────────────────────────
-async function generateEmail(id) {
-  const apiKey = document.getElementById('api-key-input')?.value?.trim();
-  if(!apiKey) { alert('Enter your Anthropic API key above to generate emails.'); return; }
-  const c = contacts.find(x => x.id === id);
-  if(!c) return;
-  const btn = document.getElementById('gen-btn');
-  const ta = document.getElementById('email-draft');
-  if(btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Writing…'; }
+// ── MOBILE UI ──────────────────────────────────────────────
+function switchMobileTab(tab, el) {
+  document.querySelectorAll('.mobile-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('mobile-panel-' + tab)?.classList.add('active');
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const subs = { call: 'Call queue — phone numbers only', emails: 'Email drafts ready to send', list: 'All contacts', settings: 'API key & data' };
+  const sub = document.getElementById('mobile-header-sub');
+  if(sub) sub.textContent = subs[tab] || '';
+  if(tab === 'call') renderMobileCall();
+  if(tab === 'emails') renderMobileEmails();
+  if(tab === 'list') renderMobileList();
+  if(tab === 'settings') renderMobileSettings();
+}
 
-  const prompt = `Write a short, friendly outreach email to a non-profit organization that runs a ${c.type} swap event.
+function renderMobileAll() {
+  if(!isMobileView()) return;
+  renderMobileCall();
+  renderMobileEmails();
+  renderMobileList();
+  renderMobileSettings();
+  updateMobileProgress();
+}
+
+function updateMobileProgress() {
+  const q = callQueue();
+  const total = contacts.filter(hasPhone).length;
+  const done = total - q.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  const fill = document.getElementById('mobile-progress-fill');
+  if(fill) fill.style.width = pct + '%';
+}
+
+function advanceMobileCallQueue() {
+  const q = callQueue();
+  if(mobileCallIndex >= q.length) mobileCallIndex = Math.max(0, q.length - 1);
+  renderMobileCall();
+  renderMobileAll();
+  updateMobileProgress();
+}
+
+function renderMobileCall() {
+  const panel = document.getElementById('mobile-panel-call');
+  if(!panel) return;
+  const q = callQueue();
+  const noPhone = contacts.filter(c => !hasPhone(c)).length;
+  if(q.length === 0) {
+    panel.innerHTML = `
+      <div class="mobile-empty">
+        <h2>Call queue complete</h2>
+        <p>${contacts.filter(hasPhone).length} contacts had phone numbers. ${noPhone} skipped (no phone).</p>
+        <p style="margin-top:12px">Check the <strong>Emails</strong> tab for outreach by email.</p>
+      </div>`;
+    updateMobileProgress();
+    return;
+  }
+  if(mobileCallIndex >= q.length) mobileCallIndex = 0;
+  const c = q[mobileCallIndex];
+  const o = getO(c.id);
+  const pos = mobileCallIndex + 1;
+  panel.innerHTML = `
+    <div class="mobile-banner">📞 ${pos} of ${q.length} in call queue · ${noPhone} contacts skipped (no phone)</div>
+    <div class="mobile-call-card">
+      <div class="type-pill type-${c.type}" style="display:inline-block;margin-bottom:12px">${TYPE_EMOJI[c.type]||''} ${c.type} swap</div>
+      <div class="mobile-call-name">${escHtml(c.name)}</div>
+      <div class="mobile-call-loc">📍 ${escHtml(c.loc || 'Unknown')}</div>
+      <div class="mobile-call-phone">${escHtml(c.phone)}</div>
+      <a class="mobile-call-huge" href="${telHref(c.phone)}">📞 Call now</a>
+      <div class="mobile-quick-row">
+        <button type="button" class="mobile-quick-btn danger" onclick="mobileQuickStatus('called-na')">No answer</button>
+        <button type="button" class="mobile-quick-btn warn" onclick="mobileQuickStatus('voicemail')">Voicemail</button>
+      </div>
+      <div class="mobile-quick-row">
+        <button type="button" class="mobile-quick-btn primary" onclick="mobileQuickStatus('interested')">Interested ✓</button>
+        <button type="button" class="mobile-quick-btn" onclick="mobileQuickStatus('not-interested')">Not interested</button>
+      </div>
+      <button type="button" class="mobile-skip-btn" onclick="skipMobileCall()">Skip → next call</button>
+      ${c.sourceNotes ? `<p style="margin-top:16px;font-size:12px;color:var(--text2);line-height:1.5;text-align:left">${escHtml(c.sourceNotes)}</p>` : ''}
+    </div>`;
+  updateMobileProgress();
+}
+
+function mobileOpenContact(id) {
+  const qi = callQueue().findIndex(x => x.id === id);
+  if(qi >= 0) {
+    mobileCallIndex = qi;
+    switchMobileTab('call', document.querySelector('[data-mobile-tab="call"]'));
+  } else {
+    switchMobileTab('emails', document.querySelector('[data-mobile-tab="emails"]'));
+  }
+}
+
+function skipMobileCall() {
+  const q = callQueue();
+  if(!q.length) return;
+  const c = q[mobileCallIndex];
+  const o = getO(c.id);
+  o.log = o.log || [];
+  o.log.push({ ts: fmtTs(), text: 'Skipped in call queue' });
+  saveOutreach();
+  if(mobileCallIndex < q.length - 1) mobileCallIndex++;
+  else mobileCallIndex = 0;
+  renderMobileCall();
+}
+
+function renderMobileEmails() {
+  const panel = document.getElementById('mobile-panel-emails');
+  if(!panel) return;
+  const list = emailQueue();
+  const withDraft = list.filter(c => getO(c.id).emailDraft);
+  const pending = list.filter(c => !getO(c.id).emailDraft);
+  let html = '';
+  if(emailGenRunning) {
+    html += `<div class="mobile-banner"><span class="spinner"></span> Generating email drafts… (${withDraft.length}/${list.length})</div>`;
+  } else if(pending.length && !localStorage.getItem(KEY_KEY)) {
+    html += `<div class="mobile-banner">Add your Anthropic API key in <strong>Settings</strong> to auto-generate email drafts.</div>`;
+  }
+  if(list.length === 0) {
+    panel.innerHTML = html + '<div class="mobile-empty"><h2>No emails</h2><p>No contacts have email addresses in the CSV.</p></div>';
+    return;
+  }
+  html += list.map(c => {
+    const o = getO(c.id);
+    const draft = o.emailDraft || '';
+    const draftNote = draft ? escHtml(draft.slice(0, 120) + (draft.length > 120 ? '…' : '')) : (emailGenRunning ? 'Draft generating…' : 'No draft yet');
+    const send = draft && hasEmail(c)
+      ? `<a class="mobile-send-btn" href="${mailtoHref(c, draft)}">✉ Send email</a>`
+      : '';
+    const regen = `<button type="button" class="mobile-quick-btn" style="flex:1" onclick="generateEmail('${c.id}')">Regenerate</button>`;
+    return `
+      <div class="mobile-email-item">
+        <h3>${escHtml(c.name)}</h3>
+        <div class="mei-meta">${escHtml(c.loc)} · ${escHtml(c.email)}</div>
+        <div class="mobile-email-actions">${send}${regen}</div>
+        <div class="mobile-draft-preview">${draftNote}</div>
+      </div>`;
+  }).join('');
+  panel.innerHTML = html;
+}
+
+function renderMobileList() {
+  const panel = document.getElementById('mobile-panel-list');
+  if(!panel) return;
+  panel.innerHTML = contacts.map(c => {
+    const o = getO(c.id);
+    const si = STATUS_INFO[o.status || 'none'];
+    const icons = (hasPhone(c) ? '📞' : '') + (hasEmail(c) ? ' ✉' : '');
+    return `
+      <div class="mobile-list-item" onclick="mobileOpenContact('${c.id}')">
+        <div style="flex:1">
+          <div style="font-weight:500;font-size:14px">${escHtml(c.name)}</div>
+          <div style="font-size:11px;color:var(--text3)">${escHtml(c.loc)} ${icons}</div>
+        </div>
+        <span class="mobile-badge" style="background:${si.color}22;color:${si.color}">${si.label.split(' ')[0]}</span>
+      </div>`;
+  }).join('') || '<div class="mobile-empty">No contacts</div>';
+}
+
+function renderMobileSettings() {
+  const panel = document.getElementById('mobile-panel-settings');
+  if(!panel) return;
+  const key = localStorage.getItem(KEY_KEY) || '';
+  const phoneCount = contacts.filter(hasPhone).length;
+  const emailCount = contacts.filter(hasEmail).length;
+  panel.innerHTML = `
+    <label>Anthropic API key (for auto email drafts)</label>
+    <input type="password" id="mobile-api-key" placeholder="sk-ant-…" value="${escHtml(key)}" oninput="localStorage.setItem('${KEY_KEY}',this.value)">
+    <button type="button" class="import-btn" style="width:100%;margin:0 0 12px" onclick="startAutoEmailGeneration(true)">Generate all email drafts</button>
+    <div class="mobile-banner">${phoneCount} with phone (call queue) · ${emailCount} with email · ${contacts.length - phoneCount} phone-less skipped on Calls tab</div>
+    <button type="button" class="mobile-skip-btn" onclick="exportOutreach()">↓ Export progress JSON</button>
+    <label style="margin-top:16px;display:block">
+      <input type="file" id="mobile-csv-upload" accept=".csv" style="display:none" onchange="document.getElementById('csv-upload').files=this.files;document.getElementById('csv-upload').dispatchEvent(new Event('change'))">
+      <span class="import-btn" style="display:block;text-align:center;margin-top:8px" onclick="document.getElementById('mobile-csv-upload').click()">↑ Import contacts.csv</span>
+    </label>`;
+}
+
+window.addEventListener('resize', () => {
+  if(isMobileView()) renderMobileAll();
+});
+
+// ── AI EMAIL GENERATION ────────────────────────────────────
+function buildEmailPrompt(c) {
+  return `Write a short, friendly outreach email to a non-profit organization that runs a ${c.type} swap event.
 
 Organization: ${c.name}
 Location: ${c.loc}
@@ -700,6 +1013,23 @@ Write the email from my perspective as the developer reaching out. Keep it:
 - End with a simple, low-pressure ask (happy to show you a demo, or just answer questions)
 
 Output just the email body (no subject line, no "Subject:", just the text starting with a greeting).`;
+}
+
+async function generateEmail(id, options = {}) {
+  const apiKey = (document.getElementById('api-key-input')?.value
+    || document.getElementById('mobile-api-key')?.value
+    || localStorage.getItem(KEY_KEY) || '').trim();
+  if(!apiKey) {
+    if(!options.silent) alert('Enter your Anthropic API key in Settings (mobile) or on desktop to generate emails.');
+    return false;
+  }
+  const c = contacts.find(x => x.id === id);
+  if(!c || !hasEmail(c)) return false;
+  const btn = document.getElementById('gen-btn');
+  const ta = document.getElementById('email-draft');
+  if(btn && !options.silent) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Writing…'; }
+
+  const prompt = buildEmailPrompt(c);
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -713,10 +1043,42 @@ Output just the email body (no subject line, no "Subject:", just the text starti
     if(ta) ta.value = text;
     saveEmailDraft(id, text);
     localStorage.setItem(KEY_KEY, apiKey);
+    if(isMobileView()) renderMobileEmails();
+    return true;
   } catch(err) {
-    alert('Error generating email: ' + err.message);
+    if(!options.silent) alert('Error generating email: ' + err.message);
+    return false;
+  } finally {
+    if(btn && !options.silent) { btn.disabled = false; btn.innerHTML = '✦ Generate draft'; }
   }
-  if(btn) { btn.disabled = false; btn.innerHTML = '✦ Generate draft'; }
+}
+
+async function startAutoEmailGeneration(force = false) {
+  const apiKey = localStorage.getItem(KEY_KEY);
+  if(!apiKey || emailGenRunning) return;
+  const need = contacts.filter(c => hasEmail(c) && !getO(c.id).emailDraft);
+  if(need.length === 0) return;
+  if(!force) {
+    const doneSet = JSON.parse(localStorage.getItem(EMAIL_GEN_DONE_KEY) || '[]');
+    const needIds = need.map(c => c.id);
+    if(needIds.every(id => doneSet.includes(id))) return;
+  }
+  emailGenRunning = true;
+  renderMobileEmails();
+  const banner = document.getElementById('email-gen-banner');
+  if(banner) banner.style.display = 'block';
+  let ok = 0;
+  for(const c of need) {
+    const success = await generateEmail(c.id, { silent: true });
+    if(success) ok++;
+    renderMobileEmails();
+    await new Promise(r => setTimeout(r, 2500));
+  }
+  emailGenRunning = false;
+  const doneSet = contacts.filter(hasEmail).map(c => c.id);
+  try { localStorage.setItem(EMAIL_GEN_DONE_KEY, JSON.stringify(doneSet)); } catch(e) {}
+  renderMobileEmails();
+  if(banner) banner.style.display = 'none';
 }
 
 // ── NEXT UNCONTACTED ───────────────────────────────────────
@@ -743,7 +1105,12 @@ function exportOutreach() {
 // ── INIT ───────────────────────────────────────────────────
 loadOutreach();
 renderAll();
-loadContactsFromUrl(CONTACTS_URL);
+loadContactsFromUrl(CONTACTS_URL).then(() => {
+  if(isMobileView()) renderMobileAll();
+});
+window.addEventListener('load', () => {
+  if(isMobileView()) switchMobileTab('call', document.querySelector('[data-mobile-tab="call"]'));
+});
 </script>
 </body>
 </html>
