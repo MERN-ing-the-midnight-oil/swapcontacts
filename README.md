@@ -65,12 +65,10 @@ Open `docs/index.html` via a local server (not `file://`) so it can load `contac
 1. Push this repo to GitHub.
 2. Run `npm run outreach:sync` and commit `docs/contacts.csv` + `docs/index.html`.
 3. In the repo: **Settings → Pages → Build and deployment**:
-   - **Source:** Deploy from a branch
-   - **Branch:** `main`
-   - **Folder:** `/ (root)` ← `index.html` and `contacts.csv` live here
-   - (Alternatively use `/docs` if you prefer — keep both in sync with `npm run outreach:sync`)
-4. Save. After 1–2 minutes: **https://mern-ing-the-midnight-oil.github.io/swapcontacts/**
+   - **Source:** **GitHub Actions** (recommended — runs `.github/workflows/pages.yml` on every push)
+   - Or: Deploy from branch `main`, folder **`/docs`**
+4. After deploy: **https://mern-ing-the-midnight-oil.github.io/swapcontacts/**
 
-Use **only** “Deploy from a branch”, not “GitHub Actions”. If you see “must provide an index.html”, the folder is wrong — switch between `/` and `/docs` to match where `index.html` exists on `main`.
+If you still see a **dark** theme, Pages is serving a stale build — switch to **GitHub Actions** and re-run the workflow from the **Actions** tab.
 
 **Privacy:** If the repo is public, `contacts.csv` (emails, phones) will be public on Pages. Use a private repo or strip sensitive fields before syncing if needed.

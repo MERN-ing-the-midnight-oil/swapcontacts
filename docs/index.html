@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#f5f6f2">
 <title>Swap Outreach</title>
+<!-- build: light-v3 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -33,7 +34,11 @@
   --font-sans: 'DM Sans', sans-serif;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; }
+html {
+  color-scheme: light only;
+  background: #f5f6f2;
+}
+html, body { height: 100%; background: var(--bg) !important; color: var(--text) !important; font-family: var(--font-sans); font-size: 14px; }
 
 /* ── LAYOUT ── */
 .shell { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: 56px 1fr; height: 100vh; overflow: hidden; }
