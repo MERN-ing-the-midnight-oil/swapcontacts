@@ -226,6 +226,16 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .mobile-settings { padding: 16px; }
 .mobile-settings label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); font-family: var(--font-mono); display: block; margin-bottom: 6px; }
 .mobile-settings input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-mono); font-size: 12px; margin-bottom: 16px; }
+.prompt-editor-wrap { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.prompt-editor-wrap summary { font-size: 11px; font-weight: 600; color: var(--text2); cursor: pointer; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .06em; list-style: none; }
+.prompt-editor-wrap summary::-webkit-details-marker { display: none; }
+.prompt-editor-wrap[open] summary { color: var(--accent); margin-bottom: 8px; }
+.prompt-hint { font-size: 11px; color: var(--text3); line-height: 1.5; margin-bottom: 8px; }
+.prompt-hint code { font-family: var(--font-mono); font-size: 10px; color: var(--accent); background: var(--accent-dim); padding: 1px 4px; border-radius: 3px; }
+.prompt-template-input { width: 100%; min-height: 140px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: var(--text); font-size: 11px; font-family: var(--font-mono); line-height: 1.55; resize: vertical; outline: none; margin-bottom: 8px; }
+.prompt-template-input:focus { border-color: var(--accent); }
+.prompt-reset-btn { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text2); font-size: 11px; cursor: pointer; font-family: var(--font-sans); }
+.prompt-reset-btn:hover { border-color: var(--border2); color: var(--text); }
 .mobile-list-item { padding: 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .mobile-list-item:active { background: var(--surface2); }
 .mobile-badge { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--accent-dim); color: var(--accent); font-weight: 600; }
@@ -264,6 +274,15 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
     <div class="search-wrap">
       <input class="search-input" id="search-input" placeholder="Search contacts…" autocomplete="off">
     </div>
+
+    <details class="prompt-editor-wrap" id="prompt-editor-wrap">
+      <summary>✎ Email AI prompt</summary>
+      <p class="prompt-hint">Sent to Anthropic for each draft. Placeholders:
+        <code>{name}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code>
+      </p>
+      <textarea class="prompt-template-input" id="email-prompt-template" oninput="onPromptTemplateInput(this)" placeholder="Loading prompt…"></textarea>
+      <button type="button" class="prompt-reset-btn" onclick="resetEmailPromptTemplate()">Reset to default prompt</button>
+    </details>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Filter by status</div>
@@ -378,7 +397,70 @@ let emailGenRunning = false;
 const STORAGE_KEY = 'swap_outreach_v1';
 const KEY_KEY = 'swap_anthropic_key';
 const EMAIL_GEN_DONE_KEY = 'swap_email_gen_done_v1';
+const PROMPT_TEMPLATE_KEY = 'swap_email_prompt_template_v1';
 const CONTACTS_URL = 'contacts.csv';
+
+const DEFAULT_EMAIL_PROMPT = `Write a short, friendly outreach email to a non-profit organization that runs a {type} swap event.
+
+Organization: {name}
+Location: {location}
+Event type: {type} swap
+About them: {notes}
+
+Context: I've built a free software tool called Gear Swap specifically for non-profits that run consignment swap events (bike swaps, ski swaps, gear swaps, etc.). It handles seller check-in, item labeling with QR codes, point-of-sale, and payout tracking. It's free for non-profits.
+
+Write the email from my perspective as the developer reaching out. Keep it:
+- Under 150 words
+- Warm and personal, not salesy
+- Reference their specific event type and location naturally
+- Lead with genuine interest in what they do, not the product
+- End with a simple, low-pressure ask (happy to show you a demo, or just answer questions)
+
+Output just the email body (no subject line, no "Subject:", just the text starting with a greeting).`;
+
+function getEmailPromptTemplate() {
+  const stored = localStorage.getItem(PROMPT_TEMPLATE_KEY);
+  const el = document.getElementById('email-prompt-template')
+    || document.getElementById('mobile-email-prompt-template');
+  if (el && el.value.trim()) return el.value;
+  return stored || DEFAULT_EMAIL_PROMPT;
+}
+
+function saveEmailPromptTemplate(val) {
+  try { localStorage.setItem(PROMPT_TEMPLATE_KEY, val); } catch (e) {}
+}
+
+function syncPromptTextareas(val) {
+  ['email-prompt-template', 'mobile-email-prompt-template'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el && el.value !== val) el.value = val;
+  });
+}
+
+function onPromptTemplateInput(el) {
+  saveEmailPromptTemplate(el.value);
+  syncPromptTextareas(el.value);
+}
+
+function resetEmailPromptTemplate() {
+  if (!confirm('Reset the email prompt to the default template?')) return;
+  saveEmailPromptTemplate(DEFAULT_EMAIL_PROMPT);
+  syncPromptTextareas(DEFAULT_EMAIL_PROMPT);
+}
+
+function initPromptEditor() {
+  const val = localStorage.getItem(PROMPT_TEMPLATE_KEY) || DEFAULT_EMAIL_PROMPT;
+  syncPromptTextareas(val);
+}
+
+function applyPromptTemplate(c, template) {
+  return template
+    .replace(/\{name\}/gi, c.name || '')
+    .replace(/\{location\}/gi, c.loc || '')
+    .replace(/\{type\}/gi, c.type || 'other')
+    .replace(/\{notes\}/gi, c.sourceNotes || '(not available)')
+    .replace(/\{email\}/gi, c.email || '');
+}
 
 function isMobileView() {
   return window.matchMedia('(max-width: 768px)').matches;
@@ -719,6 +801,7 @@ function selectContact(id) {
       <div class="ai-section">
         <div class="ai-section-header">
           <div class="ai-label">⚡ AI email draft</div>
+          <span style="font-size:11px;color:var(--text3)">Prompt: sidebar → <strong style="color:var(--text2)">Email AI prompt</strong></span>
         </div>
         <div class="api-key-row">
           <input class="api-key-input" id="api-key-input" type="password" placeholder="sk-ant-… (Anthropic API key, stored locally)" value="${escHtml(apiKey)}" oninput="localStorage.setItem('${KEY_KEY}',this.value)">
@@ -987,6 +1070,10 @@ function renderMobileSettings() {
   panel.innerHTML = `
     <label>Anthropic API key (for auto email drafts)</label>
     <input type="password" id="mobile-api-key" placeholder="sk-ant-…" value="${escHtml(key)}" oninput="localStorage.setItem('${KEY_KEY}',this.value)">
+    <label style="margin-top:16px">Email AI prompt (sent to Anthropic)</label>
+    <p class="prompt-hint">Placeholders: <code>{name}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code></p>
+    <textarea class="prompt-template-input" id="mobile-email-prompt-template" style="min-height:160px" oninput="onPromptTemplateInput(this)"></textarea>
+    <button type="button" class="prompt-reset-btn" style="margin-bottom:16px" onclick="resetEmailPromptTemplate()">Reset to default prompt</button>
     <button type="button" class="import-btn" style="width:100%;margin:0 0 12px" onclick="startAutoEmailGeneration(true)">Generate all email drafts</button>
     <div class="mobile-banner">${phoneCount} with phone (call queue) · ${emailCount} with email · ${contacts.length - phoneCount} phone-less skipped on Calls tab</div>
     <button type="button" class="mobile-skip-btn" onclick="exportOutreach()">↓ Export progress JSON</button>
@@ -994,6 +1081,7 @@ function renderMobileSettings() {
       <input type="file" id="mobile-csv-upload" accept=".csv" style="display:none" onchange="document.getElementById('csv-upload').files=this.files;document.getElementById('csv-upload').dispatchEvent(new Event('change'))">
       <span class="import-btn" style="display:block;text-align:center;margin-top:8px" onclick="document.getElementById('mobile-csv-upload').click()">↑ Import contacts.csv</span>
     </label>`;
+  initPromptEditor();
 }
 
 window.addEventListener('resize', () => {
@@ -1002,22 +1090,7 @@ window.addEventListener('resize', () => {
 
 // ── AI EMAIL GENERATION ────────────────────────────────────
 function buildEmailPrompt(c) {
-  return `Write a short, friendly outreach email to a non-profit organization that runs a ${c.type} swap event.
-
-Organization: ${c.name}
-Location: ${c.loc}
-Event type: ${c.type} swap
-
-Context: I've built a free software tool called Gear Swap specifically for non-profits that run consignment swap events (bike swaps, ski swaps, gear swaps, etc.). It handles seller check-in, item labeling with QR codes, point-of-sale, and payout tracking. It's free for non-profits.
-
-Write the email from my perspective as the developer reaching out. Keep it:
-- Under 150 words
-- Warm and personal, not salesy
-- Reference their specific event type and location naturally
-- Lead with genuine interest in what they do, not the product
-- End with a simple, low-pressure ask (happy to show you a demo, or just answer questions)
-
-Output just the email body (no subject line, no "Subject:", just the text starting with a greeting).`;
+  return applyPromptTemplate(c, getEmailPromptTemplate());
 }
 
 async function generateEmail(id, options = {}) {
@@ -1109,6 +1182,7 @@ function exportOutreach() {
 
 // ── INIT ───────────────────────────────────────────────────
 loadOutreach();
+initPromptEditor();
 renderAll();
 loadContactsFromUrl(CONTACTS_URL).then(() => {
   if(isMobileView()) renderMobileAll();
