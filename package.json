@@ -1,0 +1,35 @@
+{
+  "name": "swap-finder",
+  "version": "1.0.0",
+  "description": "Find non-profit gear swap events across the USA and build a contact database",
+  "main": "dist/index.js",
+  "bin": {
+    "swap-finder": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "outreach:sync": "cp contacts.csv docs/contacts.csv 2>/dev/null || cp output/contacts.csv docs/contacts.csv",
+    "outreach:serve": "npm run outreach:sync && npx --yes serve docs -p 3333"
+  },
+  "keywords": ["swap", "events", "nonprofit", "cli"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "csv-parse": "^5.6.0",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^16.4.7",
+    "ora": "^5.4.1",
+    "p-limit": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

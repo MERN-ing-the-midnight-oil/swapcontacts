@@ -1,0 +1,112 @@
+#!/usr/bin/env node
+
+import { Command } from 'commander';
+import dotenv from 'dotenv';
+import path from 'path';
+import { RunOptions } from './types';
+import {
+  runDiscover,
+  runEnrich,
+  runFullPipeline,
+  printStatus,
+  printExport,
+} from './runner';
+
+dotenv.config();
+
+const program = new Command();
+
+program
+  .name('swap-finder')
+  .description(
+    'Find non-profit gear swap events across the USA and build a contact database'
+  )
+  .version('1.0.0');
+
+function buildOptions(cmd: Command): RunOptions {
+  const globalOpts = program.opts<{ outputDir: string; delay: number; concurrency: number }>();
+  const opts = cmd.opts<{ jobs?: string; limit?: number }>();
+
+  return {
+    outputDir: path.resolve(globalOpts.outputDir),
+    delayMs: globalOpts.delay,
+    concurrency: Math.min(Math.max(globalOpts.concurrency, 1), 2),
+    enrichOnly: false,
+    discoverOnly: false,
+    jobs: opts.jobs ? opts.jobs.split(',').map((j) => j.trim()) : undefined,
+    enrichLimit: opts.limit,
+  };
+}
+
+program
+  .option('--output-dir <path>', 'Where to write CSVs', './output')
+  .option('--delay <ms>', 'Delay between API calls in ms', (v) => parseInt(v, 10), 2000)
+  .option(
+    '--concurrency <n>',
+    'Parallel API calls (max 2)',
+    (v) => parseInt(v, 10),
+    1
+  );
+
+program
+  .command('discover')
+  .description('Run Pass 1 discovery jobs')
+  .option('--jobs <ids>', 'Comma-separated job IDs to run (e.g. eb-bike,eb-ski)')
+  .action(async (cmdOpts, cmd) => {
+    const options = buildOptions(cmd);
+    options.discoverOnly = true;
+    try {
+      await runDiscover(options);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('enrich')
+  .description('Run Pass 2 enrichment on unenriched events')
+  .option('--limit <n>', 'Enrich only the first N unenriched events', (v) => parseInt(v, 10))
+  .action(async (cmdOpts, cmd) => {
+    const options = buildOptions(cmd);
+    options.enrichOnly = true;
+    try {
+      await runEnrich(options);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('run')
+  .description('Run full pipeline (discover then enrich)')
+  .option('--jobs <ids>', 'Comma-separated job IDs for discovery phase')
+  .option('--limit <n>', 'Enrich only the first N unenriched events', (v) => parseInt(v, 10))
+  .action(async (cmdOpts, cmd) => {
+    const options = buildOptions(cmd);
+    try {
+      await runFullPipeline(options);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('status')
+  .description('Show job status and stats')
+  .action(async () => {
+    const outputDir = path.resolve(program.opts<{ outputDir: string }>().outputDir);
+    await printStatus(outputDir);
+  });
+
+program
+  .command('export')
+  .description('Print summary stats and file paths')
+  .action(async () => {
+    const outputDir = path.resolve(program.opts<{ outputDir: string }>().outputDir);
+    await printExport(outputDir);
+  });
+
+program.parse();
