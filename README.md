@@ -65,7 +65,7 @@ Open `docs/index.html` via a local server (not `file://`) so it can load `contac
 1. Push this repo to GitHub.
 2. Run `npm run outreach:sync` and commit `docs/contacts.csv` + `docs/index.html` (or let CI copy `contacts.csv` on deploy).
 3. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-4. Push to `main` — the workflow `.github/workflows/deploy-pages.yml` publishes `docs/`.
+4. Push to `main` — the workflow `.github/workflows/static.yml` publishes `docs/`.
 
 Your app will be at **https://mern-ing-the-midnight-oil.github.io/swapcontacts/** (after Pages is enabled).
 
