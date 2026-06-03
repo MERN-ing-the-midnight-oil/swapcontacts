@@ -474,10 +474,20 @@ function hasEmail(c) {
 function telHref(phone) {
   return 'tel:' + phone.replace(/[^\d+]/g, '');
 }
+const EMAIL_SUBJECT = 'Gear Swap Management Tool';
+
+function gmailComposeHref(email, body, subject) {
+  const params = new URLSearchParams({
+    view: 'cm',
+    fs: '1',
+    to: email || '',
+    su: subject || EMAIL_SUBJECT,
+    body: body || '',
+  });
+  return 'https://mail.google.com/mail/?' + params.toString();
+}
 function mailtoHref(c, body) {
-  const subj = encodeURIComponent('Gear Swap Management Tool');
-  const b = encodeURIComponent(body || '');
-  return `mailto:${c.email}?subject=${subj}&body=${b}`;
+  return gmailComposeHref(c.email, body || '', EMAIL_SUBJECT);
 }
 
 // ── PERSISTENCE ────────────────────────────────────────────
@@ -778,8 +788,8 @@ function selectContact(id) {
         <div class="contact-card">
           <div class="cc-label">Email</div>
           ${c.email
-            ? `<div class="cc-value"><a href="mailto:${c.email}">${escHtml(c.email)}</a></div>
-               <a class="email-btn" href="mailto:${c.email}">✉ Open mail app</a>`
+            ? `<div class="cc-value"><a href="${gmailComposeHref(c.email)}" target="_blank" rel="noopener">${escHtml(c.email)}</a></div>
+               <a class="email-btn" href="${gmailComposeHref(c.email)}" target="_blank" rel="noopener">✉ Open in Gmail</a>`
             : '<div class="cc-empty">Not found</div>'}
         </div>
         <div class="contact-card">
@@ -810,7 +820,7 @@ function selectContact(id) {
         <textarea class="email-textarea" id="email-draft" placeholder="Click 'Generate draft' to write a personalized outreach email, or type your own…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(o.emailDraft||'')}</textarea>
         <div class="email-actions">
           <button class="copy-btn" onclick="copyDraft()">Copy to clipboard</button>
-          ${c.email ? `<a class="mailto-btn" id="mailto-link" href="mailto:${c.email}?subject=Gear%20Swap%20Management%20Tool&body=${encodeURIComponent(o.emailDraft||'')}">Open in mail app</a>` : ''}
+          ${c.email ? `<a class="mailto-btn" id="mailto-link" href="${gmailComposeHref(c.email, o.emailDraft || '')}" target="_blank" rel="noopener">Open in Gmail</a>` : ''}
         </div>
       </div>
 
@@ -868,7 +878,7 @@ function saveEmailDraft(id, val) {
   // Update mailto link live
   const c = contacts.find(x => x.id === id);
   const ml = document.getElementById('mailto-link');
-  if(ml && c?.email) ml.href = `mailto:${c.email}?subject=Gear%20Swap%20Management%20Tool&body=${encodeURIComponent(val)}`;
+  if(ml && c?.email) ml.href = gmailComposeHref(c.email, val);
 }
 
 function addLog(id) {
@@ -1029,7 +1039,7 @@ function renderMobileEmails() {
     const draft = o.emailDraft || '';
     const draftNote = draft ? escHtml(draft.slice(0, 120) + (draft.length > 120 ? '…' : '')) : (emailGenRunning ? 'Draft generating…' : 'No draft yet');
     const send = draft && hasEmail(c)
-      ? `<a class="mobile-send-btn" href="${mailtoHref(c, draft)}">✉ Send email</a>`
+      ? `<a class="mobile-send-btn" href="${mailtoHref(c, draft)}" target="_blank" rel="noopener">✉ Open in Gmail</a>`
       : '';
     const regen = `<button type="button" class="mobile-quick-btn" style="flex:1" onclick="generateEmail('${c.id}')">Regenerate</button>`;
     return `
