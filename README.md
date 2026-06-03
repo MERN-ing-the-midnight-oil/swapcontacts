@@ -67,9 +67,10 @@ Open `docs/index.html` via a local server (not `file://`) so it can load `contac
 3. In the repo: **Settings → Pages → Build and deployment**:
    - **Source:** Deploy from a branch
    - **Branch:** `main`
-   - **Folder:** `/docs`
-4. Save. After 1–2 minutes the site is live at **https://mern-ing-the-midnight-oil.github.io/swapcontacts/**
+   - **Folder:** `/ (root)` ← `index.html` and `contacts.csv` live here
+   - (Alternatively use `/docs` if you prefer — keep both in sync with `npm run outreach:sync`)
+4. Save. After 1–2 minutes: **https://mern-ing-the-midnight-oil.github.io/swapcontacts/**
 
-Do **not** mix “GitHub Actions” and “Deploy from branch” — pick one. The `/docs` folder is the site root (`index.html` + `contacts.csv`).
+Use **only** “Deploy from a branch”, not “GitHub Actions”. If you see “must provide an index.html”, the folder is wrong — switch between `/` and `/docs` to match where `index.html` exists on `main`.
 
 **Privacy:** If the repo is public, `contacts.csv` (emails, phones) will be public on Pages. Use a private repo or strip sensitive fields before syncing if needed.

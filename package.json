@@ -10,7 +10,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc && node dist/index.js",
-    "outreach:sync": "cp contacts.csv docs/contacts.csv 2>/dev/null || cp output/contacts.csv docs/contacts.csv",
+    "outreach:sync": "test -f contacts.csv || cp output/contacts.csv contacts.csv; cp contacts.csv docs/contacts.csv; cp docs/index.html index.html",
     "outreach:serve": "npm run outreach:sync && npx --yes serve docs -p 3333"
   },
   "keywords": ["swap", "events", "nonprofit", "cli"],
