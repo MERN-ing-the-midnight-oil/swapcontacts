@@ -67,6 +67,6 @@ Open `docs/index.html` via a local server (not `file://`) so it can load `contac
 3. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 4. Push to `main` — the workflow `.github/workflows/deploy-pages.yml` publishes `docs/`.
 
-Your app will be at `https://<username>.github.io/<repo-name>/`.
+Your app will be at **https://mern-ing-the-midnight-oil.github.io/swapcontacts/** (after Pages is enabled).
 
 **Privacy:** If the repo is public, `contacts.csv` (emails, phones) will be public on Pages. Use a private repo or strip sensitive fields before syncing if needed.
