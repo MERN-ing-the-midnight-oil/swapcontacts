@@ -60,13 +60,16 @@ Open `docs/index.html` via a local server (not `file://`) so it can load `contac
 
 **Features:** status filters, activity log, AI email drafts (API key stored in browser only), export/import progress JSON via localStorage backup.
 
-### Deploy to GitHub Pages
+### Deploy to GitHub Pages (no workflow required)
 
 1. Push this repo to GitHub.
-2. Run `npm run outreach:sync` and commit `docs/contacts.csv` + `docs/index.html` (or let CI copy `contacts.csv` on deploy).
-3. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-4. Push to `main` — the workflow `.github/workflows/static.yml` publishes `docs/`.
+2. Run `npm run outreach:sync` and commit `docs/contacts.csv` + `docs/index.html`.
+3. In the repo: **Settings → Pages → Build and deployment**:
+   - **Source:** Deploy from a branch
+   - **Branch:** `main`
+   - **Folder:** `/docs`
+4. Save. After 1–2 minutes the site is live at **https://mern-ing-the-midnight-oil.github.io/swapcontacts/**
 
-Your app will be at **https://mern-ing-the-midnight-oil.github.io/swapcontacts/** (after Pages is enabled).
+Do **not** mix “GitHub Actions” and “Deploy from branch” — pick one. The `/docs` folder is the site root (`index.html` + `contacts.csv`).
 
 **Privacy:** If the repo is public, `contacts.csv` (emails, phones) will be public on Pages. Use a private repo or strip sensitive fields before syncing if needed.
