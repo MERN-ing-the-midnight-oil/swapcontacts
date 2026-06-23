@@ -54,6 +54,24 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .tstat-val.orange { color: var(--orange); }
 .import-btn { margin-left: 16px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); letter-spacing: .02em; transition: background .15s; white-space: nowrap; }
 .import-btn:hover { background: var(--accent2); }
+.sync-wrap { display: flex; align-items: center; gap: 8px; margin-left: auto; font-size: 11px; color: var(--text3); }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
+.sync-dot.live { background: var(--accent); }
+.sync-dot.syncing { background: var(--orange); animation: pulse 1s infinite; }
+.sync-dot.error { background: var(--red); }
+@keyframes pulse { 50% { opacity: .4; } }
+.sync-email { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text2); }
+.auth-btn { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 12px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); white-space: nowrap; }
+.auth-btn:hover { border-color: var(--border2); color: var(--text); }
+.auth-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.auth-btn.primary:hover { background: var(--accent2); }
+.auth-panel { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 12px; }
+.auth-panel summary { cursor: pointer; color: var(--text2); font-weight: 500; list-style: none; }
+.auth-panel summary::-webkit-details-marker { display: none; }
+.auth-panel-body { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.auth-panel input[type=email] { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 12px; font-family: var(--font-sans); outline: none; }
+.auth-panel input[type=email]:focus { border-color: var(--accent); }
+.auth-msg { font-size: 11px; color: var(--text3); line-height: 1.4; }
 
 /* ── SIDEBAR ── */
 .sidebar { background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
@@ -72,6 +90,19 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .ci-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ci-sub { font-size: 11px; color: var(--text3); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
 .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.sort-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 6px 10px; border-radius: 6px; border: none; background: transparent; color: var(--text2); font-size: 11px; font-family: var(--font-sans); cursor: pointer; transition: all .12s; text-align: left; }
+.sort-btn:hover { background: var(--surface2); color: var(--text); }
+.sort-btn.active { background: var(--accent-dim); color: var(--accent); }
+.sort-btn .fcount { font-family: var(--font-mono); font-size: 11px; color: var(--text3); }
+.sort-btn.active .fcount { color: var(--accent); }
+.channel-check { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); font-family: var(--font-mono); margin-bottom: 6px; user-select: none; }
+.channel-check input { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+.channel-check.disabled { opacity: .45; cursor: default; }
+.channel-check.disabled input { cursor: default; }
+.ci-channels { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.ci-ch { font-size: 9px; font-family: var(--font-mono); padding: 1px 5px; border-radius: 4px; background: var(--surface3); color: var(--text3); }
+.ci-ch.done { background: var(--accent-dim); color: var(--accent); }
+.ci-ch.missing { opacity: .35; }
 .search-wrap { padding: 10px; border-bottom: 1px solid var(--border); }
 .search-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; color: var(--text); font-size: 12px; font-family: var(--font-sans); outline: none; }
 .search-input::placeholder { color: var(--text3); }
@@ -258,9 +289,15 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
     <div class="topbar-logo">swap<span>/</span>outreach</div>
     <div class="topbar-stats">
       <div class="tstat"><div class="tstat-val" id="s-total">—</div><div class="tstat-lbl">Total</div></div>
-      <div class="tstat"><div class="tstat-val orange" id="s-pending">—</div><div class="tstat-lbl">Not contacted</div></div>
-      <div class="tstat"><div class="tstat-val blue" id="s-inprog">—</div><div class="tstat-lbl">In progress</div></div>
-      <div class="tstat"><div class="tstat-val green" id="s-interested">—</div><div class="tstat-lbl">Interested</div></div>
+      <div class="tstat"><div class="tstat-val orange" id="s-uncontacted-phone">—</div><div class="tstat-lbl">Uncontacted phone</div></div>
+      <div class="tstat"><div class="tstat-val blue" id="s-uncontacted-email">—</div><div class="tstat-lbl">Uncontacted email</div></div>
+      <div class="tstat"><div class="tstat-val green" id="s-uncontacted-fb">—</div><div class="tstat-lbl">Uncontacted facebook</div></div>
+    </div>
+    <div class="sync-wrap" id="desktop-sync-wrap">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span id="sync-label">Local only</span>
+      <span class="sync-email" id="sync-email"></span>
+      <button type="button" class="auth-btn" id="auth-btn" onclick="handleAuthClick()">Sign in</button>
     </div>
     <button class="import-btn" style="background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="exportOutreach()">↓ Export progress</button>
     <label class="import-btn" style="background:var(--surface);color:var(--text);border:1px solid var(--border);margin-left:0" for="progress-upload">↑ Import progress</label>
@@ -275,6 +312,17 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
       <input class="search-input" id="search-input" placeholder="Search contacts…" autocomplete="off">
     </div>
 
+    <details class="auth-panel" id="cloud-sync-panel">
+      <summary id="cloud-sync-summary">☁ Cloud sync (local only)</summary>
+      <div class="auth-panel-body">
+        <p class="auth-msg" id="cloud-sync-msg">Sign in to sync checkmarks across devices. Without config, data stays in this browser only.</p>
+        <button type="button" class="auth-btn primary" onclick="signInWithGoogle()">Sign in with Google</button>
+        <input type="email" id="magic-email" placeholder="Or email for magic link">
+        <button type="button" class="auth-btn" onclick="signInWithMagicLink()">Send magic link</button>
+        <button type="button" class="auth-btn" id="sidebar-signout-btn" style="display:none" onclick="signOutUser()">Sign out</button>
+      </div>
+    </details>
+
     <details class="prompt-editor-wrap" id="prompt-editor-wrap">
       <summary>✎ Email AI prompt</summary>
       <p class="prompt-hint">Sent to Anthropic for each draft. Placeholders:
@@ -285,56 +333,15 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
     </details>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label">Filter by status</div>
-      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">
-        <span>All contacts</span><span class="fcount" id="fc-all">0</span>
+      <div class="sidebar-section-label">Sort list</div>
+      <button class="sort-btn" data-sort="phone" onclick="setSortMode('phone',this)">
+        <span>Has uncontacted phone number</span><span class="fcount" id="sc-phone">0</span>
       </button>
-      <button class="filter-btn" data-filter="none" onclick="setFilter('none',this)">
-        <span><span class="filter-dot" style="background:#b0b4a8"></span>Not contacted</span>
-        <span class="fcount" id="fc-none">0</span>
+      <button class="sort-btn" data-sort="facebook" onclick="setSortMode('facebook',this)">
+        <span>Has uncontacted facebook</span><span class="fcount" id="sc-facebook">0</span>
       </button>
-      <button class="filter-btn" data-filter="emailed" onclick="setFilter('emailed',this)">
-        <span><span class="filter-dot" style="background:var(--blue)"></span>Emailed</span>
-        <span class="fcount" id="fc-emailed">0</span>
-      </button>
-      <button class="filter-btn" data-filter="called-na" onclick="setFilter('called-na',this)">
-        <span><span class="filter-dot" style="background:var(--red)"></span>Called – no answer</span>
-        <span class="fcount" id="fc-called-na">0</span>
-      </button>
-      <button class="filter-btn" data-filter="voicemail" onclick="setFilter('voicemail',this)">
-        <span><span class="filter-dot" style="background:var(--orange)"></span>Left voicemail</span>
-        <span class="fcount" id="fc-voicemail">0</span>
-      </button>
-      <button class="filter-btn" data-filter="interested" onclick="setFilter('interested',this)">
-        <span><span class="filter-dot" style="background:var(--accent)"></span>Interested</span>
-        <span class="fcount" id="fc-interested">0</span>
-      </button>
-      <button class="filter-btn" data-filter="not-interested" onclick="setFilter('not-interested',this)">
-        <span><span class="filter-dot" style="background:#666"></span>Not interested</span>
-        <span class="fcount" id="fc-not-interested">0</span>
-      </button>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Filter by type</div>
-      <button class="filter-btn active-type" data-type="all" onclick="setTypeFilter('all',this)">
-        <span>All types</span>
-      </button>
-      <button class="filter-btn" data-type="bike" onclick="setTypeFilter('bike',this)">
-        <span><span class="filter-dot" style="background:var(--blue)"></span>Bike swaps</span>
-        <span class="fcount" id="ft-bike">0</span>
-      </button>
-      <button class="filter-btn" data-type="ski" onclick="setTypeFilter('ski',this)">
-        <span><span class="filter-dot" style="background:var(--purple)"></span>Ski swaps</span>
-        <span class="fcount" id="ft-ski">0</span>
-      </button>
-      <button class="filter-btn" data-type="gear" onclick="setTypeFilter('gear',this)">
-        <span><span class="filter-dot" style="background:var(--green)"></span>Gear swaps</span>
-        <span class="fcount" id="ft-gear">0</span>
-      </button>
-      <button class="filter-btn" data-type="sports" onclick="setTypeFilter('sports',this)">
-        <span><span class="filter-dot" style="background:var(--orange)"></span>Sports</span>
-        <span class="fcount" id="ft-sports">0</span>
+      <button class="sort-btn" data-sort="email" onclick="setSortMode('email',this)">
+        <span>Has uncontacted email</span><span class="fcount" id="sc-email">0</span>
       </button>
     </div>
 
@@ -384,13 +391,14 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
   </nav>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js" onerror="window.SUPABASE_CONFIG=null"></script>
 <script>
 // ── STATE ──────────────────────────────────────────────────
 let contacts = [];      // all loaded contacts
-let outreach = {};      // {id: {status, notes, log:[], emailDraft}}  persisted in localStorage
+let outreach = {};      // {id: {contacted:{phone,email,facebook,website}, notes, log:[], emailDraft}}  persisted in localStorage
 let currentId = null;
-let filterStatus = 'all';
-let filterType = 'all';
+let sortMode = 'none';  // 'none' | 'phone' | 'email' | 'facebook'
 let searchQ = '';
 let mobileCallIndex = 0;
 let emailGenRunning = false;
@@ -471,6 +479,21 @@ function hasPhone(c) {
 function hasEmail(c) {
   return !!(c.email && c.email.includes('@'));
 }
+function hasFacebook(c) {
+  return !!(c.facebook && c.facebook.trim());
+}
+function hasWebsite(c) {
+  return !!(c.website && c.website.trim());
+}
+function isUncontactedPhone(c) {
+  return hasPhone(c) && !getO(c.id).contacted.phone;
+}
+function isUncontactedEmail(c) {
+  return hasEmail(c) && !getO(c.id).contacted.email;
+}
+function isUncontactedFacebook(c) {
+  return hasFacebook(c) && !getO(c.id).contacted.facebook;
+}
 function telHref(phone) {
   return 'tel:' + phone.replace(/[^\d+]/g, '');
 }
@@ -491,14 +514,270 @@ function mailtoHref(c, body) {
 }
 
 // ── PERSISTENCE ────────────────────────────────────────────
-function saveOutreach() {
+let supabaseClient = null;
+let authUser = null;
+let cloudSyncTimer = null;
+let cloudSyncEnabled = false;
+let outreachChannel = null;
+let isApplyingRemote = false;
+let isPushingCloud = false;
+
+function saveOutreachLocalOnly() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(outreach)); } catch(e) {}
 }
 function loadOutreach() {
   try { const d = localStorage.getItem(STORAGE_KEY); if(d) outreach = JSON.parse(d); } catch(e) {}
 }
+function saveOutreach() {
+  saveOutreachLocalOnly();
+  scheduleCloudSync();
+}
+
+function initSupabaseClient() {
+  const cfg = window.SUPABASE_CONFIG;
+  if (!cfg?.url || !cfg?.anonKey || cfg.url.includes('YOUR_PROJECT') || !window.supabase) return null;
+  return window.supabase.createClient(cfg.url, cfg.anonKey);
+}
+
+function mergeOneOutreach(a, b) {
+  migrateOutreach(a);
+  migrateOutreach(b);
+  const contacted = {
+    phone: !!(a.contacted?.phone || b.contacted?.phone),
+    email: !!(a.contacted?.email || b.contacted?.email),
+    facebook: !!(a.contacted?.facebook || b.contacted?.facebook),
+    website: !!(a.contacted?.website || b.contacted?.website),
+  };
+  const seen = new Set();
+  const log = [...(a.log || []), ...(b.log || [])].filter((entry) => {
+    const key = (entry.ts || '') + '|' + (entry.text || '');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  const notes = (a.notes || '').length >= (b.notes || '').length ? (a.notes || '') : (b.notes || '');
+  const emailDraft = (a.emailDraft || '').length >= (b.emailDraft || '').length ? (a.emailDraft || '') : (b.emailDraft || '');
+  return { contacted, notes, log, emailDraft };
+}
+
+function mergeOutreachRecords(local, remote) {
+  const merged = { ...(remote || {}) };
+  for (const [id, localEntry] of Object.entries(local || {})) {
+    merged[id] = merged[id] ? mergeOneOutreach(localEntry, merged[id]) : localEntry;
+  }
+  return merged;
+}
+
+function applyOutreachData(next, opts = {}) {
+  outreach = next || {};
+  Object.keys(outreach).forEach((id) => migrateOutreach(outreach[id]));
+  saveOutreachLocalOnly();
+  if (!opts.silent) {
+    renderAll();
+    if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
+  }
+}
+
+function updateSyncUI(state, detail) {
+  const dot = document.getElementById('sync-dot');
+  const label = document.getElementById('sync-label');
+  const emailEl = document.getElementById('sync-email');
+  const authBtn = document.getElementById('auth-btn');
+  const summary = document.getElementById('cloud-sync-summary');
+  const msg = document.getElementById('cloud-sync-msg');
+  const signOutBtn = document.getElementById('sidebar-signout-btn');
+
+  if (dot) dot.className = 'sync-dot' + (state === 'live' || state === 'synced' ? ' live' : state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
+
+  const labels = {
+    local: cloudSyncEnabled ? 'Sign in to sync' : 'Local only',
+    signedOut: 'Signed out',
+    syncing: 'Syncing…',
+    synced: 'Synced',
+    live: 'Live sync',
+    error: detail || 'Sync error',
+  };
+  if (label) label.textContent = labels[state] || labels.local;
+
+  if (emailEl) emailEl.textContent = authUser?.email || '';
+  if (authBtn) {
+    if (!cloudSyncEnabled) {
+      authBtn.style.display = 'none';
+    } else if (authUser) {
+      authBtn.style.display = '';
+      authBtn.textContent = 'Sign out';
+    } else {
+      authBtn.style.display = '';
+      authBtn.textContent = 'Sign in';
+    }
+  }
+  if (summary) {
+    summary.textContent = authUser
+      ? `☁ Synced as ${authUser.email || 'user'}`
+      : cloudSyncEnabled ? '☁ Cloud sync' : '☁ Cloud sync (not configured)';
+  }
+  if (msg && cloudSyncEnabled && !authUser) {
+    msg.textContent = 'Sign in with Google or a magic link. Checkmarks merge with data already on this device.';
+  }
+  if (signOutBtn) signOutBtn.style.display = authUser ? '' : 'none';
+}
+
+async function pushOutreachToCloud() {
+  if (!cloudSyncEnabled || !authUser || !supabaseClient) return;
+  isPushingCloud = true;
+  updateSyncUI('syncing');
+  const { error } = await supabaseClient.from('outreach_state').upsert({
+    user_id: authUser.id,
+    outreach,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'user_id' });
+  isPushingCloud = false;
+  if (error) {
+    console.error('Cloud sync failed', error);
+    updateSyncUI('error', error.message);
+    return;
+  }
+  updateSyncUI('synced');
+}
+
+function scheduleCloudSync() {
+  if (!cloudSyncEnabled || !authUser) return;
+  clearTimeout(cloudSyncTimer);
+  updateSyncUI('syncing');
+  cloudSyncTimer = setTimeout(() => pushOutreachToCloud(), 800);
+}
+
+async function pullAndMergeOutreach() {
+  if (!cloudSyncEnabled || !authUser || !supabaseClient) return;
+  updateSyncUI('syncing');
+  const { data, error } = await supabaseClient
+    .from('outreach_state')
+    .select('outreach')
+    .eq('user_id', authUser.id)
+    .maybeSingle();
+  if (error) {
+    console.error('Cloud load failed', error);
+    updateSyncUI('error', error.message);
+    return;
+  }
+  const local = { ...outreach };
+  if (!data?.outreach || Object.keys(data.outreach).length === 0) {
+    if (Object.keys(local).length) await pushOutreachToCloud();
+    else updateSyncUI('live');
+    return;
+  }
+  applyOutreachData(mergeOutreachRecords(local, data.outreach));
+  updateSyncUI('live');
+}
+
+function subscribeOutreachRealtime() {
+  if (!cloudSyncEnabled || !authUser || !supabaseClient) return;
+  if (outreachChannel) {
+    supabaseClient.removeChannel(outreachChannel);
+    outreachChannel = null;
+  }
+  outreachChannel = supabaseClient
+    .channel(`outreach:${authUser.id}`)
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'outreach_state',
+      filter: `user_id=eq.${authUser.id}`,
+    }, (payload) => {
+      if (isPushingCloud || isApplyingRemote) return;
+      const remote = payload.new?.outreach;
+      if (!remote) return;
+      isApplyingRemote = true;
+      applyOutreachData(mergeOutreachRecords(outreach, remote));
+      updateSyncUI('live');
+      isApplyingRemote = false;
+    })
+    .subscribe();
+}
+
+async function initAuth() {
+  supabaseClient = initSupabaseClient();
+  cloudSyncEnabled = !!supabaseClient;
+  updateSyncUI('local');
+
+  if (!supabaseClient) return;
+
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    authUser = session?.user ?? null;
+    if (event === 'SIGNED_IN' && authUser) {
+      await pullAndMergeOutreach();
+      subscribeOutreachRealtime();
+    }
+    if (event === 'SIGNED_OUT') {
+      if (outreachChannel) {
+        supabaseClient.removeChannel(outreachChannel);
+        outreachChannel = null;
+      }
+    }
+    updateSyncUI(authUser ? 'live' : 'signedOut');
+  });
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  authUser = session?.user ?? null;
+  if (authUser) {
+    await pullAndMergeOutreach();
+    subscribeOutreachRealtime();
+    updateSyncUI('live');
+  }
+}
+
+function handleAuthClick() {
+  if (!cloudSyncEnabled) {
+    document.getElementById('cloud-sync-panel')?.setAttribute('open', '');
+    return;
+  }
+  if (authUser) signOutUser();
+  else document.getElementById('cloud-sync-panel')?.setAttribute('open', '');
+}
+
+async function signInWithGoogle() {
+  if (!supabaseClient) return alert('Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY to .env, then run npm run outreach:config');
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + window.location.pathname },
+  });
+  if (error) alert(error.message);
+}
+
+async function signInWithMagicLink() {
+  if (!supabaseClient) return alert('Supabase is not configured.');
+  const email = (document.getElementById('magic-email')?.value
+    || document.getElementById('mobile-magic-email')?.value || '').trim();
+  if (!email) return alert('Enter your email address.');
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin + window.location.pathname },
+  });
+  if (error) alert(error.message);
+  else alert('Check your email for the sign-in link.');
+}
+
+async function signOutUser() {
+  if (!supabaseClient) return;
+  await supabaseClient.auth.signOut();
+  authUser = null;
+  updateSyncUI('signedOut');
+}
+const CHANNEL_LABELS = { phone: 'Phone', email: 'Email', facebook: 'Facebook', website: 'Website' };
+
+function migrateOutreach(o) {
+  if (!o.contacted) {
+    o.contacted = { phone: false, email: false, facebook: false, website: false };
+    if (o.status) {
+      if (o.status === 'emailed') o.contacted.email = true;
+      if (['called-na', 'voicemail', 'interested', 'not-interested'].includes(o.status)) o.contacted.phone = true;
+    }
+  }
+  return o;
+}
 function getO(id) {
-  if(!outreach[id]) outreach[id] = {status:'none', notes:'', log:[], emailDraft:''};
+  if(!outreach[id]) outreach[id] = { contacted: { phone: false, email: false, facebook: false, website: false }, notes: '', log: [], emailDraft: '' };
+  else migrateOutreach(outreach[id]);
   return outreach[id];
 }
 
@@ -558,7 +837,7 @@ function onContactsLoaded(sourceLabel) {
   startAutoEmailGeneration();
   if(sourceLabel) {
     const sub = document.getElementById('empty-sub');
-    if(sub) sub.textContent = `Loaded ${contacts.length} contacts. Progress saved in this browser.`;
+    if(sub) sub.textContent = `Loaded ${contacts.length} contacts. ${authUser ? 'Progress syncs to your account.' : 'Progress saved in this browser.'}`;
   }
 }
 
@@ -620,17 +899,11 @@ document.getElementById('main-panel').addEventListener('drop', e => {
   reader.readAsText(file);
 });
 
-// ── FILTERS ────────────────────────────────────────────────
-function setFilter(f, el) {
-  filterStatus = f;
-  document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  renderList();
-}
-function setTypeFilter(t, el) {
-  filterType = t;
-  document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
+// ── SORT & SEARCH ──────────────────────────────────────────
+function setSortMode(mode, el) {
+  sortMode = sortMode === mode ? 'none' : mode;
+  document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+  if (sortMode !== 'none' && el) el.classList.add('active');
   renderList();
 }
 document.getElementById('search-input').addEventListener('input', function() {
@@ -638,25 +911,43 @@ document.getElementById('search-input').addEventListener('input', function() {
   renderList();
 });
 
-function filteredContacts() {
-  return contacts.filter(c => {
-    const o = getO(c.id);
-    if(filterStatus !== 'all' && o.status !== filterStatus) return false;
-    if(filterType !== 'all' && c.type !== filterType) return false;
-    if(searchQ && !c.name.toLowerCase().includes(searchQ) && !c.loc.toLowerCase().includes(searchQ)) return false;
-    return true;
+function sortedContacts(list) {
+  if (sortMode === 'none') return list;
+  const score = (c) => {
+    if (sortMode === 'phone') return isUncontactedPhone(c) ? 0 : 1;
+    if (sortMode === 'email') return isUncontactedEmail(c) ? 0 : 1;
+    if (sortMode === 'facebook') return isUncontactedFacebook(c) ? 0 : 1;
+    return 0;
+  };
+  return [...list].sort((a, b) => {
+    const diff = score(a) - score(b);
+    return diff !== 0 ? diff : a.name.localeCompare(b.name);
   });
 }
 
+function filteredContacts() {
+  const list = contacts.filter(c => {
+    if (searchQ && !c.name.toLowerCase().includes(searchQ) && !c.loc.toLowerCase().includes(searchQ)) return false;
+    return true;
+  });
+  return sortedContacts(list);
+}
+
+function channelBadges(c) {
+  const o = getO(c.id);
+  const channels = [
+    ['phone', hasPhone(c), o.contacted.phone],
+    ['email', hasEmail(c), o.contacted.email],
+    ['facebook', hasFacebook(c), o.contacted.facebook],
+    ['website', hasWebsite(c), o.contacted.website],
+  ];
+  return channels.map(([key, has, done]) => {
+    if (!has) return `<span class="ci-ch missing">${CHANNEL_LABELS[key].slice(0,1)}</span>`;
+    return `<span class="ci-ch ${done ? 'done' : ''}">${done ? '✓' : '○'} ${CHANNEL_LABELS[key].slice(0,1)}</span>`;
+  }).join('');
+}
+
 // ── RENDER ─────────────────────────────────────────────────
-const STATUS_INFO = {
-  'none':         { label: 'Not contacted', color: '#b0b4a8' },
-  'emailed':      { label: 'Emailed',       color: 'var(--blue)' },
-  'called-na':    { label: 'Called – no answer', color: 'var(--red)' },
-  'voicemail':    { label: 'Left voicemail', color: 'var(--orange)' },
-  'interested':   { label: 'Interested ✓',  color: '#2f6b3a' },
-  'not-interested':{ label: 'Not interested', color: '#666' },
-};
 const TYPE_EMOJI = { bike:'🚲', ski:'⛷️', gear:'🎒', sports:'⚽', other:'🔄' };
 
 function renderAll() {
@@ -666,11 +957,7 @@ function renderAll() {
 }
 
 function callQueue() {
-  return contacts.filter(c => {
-    if(!hasPhone(c)) return false;
-    const s = getO(c.id).status;
-    return s === 'none' || s === 'emailed';
-  });
+  return contacts.filter(c => isUncontactedPhone(c));
 }
 
 function emailQueue() {
@@ -678,24 +965,16 @@ function emailQueue() {
 }
 
 function renderStats() {
-  const counts = { none:0, emailed:0, 'called-na':0, voicemail:0, interested:0, 'not-interested':0 };
-  const typeCounts = { bike:0, ski:0, gear:0, sports:0 };
-  contacts.forEach(c => {
-    const s = getO(c.id).status || 'none';
-    if(counts[s]!==undefined) counts[s]++;
-    if(typeCounts[c.type]!==undefined) typeCounts[c.type]++;
-  });
+  const unPhone = contacts.filter(isUncontactedPhone).length;
+  const unEmail = contacts.filter(isUncontactedEmail).length;
+  const unFb = contacts.filter(isUncontactedFacebook).length;
   document.getElementById('s-total').textContent = contacts.length;
-  document.getElementById('s-pending').textContent = counts['none'];
-  document.getElementById('s-inprog').textContent = counts['emailed'] + counts['called-na'] + counts['voicemail'];
-  document.getElementById('s-interested').textContent = counts['interested'];
-  document.getElementById('fc-all').textContent = contacts.length;
-  Object.keys(counts).forEach(k => {
-    const el = document.getElementById('fc-'+k); if(el) el.textContent = counts[k];
-  });
-  Object.keys(typeCounts).forEach(k => {
-    const el = document.getElementById('ft-'+k); if(el) el.textContent = typeCounts[k];
-  });
+  document.getElementById('s-uncontacted-phone').textContent = unPhone;
+  document.getElementById('s-uncontacted-email').textContent = unEmail;
+  document.getElementById('s-uncontacted-fb').textContent = unFb;
+  const scPhone = document.getElementById('sc-phone'); if (scPhone) scPhone.textContent = unPhone;
+  const scEmail = document.getElementById('sc-email'); if (scEmail) scEmail.textContent = unEmail;
+  const scFb = document.getElementById('sc-facebook'); if (scFb) scFb.textContent = unFb;
 }
 
 function renderList() {
@@ -707,19 +986,17 @@ function renderList() {
   }
   list.innerHTML = '';
   filtered.forEach(c => {
-    const o = getO(c.id);
-    const si = STATUS_INFO[o.status||'none'];
     const div = document.createElement('div');
     div.className = 'contact-item' + (c.id === currentId ? ' active' : '');
     div.id = 'ci-'+c.id;
     div.onclick = () => selectContact(c.id);
     div.innerHTML = `
-      <div class="ci-name">${c.name}</div>
+      <div class="ci-name">${escHtml(c.name)}</div>
       <div class="ci-sub">
-        <span class="status-dot" style="background:${si.color}"></span>
-        <span>${c.loc||'Unknown location'}</span>
+        <span>${escHtml(c.loc||'Unknown location')}</span>
         <span>${TYPE_EMOJI[c.type]||''}</span>
-      </div>`;
+      </div>
+      <div class="ci-channels">${channelBadges(c)}</div>`;
     list.appendChild(div);
   });
 }
@@ -736,14 +1013,6 @@ function selectContact(id) {
   document.getElementById('empty-state').style.display = 'none';
 
   const typeClass = 'type-'+c.type;
-  const statuses = [
-    ['none','Not contacted','s-none'],
-    ['emailed','Emailed','s-emailed'],
-    ['called-na','Called – no answer','s-called-na'],
-    ['voicemail','Left voicemail','s-voicemail'],
-    ['interested','Interested ✓','s-interested'],
-    ['not-interested','Not interested','s-not-interested'],
-  ];
 
   const logHTML = (o.log||[]).map(e =>
     `<div class="log-entry"><span class="log-ts">${e.ts}</span><span class="log-text">${escHtml(e.text)}</span></div>`
@@ -752,10 +1021,29 @@ function selectContact(id) {
   const apiKey = localStorage.getItem(KEY_KEY) || '';
 
   // Find next uncontacted
-  const idx = contacts.indexOf(c);
   const remaining = filteredContacts();
-  const nextIdx = remaining.findIndex((x,i) => x.id !== id && i > remaining.indexOf(c));
-  const nextContact = remaining.find(x => x.id !== id && getO(x.id).status === 'none');
+  const nextContact = remaining.find(x => {
+    if (x.id === id) return false;
+    const ox = getO(x.id);
+    return (hasPhone(x) && !ox.contacted.phone)
+      || (hasEmail(x) && !ox.contacted.email)
+      || (hasFacebook(x) && !ox.contacted.facebook)
+      || (hasWebsite(x) && !ox.contacted.website);
+  });
+
+  function channelCard(label, channel, has, contentHtml) {
+    const checked = o.contacted[channel] ? 'checked' : '';
+    const disabled = has ? '' : 'disabled';
+    const cls = has ? '' : ' disabled';
+    return `
+      <div class="contact-card">
+        <label class="channel-check${cls}">
+          <input type="checkbox" ${checked} ${disabled} onchange="toggleContacted('${id}','${channel}',this.checked)">
+          <span>${label}</span>
+        </label>
+        ${contentHtml}
+      </div>`;
+  }
 
   panel.innerHTML = `
     <div class="contact-detail">
@@ -771,39 +1059,25 @@ function selectContact(id) {
         ${nextContact ? `<button class="next-btn" onclick="selectContact('${nextContact.id}')">Next uncontacted →</button>` : ''}
       </div>
 
-      <div class="status-row">
-        ${statuses.map(([val,label,cls]) =>
-          `<button class="status-chip ${cls} ${o.status===val?'sel':''}" onclick="setStatus('${id}','${val}')">${label}</button>`
-        ).join('')}
-      </div>
-
       <div class="contact-cards">
-        <div class="contact-card">
-          <div class="cc-label">Phone</div>
-          ${c.phone
+        ${channelCard('Phone', 'phone', hasPhone(c),
+          c.phone
             ? `<div class="cc-value"><a href="tel:${c.phone.replace(/\s/g,'')}">${escHtml(c.phone)}</a></div>
                <a class="call-btn" href="tel:${c.phone.replace(/\s/g,'')}">📞 Call now</a>`
-            : '<div class="cc-empty">Not found</div>'}
-        </div>
-        <div class="contact-card">
-          <div class="cc-label">Email</div>
-          ${c.email
+            : '<div class="cc-empty">Not found</div>')}
+        ${channelCard('Email', 'email', hasEmail(c),
+          c.email
             ? `<div class="cc-value"><a href="${gmailComposeHref(c.email)}" target="_blank" rel="noopener">${escHtml(c.email)}</a></div>
                <a class="email-btn" href="${gmailComposeHref(c.email)}" target="_blank" rel="noopener">✉ Open in Gmail</a>`
-            : '<div class="cc-empty">Not found</div>'}
-        </div>
-        <div class="contact-card">
-          <div class="cc-label">Facebook</div>
-          ${c.facebook
+            : '<div class="cc-empty">Not found</div>')}
+        ${channelCard('Facebook', 'facebook', hasFacebook(c),
+          c.facebook
             ? `<div class="cc-value"><a href="${c.facebook}" target="_blank">View page ↗</a></div>`
-            : '<div class="cc-empty">Not found</div>'}
-        </div>
-        <div class="contact-card">
-          <div class="cc-label">Website</div>
-          ${c.website
+            : '<div class="cc-empty">Not found</div>')}
+        ${channelCard('Website', 'website', hasWebsite(c),
+          c.website
             ? `<div class="cc-value"><a href="${c.website}" target="_blank">Visit site ↗</a></div>`
-            : '<div class="cc-empty">Not found</div>'}
-        </div>
+            : '<div class="cc-empty">Not found</div>')}
       </div>
 
       ${c.sourceNotes ? `<div class="contact-card" style="margin-bottom:16px"><div class="cc-label">About this org</div><div class="cc-value" style="line-height:1.6;color:var(--text2)">${escHtml(c.sourceNotes)}</div></div>` : ''}
@@ -845,26 +1119,25 @@ function escHtml(s) {
 }
 
 // ── ACTIONS ────────────────────────────────────────────────
-function setStatus(id, status, opts = {}) {
+function toggleContacted(id, channel, checked, opts = {}) {
   const o = getO(id);
-  o.status = status;
-  const label = STATUS_INFO[status]?.label || status;
+  o.contacted[channel] = checked;
   o.log = o.log || [];
-  o.log.push({ ts: fmtTs(), text: 'Status → ' + label });
+  o.log.push({ ts: fmtTs(), text: CHANNEL_LABELS[channel] + (checked ? ' contacted ✓' : ' — unchecked') });
   saveOutreach();
-  if(opts.mobileAdvance) {
+  if (opts.mobileAdvance) {
     advanceMobileCallQueue();
   } else {
-    selectContact(id);
     renderAll();
+    if (currentId === id) selectContact(id);
   }
 }
 
-function mobileQuickStatus(status) {
+function mobileMarkPhoneContacted() {
   const q = callQueue();
   const c = q[mobileCallIndex];
-  if(!c) return;
-  setStatus(c.id, status, { mobileAdvance: true });
+  if (!c) return;
+  toggleContacted(c.id, 'phone', true, { mobileAdvance: true });
 }
 
 function saveNotes(id, val) {
@@ -938,9 +1211,8 @@ function renderMobileAll() {
 }
 
 function updateMobileProgress() {
-  const q = callQueue();
   const total = contacts.filter(hasPhone).length;
-  const done = total - q.length;
+  const done = contacts.filter(c => hasPhone(c) && getO(c.id).contacted.phone).length;
   const pct = total ? Math.round((done / total) * 100) : 0;
   const fill = document.getElementById('mobile-progress-fill');
   if(fill) fill.style.width = pct + '%';
@@ -982,12 +1254,7 @@ function renderMobileCall() {
       <div class="mobile-call-phone">${escHtml(c.phone)}</div>
       <a class="mobile-call-huge" href="${telHref(c.phone)}">📞 Call now</a>
       <div class="mobile-quick-row">
-        <button type="button" class="mobile-quick-btn danger" onclick="mobileQuickStatus('called-na')">No answer</button>
-        <button type="button" class="mobile-quick-btn warn" onclick="mobileQuickStatus('voicemail')">Voicemail</button>
-      </div>
-      <div class="mobile-quick-row">
-        <button type="button" class="mobile-quick-btn primary" onclick="mobileQuickStatus('interested')">Interested ✓</button>
-        <button type="button" class="mobile-quick-btn" onclick="mobileQuickStatus('not-interested')">Not interested</button>
+        <button type="button" class="mobile-quick-btn primary" onclick="mobileMarkPhoneContacted()">✓ Mark phone contacted</button>
       </div>
       <button type="button" class="mobile-skip-btn" onclick="skipMobileCall()">Skip → next call</button>
       ${c.sourceNotes ? `<p style="margin-top:16px;font-size:12px;color:var(--text2);line-height:1.5;text-align:left">${escHtml(c.sourceNotes)}</p>` : ''}
@@ -1058,15 +1325,15 @@ function renderMobileList() {
   if(!panel) return;
   panel.innerHTML = contacts.map(c => {
     const o = getO(c.id);
-    const si = STATUS_INFO[o.status || 'none'];
-    const icons = (hasPhone(c) ? '📞' : '') + (hasEmail(c) ? ' ✉' : '');
+    const pending = (hasPhone(c) && !o.contacted.phone ? '📞' : '')
+      + (hasEmail(c) && !o.contacted.email ? ' ✉' : '')
+      + (hasFacebook(c) && !o.contacted.facebook ? ' f' : '');
     return `
       <div class="mobile-list-item" onclick="mobileOpenContact('${c.id}')">
         <div style="flex:1">
           <div style="font-weight:500;font-size:14px">${escHtml(c.name)}</div>
-          <div style="font-size:11px;color:var(--text3)">${escHtml(c.loc)} ${icons}</div>
+          <div style="font-size:11px;color:var(--text3)">${escHtml(c.loc)} ${pending || '✓ all contacted'}</div>
         </div>
-        <span class="mobile-badge" style="background:${si.color}22;color:${si.color}">${si.label.split(' ')[0]}</span>
       </div>`;
   }).join('') || '<div class="mobile-empty">No contacts</div>';
 }
@@ -1080,6 +1347,14 @@ function renderMobileSettings() {
   panel.innerHTML = `
     <label>Anthropic API key (for auto email drafts)</label>
     <input type="password" id="mobile-api-key" placeholder="sk-ant-…" value="${escHtml(key)}" oninput="localStorage.setItem('${KEY_KEY}',this.value)">
+    <label style="margin-top:16px">Cloud sync</label>
+    <p class="auth-msg">${cloudSyncEnabled ? (authUser ? `Signed in as ${escHtml(authUser.email || '')}` : 'Sign in to sync checkmarks across devices.') : 'Add Supabase config to enable cloud sync.'}</p>
+    ${cloudSyncEnabled ? `
+      <button type="button" class="import-btn" style="width:100%;margin:0 0 8px" onclick="signInWithGoogle()">Sign in with Google</button>
+      <input type="email" id="mobile-magic-email" placeholder="Email for magic link" style="width:100%;margin-bottom:8px;padding:10px;border:1px solid var(--border);border-radius:6px">
+      <button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signInWithMagicLink()">Send magic link</button>
+      ${authUser ? `<button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signOutUser()">Sign out</button>` : ''}
+    ` : ''}
     <label style="margin-top:16px">Email AI prompt (sent to Anthropic)</label>
     <p class="prompt-hint">Placeholders: <code>{name}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code></p>
     <textarea class="prompt-template-input" id="mobile-email-prompt-template" style="min-height:160px" oninput="onPromptTemplateInput(this)"></textarea>
@@ -1171,8 +1446,14 @@ async function startAutoEmailGeneration(force = false) {
 
 // ── NEXT UNCONTACTED ───────────────────────────────────────
 function goNext() {
-  const uncontacted = contacts.filter(c => getO(c.id).status === 'none');
-  if(uncontacted.length > 0) selectContact(uncontacted[0].id);
+  const next = contacts.find(c => {
+    const o = getO(c.id);
+    return (hasPhone(c) && !o.contacted.phone)
+      || (hasEmail(c) && !o.contacted.email)
+      || (hasFacebook(c) && !o.contacted.facebook)
+      || (hasWebsite(c) && !o.contacted.website);
+  });
+  if (next) selectContact(next.id);
 }
 
 function exportOutreach() {
@@ -1191,12 +1472,16 @@ function exportOutreach() {
 }
 
 // ── INIT ───────────────────────────────────────────────────
-loadOutreach();
-initPromptEditor();
-renderAll();
-loadContactsFromUrl(CONTACTS_URL).then(() => {
-  if(isMobileView()) renderMobileAll();
-});
+async function bootApp() {
+  loadOutreach();
+  initPromptEditor();
+  await initAuth();
+  renderAll();
+  await loadContactsFromUrl(CONTACTS_URL);
+  if (isMobileView()) renderMobileAll();
+}
+
+bootApp();
 window.addEventListener('load', () => {
   if(isMobileView()) switchMobileTab('call', document.querySelector('[data-mobile-tab="call"]'));
 });

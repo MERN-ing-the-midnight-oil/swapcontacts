@@ -28,6 +28,12 @@ jobs:
           test -f contacts.csv || cp output/contacts.csv contacts.csv 2>/dev/null || true
           cp contacts.csv docs/contacts.csv
           cp index.html docs/index.html
+          if [ -n "${{ secrets.SUPABASE_URL }}" ] && [ -n "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            node scripts/generate-supabase-config.js
+          fi
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
       - uses: actions/configure-pages@v5
 

@@ -58,7 +58,31 @@ npm run outreach:serve
 
 Open `docs/index.html` via a local server (not `file://`) so it can load `contacts.csv` automatically.
 
-**Features:** status filters, activity log, AI email drafts (API key stored in browser only), export/import progress JSON via localStorage backup.
+**Features:** per-channel contacted checkmarks, sort by uncontacted channel, activity log, AI email drafts (API key stored in browser only), export/import JSON backup, optional **Supabase cloud sync** across devices.
+
+### Cloud sync (Supabase)
+
+Checkmarks and notes sync to your Supabase project when signed in. Without config, progress stays in `localStorage` only.
+
+1. Create a Supabase project and run [`supabase/schema.sql`](supabase/schema.sql) in the SQL editor.
+2. Enable **Google** (and/or **Email**) under Authentication → Providers.
+3. Add your site URL under Authentication → URL configuration:
+   - Site URL: your GitHub Pages URL (e.g. `https://you.github.io/swapcontacts/`)
+   - Redirect URLs: same URL (and `http://localhost:3333` for local dev)
+4. Add to `.env`:
+   ```bash
+   SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+   SUPABASE_ANON_KEY=your-anon-key
+   ```
+5. Generate browser config and sync:
+   ```bash
+   npm run outreach:config   # writes docs/supabase-config.js (gitignored)
+   npm run outreach:sync
+   ```
+
+`docs/supabase-config.js` is gitignored for local dev — regenerate with `npm run outreach:config`. For GitHub Pages, add repository secrets `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the deploy workflow writes the config at build time).
+
+**Merge behavior:** on sign-in, local and cloud data merge (contacted flags OR together; notes/drafts keep the longer text; logs dedupe). Changes auto-save to the cloud ~800ms after each edit. Realtime updates apply when another tab or device writes.
 
 ### Deploy to GitHub Pages (no workflow required)
 

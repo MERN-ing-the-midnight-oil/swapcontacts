@@ -10,7 +10,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc && node dist/index.js",
-    "outreach:sync": "test -f contacts.csv || cp output/contacts.csv contacts.csv; cp contacts.csv docs/contacts.csv; cp docs/index.html index.html",
+    "outreach:config": "node scripts/generate-supabase-config.js",
+    "outreach:sync": "test -f contacts.csv || cp output/contacts.csv contacts.csv; cp contacts.csv docs/contacts.csv; cp index.html docs/index.html; npm run outreach:config",
     "outreach:serve": "npm run outreach:sync && npx --yes serve docs -p 3333"
   },
   "keywords": ["swap", "events", "nonprofit", "cli"],
