@@ -24,8 +24,18 @@ program
   .version('1.0.0');
 
 function buildOptions(cmd: Command): RunOptions {
-  const globalOpts = program.opts<{ outputDir: string; delay: number; concurrency: number }>();
-  const opts = cmd.opts<{ jobs?: string; limit?: number }>();
+  const globalOpts = program.opts<{
+    outputDir: string;
+    delay: number;
+    concurrency: number;
+    noSeasonalRefresh?: boolean;
+  }>();
+  const opts = cmd.opts<{
+    jobs?: string;
+    limit?: number;
+    regionalOnly?: boolean;
+    nationwideOnly?: boolean;
+  }>();
 
   return {
     outputDir: path.resolve(globalOpts.outputDir),
@@ -33,6 +43,9 @@ function buildOptions(cmd: Command): RunOptions {
     concurrency: Math.min(Math.max(globalOpts.concurrency, 1), 2),
     enrichOnly: false,
     discoverOnly: false,
+    regionalOnly: !!opts.regionalOnly,
+    nationwideOnly: !!opts.nationwideOnly,
+    allowSeasonalRefresh: !globalOpts.noSeasonalRefresh,
     jobs: opts.jobs ? opts.jobs.split(',').map((j) => j.trim()) : undefined,
     enrichLimit: opts.limit,
   };
@@ -46,12 +59,18 @@ program
     'Parallel API calls (max 2)',
     (v) => parseInt(v, 10),
     1
+  )
+  .option(
+    '--no-seasonal-refresh',
+    'Skip re-running completed jobs during their seasonal refresh window'
   );
 
 program
   .command('discover')
   .description('Run Pass 1 discovery jobs')
-  .option('--jobs <ids>', 'Comma-separated job IDs to run (e.g. eb-bike,eb-ski)')
+  .option('--jobs <ids>', 'Comma-separated job IDs to run (e.g. eb-bike,reg-gear-co)')
+  .option('--regional-only', 'Run only state-level regional jobs')
+  .option('--nationwide-only', 'Run only original nationwide jobs')
   .action(async (cmdOpts, cmd) => {
     const options = buildOptions(cmd);
     options.discoverOnly = true;
@@ -82,6 +101,8 @@ program
   .command('run')
   .description('Run full pipeline (discover then enrich)')
   .option('--jobs <ids>', 'Comma-separated job IDs for discovery phase')
+  .option('--regional-only', 'Run only state-level regional jobs')
+  .option('--nationwide-only', 'Run only original nationwide jobs')
   .option('--limit <n>', 'Enrich only the first N unenriched events', (v) => parseInt(v, 10))
   .action(async (cmdOpts, cmd) => {
     const options = buildOptions(cmd);

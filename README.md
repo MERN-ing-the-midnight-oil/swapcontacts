@@ -21,6 +21,13 @@ npm run start -- run
 # Run only discovery
 npm run start -- discover
 
+# Run superjob discovery (~10M-pop regions — see Discovery strategy)
+npm run discover:regional
+
+# Re-run only jobs due for seasonal refresh (bike: Jan–Apr, ski: Jul–Oct, gear: Feb–Mar & Aug–Sep)
+npm run discover:regional
+# Add --no-seasonal-refresh to skip re-running completed jobs outside a refresh window
+
 # Run only enrichment on already-discovered events
 npm run start -- enrich
 
@@ -38,23 +45,60 @@ Results are written to `./output/`:
 - `contacts.csv` — enriched contact info (Pass 2)
 - `jobs-state.json` — job progress (for resuming)
 
+## Discovery strategy (bang for buck)
+
+The US is split into **superjobs** — regions of roughly **10 million people** each. A superjob may be one state, several small states combined, or a slice of a large state / metro. Anthropic gets a plain-language place name (e.g. *"Washington state and Alaska"*); we don't geocode or filter results.
+
+Examples:
+- **Washington + Alaska** (~8.5M) — one superjob
+- **NYC metro** (~20M) — own superjob (large metros exceed 10M and get their own)
+- **California** — split into LA, NorCal, SoCal, and North Coast superjobs
+
+Each superjob runs a **bundle** of discovery searches: gear swap, bike swap, kids equipment swap, plus ski/hockey/Nordic where the region overlaps those cultures. Facebook and Eventbrite gear passes run for superjobs ≥ ~8M pop.
+
+### Seasonal re-runs (safe — dedup prevents duplicate orgs)
+
+| Season tag | Jobs | Refresh window |
+|------------|------|----------------|
+| `bike-spring` | Bike swaps | Jan–Apr |
+| `ski-fall` | Ski + Nordic swaps | Jul–Oct |
+| `all-season` | Gear, kids, platform passes | Feb–Mar & Aug–Sep |
+
+Use `--no-seasonal-refresh` to only run never-completed jobs.
+
+### Resume & dedup
+
+- `jobs-state.json` — skip completed jobs (unless seasonal refresh applies)
+- `events.csv` — skip duplicate name+location
+- `enrich` — only new event IDs
+
+Superjob definitions: [`src/superjobs.ts`](src/superjobs.ts).
+
 ## Cost estimate
 
-- Pass 1 (12 jobs): ~$0.15–0.30 in API credits
+- Pass 1 nationwide (12 jobs): ~$0.15–0.30
+- Pass 1 regional (~34 superjobs, ~150–180 discovery calls): ~$8–20 depending on model
 - Pass 2 (per event): ~$0.02–0.05 per enrichment
-- Full run of 50 events: roughly $1.50–3.00 total
 
 ## Outreach tracker (browser app)
 
 Track who you've contacted, call notes, email drafts, and status. Lives in `docs/` for GitHub Pages.
 
+**Typical workflow** (Anthropic search built into this repo):
+
 ```bash
-# After updating contacts.csv from the CLI
+# 1. Discover + enrich contacts (uses ANTHROPIC_API_KEY in .env)
+npm run pipeline          # or: npm run discover && npm run enrich
+
+# 2. Sync into the browser app
 npm run outreach:sync
 
-# Local preview (http://localhost:3333)
-npm run outreach:serve
+# 3. Local preview with superjob runner (http://localhost:3333)
+npm run outreach:dev
+# or sync + serve: npm run outreach:serve
 ```
+
+Open **Discover** (`#/discover`) to pick a region, run discovery + enrichment, then **Open outreach** for calls, emails, and notes. Requires `ANTHROPIC_API_KEY` in `.env` and the local API server (`outreach:dev`).
 
 Open `docs/index.html` via a local server (not `file://`) so it can load `contacts.csv` automatically.
 

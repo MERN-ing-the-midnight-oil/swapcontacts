@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Superjob run details</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f6f2;
+  --surface: #ffffff;
+  --surface2: #f0f1ed;
+  --border: #d8dbd2;
+  --text: #1c1c1a;
+  --text2: #5c5f56;
+  --text3: #8a8e82;
+  --accent: #2f6b3a;
+  --accent2: #245a2e;
+  --radius: 8px;
+  --font-mono: 'DM Mono', monospace;
+  --font-sans: 'DM Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 48px; }
+.header { margin-bottom: 28px; }
+.logo { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: .04em; margin-bottom: 8px; }
+.logo span { color: var(--text3); }
+h1 { font-size: 24px; font-weight: 600; line-height: 1.2; margin-bottom: 6px; }
+.subtitle { color: var(--text2); font-size: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+.card h2 { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); margin-bottom: 14px; font-weight: 500; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+@media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; font-family: var(--font-mono); }
+.stat-value { font-size: 15px; font-weight: 500; margin-top: 2px; }
+.stat-value.mono { font-family: var(--font-mono); font-size: 13px; font-weight: 400; }
+.jobs-list { list-style: none; font-family: var(--font-mono); font-size: 12px; color: var(--text2); }
+.jobs-list li { padding: 4px 0; border-bottom: 1px solid var(--border); }
+.jobs-list li:last-child { border-bottom: none; }
+.logs { background: var(--surface2); border-radius: 6px; padding: 12px; font-family: var(--font-mono); font-size: 12px; color: var(--text2); white-space: pre-wrap; line-height: 1.6; max-height: 200px; overflow-y: auto; }
+.cta { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 14px 22px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); text-decoration: none; margin-top: 8px; }
+.cta:hover { background: var(--accent2); }
+.cta-secondary { display: inline-block; margin-top: 12px; margin-left: 12px; color: var(--text2); font-size: 13px; }
+.loading, .error { color: var(--text3); text-align: center; padding: 48px 20px; }
+.cost-total { font-size: 28px; font-weight: 600; color: var(--accent); font-family: var(--font-mono); margin-bottom: 4px; }
+.cost-range { font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+.cost-disclaimer { font-size: 11px; color: var(--text3); line-height: 1.5; margin-top: 14px; }
+.cost-breakdown { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cost-breakdown th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); font-family: var(--font-mono); font-weight: 500; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--border); }
+.cost-breakdown td { padding: 8px 8px 8px 0; border-bottom: 1px solid var(--border); color: var(--text2); }
+.cost-breakdown tr:last-child td { border-bottom: none; font-weight: 600; color: var(--text); }
+.cost-breakdown td.num { font-family: var(--font-mono); text-align: right; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <p class="loading">Loading run details…</p>
+</div>
+<script>
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function params() {
+  const q = new URLSearchParams(location.search);
+  return {
+    superjob: q.get('superjob') || '',
+    run: q.get('run') || '',
+  };
+}
+
+function formatUsd(n) {
+  return '$' + Number(n).toFixed(2);
+}
+
+function renderCostCard(cost) {
+  if (!cost) return '';
+  const d = cost.discovery;
+  const e = cost.enrichment;
+  return `
+    <div class="card">
+      <h2>Estimated API cost</h2>
+      <div class="cost-total">${esc(cost.formattedTotal || formatUsd(cost.totalUsd))}</div>
+      <div class="cost-range">Likely range: ${esc(cost.formattedRange || (formatUsd(cost.totalLowUsd) + ' – ' + formatUsd(cost.totalHighUsd)))}</div>
+      <table class="cost-breakdown">
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Calls</th>
+            <th>Input tok.</th>
+            <th>Output tok.</th>
+            <th>Searches</th>
+            <th class="num">Est. cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Discovery</td>
+            <td class="num">${esc(d.apiCalls)}</td>
+            <td class="num">${esc(d.inputTokens.toLocaleString())}</td>
+            <td class="num">${esc(d.outputTokens.toLocaleString())}</td>
+            <td class="num">${esc(d.webSearches)}</td>
+            <td class="num">${esc(formatUsd(d.subtotalUsd))}</td>
+          </tr>
+          <tr>
+            <td>Enrichment</td>
+            <td class="num">${esc(e.apiCalls)}</td>
+            <td class="num">${esc(e.inputTokens.toLocaleString())}</td>
+            <td class="num">${esc(e.outputTokens.toLocaleString())}</td>
+            <td class="num">${esc(e.webSearches)}</td>
+            <td class="num">${esc(formatUsd(e.subtotalUsd))}</td>
+          </tr>
+          <tr>
+            <td>Total</td>
+            <td class="num">${esc(d.apiCalls + e.apiCalls)}</td>
+            <td class="num">${esc((d.inputTokens + e.inputTokens).toLocaleString())}</td>
+            <td class="num">${esc((d.outputTokens + e.outputTokens).toLocaleString())}</td>
+            <td class="num">${esc(d.webSearches + e.webSearches)}</td>
+            <td class="num">${esc(formatUsd(cost.totalUsd))}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="cost-disclaimer">${esc(cost.disclaimer)}</p>
+    </div>`;
+}
+
+async function loadRun() {
+  const { superjob, run } = params();
+  const app = document.getElementById('app');
+  if (!superjob || !run) {
+    app.innerHTML = '<p class="error">Missing superjob or run id in URL.</p>';
+    return;
+  }
+
+  const urls = [
+    `/api/superjobs/${encodeURIComponent(superjob)}/runs/${encodeURIComponent(run)}`,
+    `superjobs/${encodeURIComponent(superjob)}/runs/${encodeURIComponent(run)}.json`,
+  ];
+
+  let data = null;
+  for (const url of urls) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const json = await res.json();
+      data = json.run || json;
+      break;
+    } catch { /* try next */ }
+  }
+
+  if (!data) {
+    app.innerHTML = '<p class="error">Could not load this run. Make sure the local API server is running (<code>npm run outreach:dev</code>).</p>';
+    return;
+  }
+
+  const outreachUrl = data.outreachUrl || `/#/outreach/${encodeURIComponent(superjob)}`;
+  const jobs = (data.discoveryJobIds || []).map(j => `<li>${esc(j)}</li>`).join('') || '<li style="color:var(--text3)">—</li>';
+  const logs = (data.logs || []).length
+    ? `<div class="card"><h2>Run log</h2><div class="logs">${esc(data.logs.join('\n'))}</div></div>`
+    : '';
+  const costCard = renderCostCard(data.costEstimate);
+
+  app.innerHTML = `
+    <header class="header">
+      <div class="logo">swap<span>/</span>superjob run</div>
+      <h1>${esc(data.label)}</h1>
+      <p class="subtitle">${esc(data.queryPlace)} · ~${esc(data.approxPopM)}M people</p>
+    </header>
+
+    <div class="card">
+      <h2>Summary</h2>
+      <div class="grid">
+        <div><div class="stat-label">Completed</div><div class="stat-value">${esc(data.completedAtDisplay || data.completedAt)}</div></div>
+        <div><div class="stat-label">Started</div><div class="stat-value">${esc(data.startedAtDisplay || data.startedAt)}</div></div>
+        <div><div class="stat-label">Events found</div><div class="stat-value">${esc(data.eventCount)}</div></div>
+        <div><div class="stat-label">Contacts</div><div class="stat-value">${esc(data.contactCount)} <span style="color:var(--text3);font-weight:400">(${esc(data.withContact)} with email/phone/Facebook)</span></div></div>
+        <div><div class="stat-label">Discovery model</div><div class="stat-value mono">${esc(data.discoveryModelLabel || data.discoveryModel)}</div></div>
+        <div><div class="stat-label">Enrichment model</div><div class="stat-value mono">${esc(data.enrichmentModelLabel || data.enrichmentModel)}</div></div>
+      </div>
+    </div>
+
+    ${costCard}
+
+    <div class="card">
+      <h2>Discovery searches (${(data.discoveryJobIds || []).length})</h2>
+      <ul class="jobs-list">${jobs}</ul>
+    </div>
+
+    ${logs}
+
+    <a class="cta" href="${esc(outreachUrl)}">Open contact management →</a>
+    <a class="cta-secondary" href="/#/discover">← Back to superjobs</a>
+  `;
+}
+
+loadRun();
+</script>
+</body>
+</html>

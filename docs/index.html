@@ -291,7 +291,9 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .discover-header h1 { font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--accent); }
 .discover-header h1 span { color: var(--text2); font-weight: 300; }
 .discover-body { flex: 1; overflow-y: auto; padding: 32px 24px 48px; }
-.discover-panel { max-width: 560px; margin: 0 auto; }
+.superjob-completed-select { width: 100%; min-width: 160px; max-width: 220px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: var(--font-sans); background: var(--surface2); color: var(--text); }
+.superjob-completed-select:focus { border-color: var(--accent); outline: none; }
+.discover-panel { max-width: 1280px; margin: 0 auto; }
 .discover-lead { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 24px; }
 .discover-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
 .discover-card h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); font-family: var(--font-mono); margin-bottom: 12px; font-weight: 500; }
@@ -312,6 +314,28 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .discover-list a { color: var(--accent); text-decoration: none; font-weight: 600; white-space: nowrap; }
 .discover-list a:hover { text-decoration: underline; }
 .discover-api-warn { background: rgba(197,48,48,.08); border: 1px solid rgba(197,48,48,.25); border-radius: 8px; padding: 12px; font-size: 12px; color: var(--text2); margin-bottom: 20px; display: none; }
+.superjob-table-wrap { overflow-x: auto; }
+.superjob-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.superjob-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); font-family: var(--font-mono); font-weight: 500; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.superjob-table td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.superjob-table tr:last-child td { border-bottom: none; }
+.superjob-table tr:hover td { background: var(--surface2); }
+.superjob-name { font-weight: 500; line-height: 1.3; }
+.superjob-place { font-size: 11px; color: var(--text3); margin-top: 2px; max-width: 220px; }
+.superjob-model-select { width: 100%; min-width: 148px; max-width: 180px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: var(--font-sans); background: var(--surface2); color: var(--text); }
+.superjob-model-select:focus { border-color: var(--accent); outline: none; }
+.superjob-model-select:disabled { opacity: .55; cursor: default; }
+.superjob-status { font-size: 12px; color: var(--text2); max-width: 180px; line-height: 1.4; }
+.superjob-status.running { color: var(--blue); }
+.superjob-status.error { color: var(--red); }
+.superjob-status.done { color: var(--accent); }
+.superjob-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; white-space: nowrap; }
+.superjob-run-link { background: none; border: none; padding: 0; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); text-decoration: underline; text-underline-offset: 2px; }
+.superjob-run-link:hover:not(:disabled) { color: var(--accent2); }
+.superjob-run-link:disabled { opacity: .45; cursor: default; text-decoration: none; }
+.superjob-open-link { color: var(--text2); font-size: 12px; text-decoration: none; }
+.superjob-open-link:hover { color: var(--accent); text-decoration: underline; }
+.superjob-pop { font-family: var(--font-mono); font-size: 12px; color: var(--text2); white-space: nowrap; }
 .region-badge { font-size: 11px; color: var(--text2); background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; display: none; }
 .region-badge.visible { display: inline-block; }
 
@@ -330,29 +354,34 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 <!-- Discover: pick a region and run Anthropic search (requires local API server) -->
 <div class="discover-shell" id="discover-view">
   <header class="discover-header">
-    <h1>swap<span>/</span>discover</h1>
+    <h1>swap<span>/</span>superjobs</h1>
   </header>
   <div class="discover-body">
     <div class="discover-panel">
-      <p class="discover-lead">Choose a region (~10M people), run discovery + contact enrichment, then open the outreach workspace for that region — calls, emails, notes, and checkmarks.</p>
+      <p class="discover-lead">Each superjob covers a ~10M-person region. Pick discovery and enrichment models per row, run the job, then open outreach for calls, emails, and notes.</p>
       <div class="discover-api-warn" id="discover-api-warn">
-        Superjob runs need the local API server: <code>npm run outreach:dev</code> (uses <code>ANTHROPIC_API_KEY</code> from <code>.env</code>). You can still open regions you've already run.
+        Superjob runs need the local API server: <code>npm run outreach:dev</code> (uses <code>ANTHROPIC_API_KEY</code> from <code>.env</code>). You can still open superjobs you've already run.
       </div>
       <div class="discover-card">
-        <h2>Run a region</h2>
-        <select class="discover-select" id="superjob-select" aria-label="Select region">
-          <option value="">Loading regions…</option>
-        </select>
-        <div class="discover-meta" id="superjob-meta"></div>
-        <button type="button" class="discover-run-btn" id="superjob-run-btn" disabled>Run discovery &amp; enrichment</button>
-        <div class="discover-progress" id="superjob-progress"></div>
-        <button type="button" class="discover-open-btn" id="superjob-open-btn">Open outreach for this region →</button>
-      </div>
-      <div class="discover-card">
-        <h2>Regions with results</h2>
-        <ul class="discover-list" id="superjob-results-list">
-          <li style="color:var(--text3)">None yet — run a region above.</li>
-        </ul>
+        <h2>Superjobs</h2>
+        <div class="superjob-table-wrap">
+          <table class="superjob-table" id="superjob-table">
+            <thead>
+              <tr>
+                <th>Region</th>
+                <th>Pop.</th>
+                <th>Discovery model</th>
+                <th>Enrichment model</th>
+                <th>Completed jobs</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="superjob-table-body">
+              <tr><td colspan="7" style="color:var(--text3)">Loading superjobs…</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -363,7 +392,7 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
   <header class="topbar">
     <div class="topbar-logo">swap<span>/</span>outreach</div>
     <span class="region-badge" id="region-badge" title="Active region"></span>
-    <button type="button" class="auth-btn" onclick="navigateDiscover()" title="Find swap orgs by region">🔍 Regions</button>
+    <button type="button" class="auth-btn" onclick="navigateDiscover()" title="Run superjobs by region">🔍 Superjobs</button>
     <div class="topbar-stats">
       <div class="tstat"><div class="tstat-val" id="s-total">—</div><div class="tstat-lbl">Total</div></div>
       <div class="tstat"><div class="tstat-val orange" id="s-uncontacted-phone">—</div><div class="tstat-lbl">Uncontacted phone</div></div>
@@ -392,7 +421,7 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
     <details class="auth-panel" id="csv-help-panel">
       <summary>🔍 Find contacts by region</summary>
       <div class="auth-panel-body">
-        <p class="auth-msg">Use <strong>🔍 Regions</strong> in the top bar to pick a ~10M-population superjob, run discovery, and open outreach for that region.</p>
+        <p class="auth-msg">Use <strong>🔍 Superjobs</strong> in the top bar to pick a ~10M-population superjob, run discovery, and open outreach for that region.</p>
       </div>
     </details>
 
@@ -418,12 +447,12 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
     </details>
 
     <details class="prompt-editor-wrap" id="prompt-editor-wrap">
-      <summary>✎ Email AI prompt</summary>
-      <p class="prompt-hint">Sent to Anthropic for each draft. Placeholders:
-        <code>{name}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code>
+      <summary>✎ Email template</summary>
+      <p class="prompt-hint">Filled in for each draft. Placeholders:
+        <code>{name}</code> <code>{Event Title Goes Here}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code>
       </p>
-      <textarea class="prompt-template-input" id="email-prompt-template" oninput="onPromptTemplateInput(this)" placeholder="Loading prompt…"></textarea>
-      <button type="button" class="prompt-reset-btn" onclick="resetEmailPromptTemplate()">Reset to default prompt</button>
+      <textarea class="prompt-template-input" id="email-prompt-template" oninput="onPromptTemplateInput(this)" placeholder="Loading template…"></textarea>
+      <button type="button" class="prompt-reset-btn" onclick="resetEmailPromptTemplate()">Reset to default template</button>
     </details>
 
     <div class="sidebar-section">
@@ -436,6 +465,9 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
       </button>
       <button class="sort-btn" data-sort="email" onclick="setSortMode('email',this)">
         <span>Has uncontacted email</span><span class="fcount" id="sc-email">0</span>
+      </button>
+      <button class="sort-btn" data-sort="no-email" onclick="setSortMode('no-email',this)">
+        <span>Has no email</span><span class="fcount" id="sc-no-email">0</span>
       </button>
     </div>
 
@@ -524,17 +556,19 @@ npm run outreach:sync   # copy contacts.csv into this app</div>
 let contacts = [];      // all loaded contacts
 let outreach = {};      // {id: {contacted:{phone,email,facebook,website}, notes, log:[], emailDraft}}  persisted in localStorage
 let currentId = null;
-let sortMode = 'none';  // 'none' | 'phone' | 'email' | 'facebook'
+let sortMode = 'none';  // 'none' | 'phone' | 'email' | 'facebook' | 'no-email'
 let searchQ = '';
 let mobileCallIndex = 0;
 let emailGenRunning = false;
 const STORAGE_KEY = 'swap_outreach_v1';
-const KEY_KEY = 'swap_anthropic_key';
 const EMAIL_GEN_DONE_KEY = 'swap_email_gen_done_v1';
-const PROMPT_TEMPLATE_KEY = 'swap_email_prompt_template_v1';
+const PROMPT_TEMPLATE_KEY = 'swap_email_prompt_template_v2';
 const CONTACTS_URL = 'contacts.csv';
 let activeSuperjobId = null;
 let superjobCatalog = [];
+let claudeModels = [];
+let modelDefaults = { discovery: 'claude-opus-4-5', enrichment: 'claude-sonnet-4-5' };
+const MODEL_PREFS_KEY = 'swap_superjob_models_v1';
 let apiAvailable = false;
 let superjobPollTimer = null;
 
@@ -542,23 +576,7 @@ function outreachStorageKey() {
   return activeSuperjobId ? `${STORAGE_KEY}_sj_${activeSuperjobId}` : STORAGE_KEY;
 }
 
-const DEFAULT_EMAIL_PROMPT = `Write a short, friendly outreach email to a non-profit organization that runs a {type} swap event.
-
-Organization: {name}
-Location: {location}
-Event type: {type} swap
-About them: {notes}
-
-Context: I've built a free software tool called Gear Swap specifically for non-profits that run consignment swap events (bike swaps, ski swaps, gear swaps, etc.). It handles seller check-in, item labeling with QR codes, point-of-sale, and payout tracking. It's free for non-profits.
-
-Write the email from my perspective as the developer reaching out. Keep it:
-- Under 150 words
-- Warm and personal, not salesy
-- Reference their specific event type and location naturally
-- Lead with genuine interest in what they do, not the product
-- End with a simple, low-pressure ask (happy to show you a demo, or just answer questions)
-
-Output just the email body (no subject line, no "Subject:", just the text starting with a greeting).`;
+const DEFAULT_EMAIL_PROMPT = `Hi There!   I'm a volunteer organizer for the Bellingham Bike Swap in Bellingham, WA.  I found your email online. Is there any chance I could talk to you about the {Event Title Goes Here}? Specifically- I'm wondering if you  already have an app that helps sellers register gear, print tags, etc? I've built an app that does all that (and lots more). It's currently free to use. Any interest in learning more?`;
 
 function getEmailPromptTemplate() {
   const stored = localStorage.getItem(PROMPT_TEMPLATE_KEY);
@@ -585,7 +603,7 @@ function onPromptTemplateInput(el) {
 }
 
 function resetEmailPromptTemplate() {
-  if (!confirm('Reset the email prompt to the default template?')) return;
+  if (!confirm('Reset the email template to the default?')) return;
   saveEmailPromptTemplate(DEFAULT_EMAIL_PROMPT);
   syncPromptTextareas(DEFAULT_EMAIL_PROMPT);
 }
@@ -596,8 +614,10 @@ function initPromptEditor() {
 }
 
 function applyPromptTemplate(c, template) {
+  const eventTitle = c.name || '';
   return template
-    .replace(/\{name\}/gi, c.name || '')
+    .replace(/\{Event Title Goes Here\}/gi, eventTitle)
+    .replace(/\{name\}/gi, eventTitle)
     .replace(/\{location\}/gi, c.loc || '')
     .replace(/\{type\}/gi, c.type || 'other')
     .replace(/\{notes\}/gi, c.sourceNotes || '(not available)')
@@ -612,6 +632,9 @@ function hasPhone(c) {
 }
 function hasEmail(c) {
   return !!(c.email && c.email.includes('@'));
+}
+function hasNoEmail(c) {
+  return !hasEmail(c);
 }
 function hasFacebook(c) {
   return !!(c.facebook && c.facebook.trim());
@@ -1055,6 +1078,7 @@ function sortedContacts(list) {
     if (sortMode === 'phone') return isUncontactedPhone(c) ? 0 : 1;
     if (sortMode === 'email') return isUncontactedEmail(c) ? 0 : 1;
     if (sortMode === 'facebook') return isUncontactedFacebook(c) ? 0 : 1;
+    if (sortMode === 'no-email') return hasNoEmail(c) ? 0 : 1;
     return 0;
   };
   return [...list].sort((a, b) => {
@@ -1106,6 +1130,7 @@ function renderStats() {
   const unPhone = contacts.filter(isUncontactedPhone).length;
   const unEmail = contacts.filter(isUncontactedEmail).length;
   const unFb = contacts.filter(isUncontactedFacebook).length;
+  const noEmail = contacts.filter(hasNoEmail).length;
   document.getElementById('s-total').textContent = contacts.length;
   document.getElementById('s-uncontacted-phone').textContent = unPhone;
   document.getElementById('s-uncontacted-email').textContent = unEmail;
@@ -1113,6 +1138,7 @@ function renderStats() {
   const scPhone = document.getElementById('sc-phone'); if (scPhone) scPhone.textContent = unPhone;
   const scEmail = document.getElementById('sc-email'); if (scEmail) scEmail.textContent = unEmail;
   const scFb = document.getElementById('sc-facebook'); if (scFb) scFb.textContent = unFb;
+  const scNoEmail = document.getElementById('sc-no-email'); if (scNoEmail) scNoEmail.textContent = noEmail;
 }
 
 function renderList() {
@@ -1155,8 +1181,6 @@ function selectContact(id) {
   const logHTML = (o.log||[]).map(e =>
     `<div class="log-entry"><span class="log-ts">${e.ts}</span><span class="log-text">${escHtml(e.text)}</span></div>`
   ).join('') || '<div style="color:var(--text3);font-size:12px;padding:4px 0">No activity logged yet</div>';
-
-  const apiKey = localStorage.getItem(KEY_KEY) || '';
 
   // Find next uncontacted
   const remaining = filteredContacts();
@@ -1222,14 +1246,13 @@ function selectContact(id) {
 
       <div class="ai-section">
         <div class="ai-section-header">
-          <div class="ai-label">⚡ AI email draft</div>
-          <span style="font-size:11px;color:var(--text3)">Prompt: sidebar → <strong style="color:var(--text2)">Email AI prompt</strong></span>
+          <div class="ai-label">✉ Email draft</div>
+          <span style="font-size:11px;color:var(--text3)">Template: sidebar → <strong style="color:var(--text2)">Email template</strong></span>
         </div>
         <div class="api-key-row">
-          <input class="api-key-input" id="api-key-input" type="password" placeholder="sk-ant-… (Anthropic API key, stored locally)" value="${escHtml(apiKey)}" oninput="localStorage.setItem('${KEY_KEY}',this.value)">
-          <button class="gen-btn" id="gen-btn" onclick="generateEmail('${id}')">✦ Generate draft</button>
+          <button class="gen-btn" id="gen-btn" style="width:100%" onclick="generateEmail('${id}')">✦ Generate draft</button>
         </div>
-        <textarea class="email-textarea" id="email-draft" placeholder="Click 'Generate draft' to write a personalized outreach email, or type your own…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(o.emailDraft||'')}</textarea>
+        <textarea class="email-textarea" id="email-draft" placeholder="Click 'Generate draft' to fill in the outreach template, or type your own…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(o.emailDraft||'')}</textarea>
         <div class="email-actions">
           <button class="copy-btn" onclick="copyDraft()">Copy to clipboard</button>
           ${c.email ? `<a class="mailto-btn" id="mailto-link" href="${gmailComposeHref(c.email, o.emailDraft || '')}" target="_blank" rel="noopener">Open in Gmail</a>` : ''}
@@ -1442,8 +1465,6 @@ function renderMobileEmails() {
   let html = '';
   if(emailGenRunning) {
     html += `<div class="mobile-banner"><span class="spinner"></span> Generating email drafts… (${withDraft.length}/${list.length})</div>`;
-  } else if(pending.length && !localStorage.getItem(KEY_KEY)) {
-    html += `<div class="mobile-banner">Add your Anthropic API key in <strong>Settings</strong> to auto-generate email drafts.</div>`;
   }
   if(list.length === 0) {
     panel.innerHTML = html + '<div class="mobile-empty"><h2>No emails</h2><p>No contacts have email addresses in the CSV.</p></div>';
@@ -1489,13 +1510,10 @@ function renderMobileList() {
 function renderMobileSettings() {
   const panel = document.getElementById('mobile-panel-settings');
   if(!panel) return;
-  const key = localStorage.getItem(KEY_KEY) || '';
   const phoneCount = contacts.filter(hasPhone).length;
   const emailCount = contacts.filter(hasEmail).length;
   panel.innerHTML = `
-    <label>Anthropic API key (for auto email drafts)</label>
-    <input type="password" id="mobile-api-key" placeholder="sk-ant-…" value="${escHtml(key)}" oninput="localStorage.setItem('${KEY_KEY}',this.value)">
-    <label style="margin-top:16px">Cloud sync</label>
+    <label>Cloud sync</label>
     <p class="auth-msg">${cloudSyncEnabled ? (authUser ? `Signed in as ${escHtml(authUser.email || '')}` : 'Sign in to sync checkmarks across devices.') : 'Add Supabase config to enable cloud sync.'}</p>
     ${cloudSyncEnabled ? `
       <button type="button" class="import-btn" style="width:100%;margin:0 0 8px" onclick="signInWithGoogle()">Sign in with Google</button>
@@ -1503,10 +1521,10 @@ function renderMobileSettings() {
       <button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signInWithMagicLink()">Send magic link</button>
       ${authUser ? `<button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signOutUser()">Sign out</button>` : ''}
     ` : ''}
-    <label style="margin-top:16px">Email AI prompt (sent to Anthropic)</label>
-    <p class="prompt-hint">Placeholders: <code>{name}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code></p>
+    <label style="margin-top:16px">Email template</label>
+    <p class="prompt-hint">Placeholders: <code>{name}</code> <code>{Event Title Goes Here}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code></p>
     <textarea class="prompt-template-input" id="mobile-email-prompt-template" style="min-height:160px" oninput="onPromptTemplateInput(this)"></textarea>
-    <button type="button" class="prompt-reset-btn" style="margin-bottom:16px" onclick="resetEmailPromptTemplate()">Reset to default prompt</button>
+    <button type="button" class="prompt-reset-btn" style="margin-bottom:16px" onclick="resetEmailPromptTemplate()">Reset to default template</button>
     <button type="button" class="import-btn" style="width:100%;margin:0 0 12px" onclick="navigateDiscover()">🔍 Find contacts by region</button>
     <button type="button" class="import-btn" style="width:100%;margin:0 0 12px" onclick="startAutoEmailGeneration(true)">Generate all email drafts</button>
     <div class="mobile-banner">${phoneCount} with phone (call queue) · ${emailCount} with email · ${contacts.length - phoneCount} phone-less skipped on Calls tab</div>
@@ -1528,52 +1546,38 @@ window.addEventListener('resize', () => {
   }
 });
 
-// ── AI EMAIL GENERATION ────────────────────────────────────
+async function initLocalApi() {
+  try {
+    const res = await fetch('/api/health');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.ok) apiAvailable = true;
+  } catch {
+    /* local API not running */
+  }
+}
+
 function buildEmailPrompt(c) {
   return applyPromptTemplate(c, getEmailPromptTemplate());
 }
 
-async function generateEmail(id, options = {}) {
-  const apiKey = (document.getElementById('api-key-input')?.value
-    || document.getElementById('mobile-api-key')?.value
-    || localStorage.getItem(KEY_KEY) || '').trim();
-  if(!apiKey) {
-    if(!options.silent) alert('Enter your Anthropic API key in Settings (mobile) or on desktop to generate emails.');
-    return false;
-  }
+function generateEmail(id, options = {}) {
   const c = contacts.find(x => x.id === id);
   if(!c || !hasEmail(c)) return false;
   const btn = document.getElementById('gen-btn');
   const ta = document.getElementById('email-draft');
   if(btn && !options.silent) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Writing…'; }
 
-  const prompt = buildEmailPrompt(c);
-
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-calls': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 400, messages: [{ role: 'user', content: prompt }] })
-    });
-    const data = await resp.json();
-    if(data.error) throw new Error(data.error.message);
-    const text = data.content.filter(b=>b.type==='text').map(b=>b.text).join('').trim();
-    if(ta) ta.value = text;
-    saveEmailDraft(id, text);
-    localStorage.setItem(KEY_KEY, apiKey);
-    if(isMobileView()) renderMobileEmails();
-    return true;
-  } catch(err) {
-    if(!options.silent) alert('Error generating email: ' + err.message);
-    return false;
-  } finally {
-    if(btn && !options.silent) { btn.disabled = false; btn.innerHTML = '✦ Generate draft'; }
-  }
+  const text = buildEmailPrompt(c);
+  if(ta) ta.value = text;
+  saveEmailDraft(id, text);
+  if(isMobileView()) renderMobileEmails();
+  if(btn && !options.silent) { btn.disabled = false; btn.innerHTML = '✦ Generate draft'; }
+  return true;
 }
 
 async function startAutoEmailGeneration(force = false) {
-  const apiKey = localStorage.getItem(KEY_KEY);
-  if(!apiKey || emailGenRunning) return;
+  if(emailGenRunning) return;
   const need = contacts.filter(c => hasEmail(c) && !getO(c.id).emailDraft);
   if(need.length === 0) return;
   if(!force) {
@@ -1587,10 +1591,8 @@ async function startAutoEmailGeneration(force = false) {
   if(banner) banner.style.display = 'block';
   let ok = 0;
   for(const c of need) {
-    const success = await generateEmail(c.id, { silent: true });
-    if(success) ok++;
+    if(generateEmail(c.id, { silent: true })) ok++;
     renderMobileEmails();
-    await new Promise(r => setTimeout(r, 2500));
   }
   emailGenRunning = false;
   const doneSet = contacts.filter(hasEmail).map(c => c.id);
@@ -1720,130 +1722,219 @@ async function fetchSuperjobCatalog() {
   await enrichCatalogResults();
 }
 
-function renderSuperjobSelect() {
-  const sel = document.getElementById('superjob-select');
+function loadModelPrefs() {
+  try {
+    return JSON.parse(localStorage.getItem(MODEL_PREFS_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function saveModelPref(superjobId, field, value) {
+  const prefs = loadModelPrefs();
+  if (!prefs[superjobId]) prefs[superjobId] = {};
+  prefs[superjobId][field] = value;
+  localStorage.setItem(MODEL_PREFS_KEY, JSON.stringify(prefs));
+}
+
+function getModelPref(superjobId, field) {
+  const prefs = loadModelPrefs();
+  return prefs[superjobId]?.[field] || modelDefaults[field] || '';
+}
+
+function modelLabel(m) {
+  if (m.displayLabel) return m.displayLabel;
+  if (m.inputPerMTok != null && m.outputPerMTok != null) {
+    return `${m.label} ($${m.inputPerMTok}/$${m.outputPerMTok} per MTok)`;
+  }
+  return m.label;
+}
+
+function modelOptionsHtml(selectedId) {
+  return claudeModels.map(m =>
+    `<option value="${escHtml(m.id)}"${m.id === selectedId ? ' selected' : ''}>${escHtml(modelLabel(m))}</option>`
+  ).join('');
+}
+
+function formatCompletedRunLabel(run) {
+  const d = new Date(run.completedAt);
+  const when = Number.isNaN(d.getTime())
+    ? run.completedAt
+    : d.toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return `${when} — ${run.contactCount} contacts`;
+}
+
+function completedRunsOptionsHtml(runs) {
+  if (!runs?.length) {
+    return '<option value="">None yet</option>';
+  }
+  return '<option value="">View a completed job…</option>' +
+    runs.map(r =>
+      `<option value="${escHtml(r.runId)}">${escHtml(formatCompletedRunLabel(r))}</option>`
+    ).join('');
+}
+
+function openCompletedRunDetail(superjobId, runId) {
+  const url = `/job-detail.html?superjob=${encodeURIComponent(superjobId)}&run=${encodeURIComponent(runId)}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+function superjobStatusText(sj) {
+  const run = sj.run;
+  if (run?.status === 'running') return run.message || 'Running…';
+  if (run?.status === 'error') return run.error || run.message || 'Failed';
+  if (run?.status === 'done') {
+    const n = run.contactCount ?? sj.meta?.contactCount;
+    return n != null ? `Done — ${n} contacts` : 'Done';
+  }
+  if (sj.hasResults || sj.meta?.contactCount) {
+    const n = sj.meta?.contactCount;
+    return n != null ? `${n} contacts on disk` : 'Results on disk';
+  }
+  return 'Not run yet';
+}
+
+function superjobStatusClass(sj) {
+  const run = sj.run;
+  if (run?.status === 'running') return 'running';
+  if (run?.status === 'error') return 'error';
+  if (run?.status === 'done' || sj.hasResults || sj.meta?.contactCount) return 'done';
+  return '';
+}
+
+function renderSuperjobTable() {
+  const tbody = document.getElementById('superjob-table-body');
   const warn = document.getElementById('discover-api-warn');
-  if (!sel) return;
+  if (!tbody) return;
   if (warn) warn.style.display = apiAvailable ? 'none' : 'block';
 
   if (!superjobCatalog.length) {
-    sel.innerHTML = '<option value="">No regions loaded</option>';
+    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text3)">No superjobs loaded</td></tr>';
     return;
   }
-  sel.innerHTML = '<option value="">Select a region…</option>' +
-    superjobCatalog.map(sj =>
-      `<option value="${escHtml(sj.id)}">${escHtml(sj.label)} (~${sj.approxPopM}M)</option>`
-    ).join('');
 
-  const route = parseRoute();
-  if (route.superjobId && superjobCatalog.some(s => s.id === route.superjobId)) {
-    sel.value = route.superjobId;
-    onSuperjobSelectChange();
-  }
-}
-
-function renderSuperjobResultsList() {
-  const ul = document.getElementById('superjob-results-list');
-  if (!ul) return;
-  const withResults = superjobCatalog.filter(sj => sj.hasResults || sj.meta?.contactCount);
-  if (!withResults.length) {
-    ul.innerHTML = '<li style="color:var(--text3)">None yet — run a region above.</li>';
-    return;
-  }
-  ul.innerHTML = withResults.map(sj => {
-    const n = sj.meta?.contactCount ?? (sj.hasResults ? '?' : 0);
-    return `<li><span>${escHtml(sj.label)} <span style="color:var(--text3)">(${n} contacts)</span></span>
-      <a href="#/outreach/${escHtml(sj.id)}" onclick="event.preventDefault();navigateOutreach('${escHtml(sj.id)}')">Open →</a></li>`;
+  tbody.innerHTML = superjobCatalog.map(sj => {
+    const discoveryModel = getModelPref(sj.id, 'discovery');
+    const enrichmentModel = getModelPref(sj.id, 'enrichment');
+    const isRunning = sj.run?.status === 'running';
+    const hasResults = sj.hasResults || sj.meta?.contactCount || (sj.completedRuns?.length > 0);
+    const statusClass = superjobStatusClass(sj);
+    const statusText = escHtml(superjobStatusText(sj));
+    const completedRuns = sj.completedRuns || [];
+    return `<tr data-superjob-id="${escHtml(sj.id)}">
+      <td>
+        <div class="superjob-name">${escHtml(sj.label)}</div>
+        <div class="superjob-place">${escHtml(sj.queryPlace || '')}</div>
+      </td>
+      <td class="superjob-pop">~${sj.approxPopM}M</td>
+      <td>
+        <select class="superjob-model-select" data-model-field="discovery" data-superjob-id="${escHtml(sj.id)}" aria-label="Discovery model for ${escHtml(sj.label)}"${isRunning ? ' disabled' : ''}>
+          ${modelOptionsHtml(discoveryModel)}
+        </select>
+      </td>
+      <td>
+        <select class="superjob-model-select" data-model-field="enrichment" data-superjob-id="${escHtml(sj.id)}" aria-label="Enrichment model for ${escHtml(sj.label)}"${isRunning ? ' disabled' : ''}>
+          ${modelOptionsHtml(enrichmentModel)}
+        </select>
+      </td>
+      <td>
+        <select class="superjob-completed-select" data-superjob-id="${escHtml(sj.id)}" aria-label="Completed jobs for ${escHtml(sj.label)}">
+          ${completedRunsOptionsHtml(completedRuns)}
+        </select>
+      </td>
+      <td><span class="superjob-status ${statusClass}" id="superjob-status-${escHtml(sj.id)}">${statusText}</span></td>
+      <td>
+        <div class="superjob-actions">
+          <button type="button" class="superjob-run-link" data-run-superjob="${escHtml(sj.id)}"${!apiAvailable || isRunning ? ' disabled' : ''}>Run job</button>
+          ${hasResults ? `<a href="#/outreach/${escHtml(sj.id)}" class="superjob-open-link" onclick="event.preventDefault();navigateOutreach('${escHtml(sj.id)}')">Open outreach →</a>` : ''}
+        </div>
+      </td>
+    </tr>`;
   }).join('');
 }
 
-function onSuperjobSelectChange() {
-  const sel = document.getElementById('superjob-select');
-  const meta = document.getElementById('superjob-meta');
-  const runBtn = document.getElementById('superjob-run-btn');
-  const openBtn = document.getElementById('superjob-open-btn');
-  if (!sel) return;
-  const id = sel.value;
-  const sj = superjobCatalog.find(s => s.id === id);
-  if (meta) {
-    meta.textContent = sj
-      ? `Searches: ${sj.queryPlace}${sj.hasResults ? ' · Results on disk' : ''}`
-      : '';
-  }
-  if (runBtn) runBtn.disabled = !id || !apiAvailable;
-  if (openBtn) {
-    openBtn.classList.toggle('visible', !!(id && (sj?.hasResults || sj?.meta?.contactCount)));
-    openBtn.onclick = () => navigateOutreach(id);
+async function fetchClaudeModels() {
+  try {
+    const res = await fetch('/api/models');
+    if (!res.ok) throw new Error('models');
+    const data = await res.json();
+    claudeModels = data.models || [];
+    if (data.defaults) modelDefaults = data.defaults;
+  } catch {
+    claudeModels = [
+      { id: 'claude-fable-5', label: 'Claude Fable 5', inputPerMTok: 10, outputPerMTok: 50 },
+      { id: 'claude-opus-4-8', label: 'Claude Opus 4.8', inputPerMTok: 5, outputPerMTok: 25 },
+      { id: 'claude-opus-4-7', label: 'Claude Opus 4.7', inputPerMTok: 5, outputPerMTok: 25 },
+      { id: 'claude-opus-4-6', label: 'Claude Opus 4.6', inputPerMTok: 5, outputPerMTok: 25 },
+      { id: 'claude-opus-4-5', label: 'Claude Opus 4.5', inputPerMTok: 5, outputPerMTok: 25 },
+      { id: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6', inputPerMTok: 3, outputPerMTok: 15 },
+      { id: 'claude-sonnet-4-5', label: 'Claude Sonnet 4.5', inputPerMTok: 3, outputPerMTok: 15 },
+      { id: 'claude-haiku-4-5', label: 'Claude Haiku 4.5', inputPerMTok: 1, outputPerMTok: 5 },
+    ];
   }
 }
 
+function updateSuperjobRowStatus(superjobId, run, meta, hasResults) {
+  const el = document.getElementById(`superjob-status-${superjobId}`);
+  if (!el) return;
+  const sj = superjobCatalog.find(s => s.id === superjobId) || { id: superjobId, run, meta, hasResults };
+  sj.run = run;
+  if (meta) sj.meta = meta;
+  if (hasResults != null) sj.hasResults = hasResults;
+  el.textContent = superjobStatusText(sj);
+  el.className = `superjob-status ${superjobStatusClass(sj)}`;
+}
+
 async function pollSuperjobRun(superjobId) {
-  const prog = document.getElementById('superjob-progress');
-  const runBtn = document.getElementById('superjob-run-btn');
   try {
     const res = await fetch(`/api/superjobs/${encodeURIComponent(superjobId)}/status`);
     const data = await res.json();
     const run = data.run;
-    if (prog && run) {
-      prog.classList.add('active');
-      prog.classList.remove('error');
-      prog.textContent = run.message || run.status;
-      if (run.logs?.length > 1) {
-        prog.textContent = run.logs.slice(-4).join('\n');
-      }
+    const sj = superjobCatalog.find(s => s.id === superjobId);
+    if (sj) {
+      sj.run = run;
+      if (data.meta) sj.meta = data.meta;
+      if (data.hasResults != null) sj.hasResults = data.hasResults;
     }
+    updateSuperjobRowStatus(superjobId, run, data.meta, data.hasResults);
     if (run?.status === 'running') return;
     clearInterval(superjobPollTimer);
     superjobPollTimer = null;
-    if (runBtn) runBtn.disabled = !apiAvailable;
     await fetchSuperjobCatalog();
-    renderSuperjobSelect();
-    renderSuperjobResultsList();
-    document.getElementById('superjob-select').value = superjobId;
-    onSuperjobSelectChange();
+    renderSuperjobTable();
     if (run?.status === 'done') {
-      if (confirm(`Found ${run.contactCount ?? 0} contacts for this region. Open outreach now?`)) {
+      if (confirm(`Found ${run.contactCount ?? 0} contacts for this superjob. Open outreach now?`)) {
         navigateOutreach(superjobId);
       }
-    } else if (run?.status === 'error' && prog) {
-      prog.classList.add('error');
-      prog.textContent = run.error || run.message || 'Run failed';
     }
-  } catch (e) {
+  } catch {
     clearInterval(superjobPollTimer);
     superjobPollTimer = null;
-    if (runBtn) runBtn.disabled = false;
-    if (prog) {
-      prog.classList.add('active', 'error');
-      prog.textContent = 'Lost connection to API server.';
-    }
+    updateSuperjobRowStatus(superjobId, { status: 'error', error: 'Lost connection to API server.' });
+    renderSuperjobTable();
   }
 }
 
-async function runSelectedSuperjob() {
-  const id = document.getElementById('superjob-select')?.value;
-  if (!id || !apiAvailable) return;
-  const runBtn = document.getElementById('superjob-run-btn');
-  const prog = document.getElementById('superjob-progress');
-  if (runBtn) runBtn.disabled = true;
-  if (prog) {
-    prog.classList.add('active');
-    prog.classList.remove('error');
-    prog.textContent = 'Starting…';
-  }
+async function runSuperjob(superjobId) {
+  if (!superjobId || !apiAvailable) return;
+  const discoveryModel = getModelPref(superjobId, 'discovery');
+  const enrichmentModel = getModelPref(superjobId, 'enrichment');
+  updateSuperjobRowStatus(superjobId, { status: 'running', message: 'Starting…' });
+  renderSuperjobTable();
   try {
-    const res = await fetch(`/api/superjobs/${encodeURIComponent(id)}/run`, { method: 'POST' });
+    const res = await fetch(`/api/superjobs/${encodeURIComponent(superjobId)}/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ discoveryModel, enrichmentModel }),
+    });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Run failed');
     if (superjobPollTimer) clearInterval(superjobPollTimer);
-    superjobPollTimer = setInterval(() => pollSuperjobRun(id), 2500);
-    pollSuperjobRun(id);
+    superjobPollTimer = setInterval(() => pollSuperjobRun(superjobId), 2500);
+    pollSuperjobRun(superjobId);
   } catch (e) {
-    if (runBtn) runBtn.disabled = false;
-    if (prog) {
-      prog.classList.add('error');
-      prog.textContent = e.message || String(e);
-    }
+    updateSuperjobRowStatus(superjobId, { status: 'error', error: e.message || String(e) });
+    renderSuperjobTable();
   }
 }
 
@@ -1864,8 +1955,8 @@ async function applyRoute() {
 
   if (route.view === 'discover') {
     showDiscoverView();
-    renderSuperjobSelect();
-    renderSuperjobResultsList();
+    await fetchClaudeModels();
+    renderSuperjobTable();
     return;
   }
 
@@ -1892,16 +1983,32 @@ async function applyRoute() {
 }
 
 async function initSuperjobUI() {
-  const sel = document.getElementById('superjob-select');
-  const runBtn = document.getElementById('superjob-run-btn');
-  if (sel) sel.addEventListener('change', onSuperjobSelectChange);
-  if (runBtn) runBtn.addEventListener('click', runSelectedSuperjob);
+  const table = document.getElementById('superjob-table');
+  if (table) {
+    table.addEventListener('change', (e) => {
+      const completedSel = e.target.closest('.superjob-completed-select');
+      if (completedSel?.value) {
+        openCompletedRunDetail(completedSel.dataset.superjobId, completedSel.value);
+        completedSel.value = '';
+        return;
+      }
+      const sel = e.target.closest('.superjob-model-select');
+      if (!sel) return;
+      saveModelPref(sel.dataset.superjobId, sel.dataset.modelField, sel.value);
+    });
+    table.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-run-superjob]');
+      if (!btn || btn.disabled) return;
+      runSuperjob(btn.dataset.runSuperjob);
+    });
+  }
   window.addEventListener('hashchange', () => applyRoute());
 }
 
 // ── INIT ───────────────────────────────────────────────────
 async function bootApp() {
   initPromptEditor();
+  await initLocalApi();
   await initAuth();
   await initSuperjobUI();
   if (!location.hash) location.hash = '#/discover';

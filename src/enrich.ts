@@ -9,7 +9,7 @@ import {
 import { saveDebugResponse, markEnriched, saveContact } from './storage';
 import { logError, logContactResults } from './logger';
 
-const ENRICHMENT_MODEL = 'claude-sonnet-4-20250514';
+import { DEFAULT_ENRICHMENT_MODEL } from './models';
 const WEB_SEARCH_TOOL = {
   type: 'web_search_20250305',
   name: 'web_search',
@@ -38,7 +38,8 @@ Use empty string "" if not found. Never guess or fabricate contact info.`;
 
 export async function enrichEvent(
   event: SwapEvent,
-  outputDir: string
+  outputDir: string,
+  model: string = DEFAULT_ENRICHMENT_MODEL
 ): Promise<EnrichedContact> {
   const anthropic = getClient();
   const prompt = buildEnrichmentPrompt(event);
@@ -46,7 +47,7 @@ export async function enrichEvent(
   const response = await callWithRetry(
     () =>
       anthropic.messages.create({
-        model: ENRICHMENT_MODEL,
+        model,
         max_tokens: 500,
         tools: [WEB_SEARCH_TOOL],
         messages: [{ role: 'user', content: prompt }],

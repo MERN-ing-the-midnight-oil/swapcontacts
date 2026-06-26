@@ -7,7 +7,7 @@ import { logError, logWarn } from './logger';
 
 dotenv.config();
 
-const DISCOVERY_MODEL = 'claude-opus-4-5';
+import { DEFAULT_DISCOVERY_MODEL } from './models';
 const WEB_SEARCH_TOOL = {
   type: 'web_search_20250305',
   name: 'web_search',
@@ -161,22 +161,24 @@ export function generateEventId(name: string, location: string): string {
 }
 
 function buildDiscoveryPrompt(job: Job): string {
-  return `You are helping build a database of non-profit gear swap events in the USA.
+  return `You are helping build a database of community and nonprofit swap events in the USA.
+
+Include any type: bike swaps, ski swaps, gear swaps, sports equipment exchanges, golf gear swaps, outdoor/mountaineering swaps, school or club exchanges, etc. Do not limit results to one category.
 
 ${job.searchQuery}
 
 For each event or organization found, extract:
 - name: the event or organization name
-- organizer: the organizing entity (club, nonprofit, etc.)
+- organizer: the organizing entity (club, nonprofit, school, etc.)
 - eventUrl: direct URL to the event or organization page
 - location: city and state (e.g. "Portland, OR")
-- type: one of: bike | ski | gear | sports | other
+- type: one of: bike | ski | gear | sports | other (use "other" for golf, outdoor, mountaineering, etc.)
 - source: where you found it (Eventbrite, Facebook, website, etc.)
 - date: when the event occurs (e.g. "Annual - October" or "Spring 2025")
 - description: 1-2 sentences about the event
 
 Return ONLY a valid JSON array. No markdown, no backticks, no explanation.
-Example: [{"name":"...","organizer":"...","eventUrl":"...","location":"...","type":"bike","source":"Eventbrite","date":"Annual - October","description":"..."}]
+Example: [{"name":"...","organizer":"...","eventUrl":"...","location":"...","type":"gear","source":"website","date":"Annual - October","description":"..."}]
 
 If nothing is found, return an empty array: []
 Find as many distinct events as possible, but cap at 12 entries so the response stays valid JSON.`;
@@ -193,7 +195,8 @@ function normalizeType(
 
 export async function runDiscoveryJob(
   job: Job,
-  outputDir: string
+  outputDir: string,
+  model: string = DEFAULT_DISCOVERY_MODEL
 ): Promise<SwapEvent[]> {
   const anthropic = getClient();
   const prompt = buildDiscoveryPrompt(job);
@@ -201,7 +204,7 @@ export async function runDiscoveryJob(
   const response = await callWithRetry(
     () =>
       anthropic.messages.create({
-        model: DISCOVERY_MODEL,
+        model,
         max_tokens: 8192,
         tools: [WEB_SEARCH_TOOL],
         messages: [{ role: 'user', content: prompt }],

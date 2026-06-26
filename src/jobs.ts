@@ -1,6 +1,8 @@
 import { Job } from './types';
+import { REGIONAL_JOBS } from './jobs-regional';
 
-export const JOBS: Job[] = [
+/** Original nationwide discovery jobs (12). */
+export const NATIONWIDE_JOBS: Job[] = [
   {
     id: 'eb-bike',
     name: 'Eventbrite — bike swap',
@@ -133,3 +135,6 @@ export const JOBS: Job[] = [
     foundCount: 0,
   },
 ];
+
+/** All discovery jobs: nationwide pass + regional state grid. */
+export const JOBS: Job[] = [...NATIONWIDE_JOBS, ...REGIONAL_JOBS];

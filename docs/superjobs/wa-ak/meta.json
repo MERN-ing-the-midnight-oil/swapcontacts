@@ -4,6 +4,7 @@
   "queryPlace": "Washington state and Alaska",
   "completedAt": "2026-06-23T22:50:05.464Z",
   "eventCount": 48,
-  "contactCount": 1,
-  "withContact": 1
+  "contactCount": 48,
+  "withContact": 47,
+  "enrichedAt": "2026-06-24T05:16:10.918Z"
 }

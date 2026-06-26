@@ -5,6 +5,7 @@ import { JOBS } from './jobs';
 import { Job, RunOptions, SwapEvent } from './types';
 import { runDiscoveryJob } from './search';
 import { enrichEvent } from './enrich';
+import { shouldRunDiscoveryJob } from './season';
 import {
   loadEvents,
   saveEvent,
@@ -77,24 +78,42 @@ async function saveJobState(
 
 function selectJobs(
   allJobs: Map<string, Job>,
-  jobIds?: string[]
+  jobIds?: string[],
+  regionalOnly?: boolean,
+  nationwideOnly?: boolean
 ): Job[] {
-  const jobs = Array.from(allJobs.values());
-  if (!jobIds || jobIds.length === 0) {
-    return jobs;
+  let jobs = Array.from(allJobs.values());
+  if (regionalOnly) {
+    jobs = jobs.filter((j) => j.id.startsWith('sj-') || j.id.startsWith('reg-'));
+  } else if (nationwideOnly) {
+    jobs = jobs.filter((j) => !j.id.startsWith('sj-') && !j.id.startsWith('reg-'));
   }
-  return jobs.filter((j) => jobIds.includes(j.id));
+  if (jobIds && jobIds.length > 0) {
+    jobs = jobs.filter((j) => jobIds.includes(j.id));
+  }
+  return jobs;
 }
 
 export async function runDiscover(options: RunOptions): Promise<void> {
   const jobState = await loadJobState(options.outputDir);
   const existingEvents = await loadEvents(options.outputDir);
-  const jobsToRun = selectJobs(jobState, options.jobs).filter(
-    (j) => j.status !== 'done'
+  const jobsToRun = selectJobs(
+    jobState,
+    options.jobs,
+    options.regionalOnly,
+    options.nationwideOnly
+  ).filter((j) =>
+    shouldRunDiscoveryJob(j, {
+      allowSeasonalRefresh: options.allowSeasonalRefresh,
+    })
   );
 
   if (jobsToRun.length === 0) {
-    logInfo('All discovery jobs already completed.');
+    logInfo(
+      options.allowSeasonalRefresh
+        ? 'All discovery jobs already completed (or outside seasonal refresh window).'
+        : 'All discovery jobs already completed. Use --seasonal-refresh during a refresh window, or omit --no-seasonal-refresh.'
+    );
     return;
   }
 
@@ -112,7 +131,11 @@ export async function runDiscover(options: RunOptions): Promise<void> {
     const spinner = startSpinner(`Searching for ${job.type} swap events...`);
 
     try {
-      const discovered = await runDiscoveryJob(job, options.outputDir);
+      const discovered = await runDiscoveryJob(
+        job,
+        options.outputDir,
+        options.discoveryModel
+      );
       let newCount = 0;
 
       for (const event of discovered) {
@@ -124,6 +147,7 @@ export async function runDiscover(options: RunOptions): Promise<void> {
       job.status = 'done';
       job.foundCount = discovered.length;
       job.error = undefined;
+      job.completedAt = new Date().toISOString();
       await saveJobState(jobState, options.outputDir);
 
       stopSpinner(true, `${job.id} done — ${discovered.length} found (${newCount} new)`);
@@ -177,7 +201,7 @@ export async function runEnrich(options: RunOptions): Promise<void> {
       const spinner = startSpinner(`Searching contacts for ${event.organizer || event.name}...`);
 
       try {
-        await enrichEvent(event, options.outputDir);
+        await enrichEvent(event, options.outputDir, options.enrichmentModel);
         stopSpinner(true, `Enriched ${event.name}`);
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
@@ -210,11 +234,58 @@ export async function printStatus(outputDir: string): Promise<void> {
   const contacts = await loadContacts(outputDir);
   const paths = getOutputPaths(outputDir);
 
+  const nationwide = JOBS.filter((j) => !j.id.startsWith('sj-') && !j.id.startsWith('reg-'));
+  const regional = JOBS.filter((j) => j.id.startsWith('sj-') || j.id.startsWith('reg-'));
+
+  function jobSummary(jobs: Job[]): { done: number; pending: number; error: number } {
+    let done = 0;
+    let pending = 0;
+    let error = 0;
+    for (const job of jobs) {
+      const state = jobState.get(job.id) ?? job;
+      if (state.status === 'done') done++;
+      else if (state.status === 'error') error++;
+      else pending++;
+    }
+    return { done, pending, error };
+  }
+
+  const nw = jobSummary(nationwide);
+  const reg = jobSummary(regional);
+
   console.log('\nSwap Event Finder — Status');
   console.log('──────────────────────────────────────');
   console.log('Pass 1 — Discovery Jobs');
+  console.log(
+    `  Nationwide:  ${nw.done}/${nationwide.length} done` +
+      (nw.error ? `, ${nw.error} error` : '') +
+      (nw.pending ? `, ${nw.pending} pending` : '')
+  );
+  console.log(
+    `  Superjobs:   ${reg.done}/${regional.length} done` +
+      (reg.error ? `, ${reg.error} error` : '') +
+      (reg.pending ? `, ${reg.pending} pending` : '')
+  );
 
-  for (const job of JOBS) {
+  if (reg.pending > 0 && reg.pending <= 20) {
+    console.log('\n  Pending superjobs:');
+    for (const job of regional) {
+      const state = jobState.get(job.id) ?? job;
+      if (state.status !== 'done' && state.status !== 'error') {
+        console.log(`    ○ ${job.id}`);
+      }
+    }
+  } else if (reg.error > 0 && reg.error <= 10) {
+    console.log('\n  Failed superjobs:');
+    for (const job of regional) {
+      const state = jobState.get(job.id) ?? job;
+      if (state.status === 'error') {
+        console.log(`    ✗ ${job.id}`);
+      }
+    }
+  }
+
+  for (const job of nationwide) {
     const state = jobState.get(job.id) ?? job;
     const icon =
       state.status === 'done'
@@ -225,7 +296,9 @@ export async function printStatus(outputDir: string): Promise<void> {
             ? '…'
             : '○';
     const count =
-      state.status === 'done' ? `${String(state.foundCount).padStart(3)} found` : state.status.padEnd(7);
+      state.status === 'done'
+        ? `${String(state.foundCount).padStart(3)} found`
+        : state.status.padEnd(7);
     console.log(`  ${icon} ${state.id.padEnd(16)} ${count}`);
   }
 
