@@ -281,6 +281,18 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .prompt-template-input:focus { border-color: var(--accent); }
 .prompt-reset-btn { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text2); font-size: 11px; cursor: pointer; font-family: var(--font-sans); }
 .prompt-reset-btn:hover { border-color: var(--border2); color: var(--text); }
+.template-toolbar { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.template-toolbar-row { display: flex; gap: 6px; }
+.template-select { flex: 1; min-width: 0; padding: 7px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text); font-size: 11px; font-family: var(--font-sans); }
+.template-select:focus { border-color: var(--accent); outline: none; }
+.template-name-input { flex: 1; min-width: 0; padding: 7px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text); font-size: 11px; font-family: var(--font-sans); }
+.template-name-input:focus { border-color: var(--accent); outline: none; }
+.template-actions { display: flex; gap: 6px; margin-bottom: 8px; }
+.template-save-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); }
+.template-save-btn:hover { background: var(--accent2); }
+.template-delete-btn { padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text2); font-size: 11px; cursor: pointer; font-family: var(--font-sans); }
+.template-delete-btn:hover { border-color: var(--red); color: var(--red); }
+.template-delete-btn:disabled { opacity: .45; cursor: default; }
 .mobile-list-item { padding: 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .mobile-list-item:active { background: var(--surface2); }
 .mobile-badge { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--accent-dim); color: var(--accent); font-weight: 600; }
@@ -451,8 +463,20 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
       <p class="prompt-hint">Filled in for each draft. Placeholders:
         <code>{name}</code> <code>{Event Title Goes Here}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code>
       </p>
-      <textarea class="prompt-template-input" id="email-prompt-template" oninput="onPromptTemplateInput(this)" placeholder="Loading template…"></textarea>
-      <button type="button" class="prompt-reset-btn" onclick="resetEmailPromptTemplate()">Reset to default template</button>
+      <div class="template-toolbar">
+        <div class="template-toolbar-row">
+          <select class="template-select" id="email-template-select" onchange="onEmailTemplateSelect(this)" aria-label="Saved templates"></select>
+        </div>
+        <div class="template-toolbar-row">
+          <input class="template-name-input" id="email-template-name" type="text" placeholder="Template name" aria-label="Template name">
+        </div>
+      </div>
+      <div class="template-actions">
+        <button type="button" class="template-save-btn" onclick="saveEmailTemplate()">Save</button>
+        <button type="button" class="template-delete-btn" id="email-template-delete" onclick="deleteEmailTemplate()">Delete</button>
+      </div>
+      <textarea class="prompt-template-input" id="email-prompt-template" placeholder="Loading template…"></textarea>
+      <button type="button" class="prompt-reset-btn" onclick="resetEmailPromptTemplate()">Reset default template</button>
     </details>
 
     <div class="sidebar-section">
@@ -562,7 +586,8 @@ let mobileCallIndex = 0;
 let emailGenRunning = false;
 const STORAGE_KEY = 'swap_outreach_v1';
 const EMAIL_GEN_DONE_KEY = 'swap_email_gen_done_v1';
-const PROMPT_TEMPLATE_KEY = 'swap_email_prompt_template_v2';
+const EMAIL_TEMPLATES_KEY = 'swap_email_templates_v1';
+const LEGACY_PROMPT_TEMPLATE_KEY = 'swap_email_prompt_template_v2';
 const CONTACTS_URL = 'contacts.csv';
 let activeSuperjobId = null;
 let superjobCatalog = [];
@@ -578,39 +603,171 @@ function outreachStorageKey() {
 
 const DEFAULT_EMAIL_PROMPT = `Hi There!   I'm a volunteer organizer for the Bellingham Bike Swap in Bellingham, WA.  I found your email online. Is there any chance I could talk to you about the {Event Title Goes Here}? Specifically- I'm wondering if you  already have an app that helps sellers register gear, print tags, etc? I've built an app that does all that (and lots more). It's currently free to use. Any interest in learning more?`;
 
-function getEmailPromptTemplate() {
-  const stored = localStorage.getItem(PROMPT_TEMPLATE_KEY);
-  const el = document.getElementById('email-prompt-template')
-    || document.getElementById('mobile-email-prompt-template');
-  if (el && el.value.trim()) return el.value;
-  return stored || DEFAULT_EMAIL_PROMPT;
+const DEFAULT_EMAIL_TEMPLATE_ID = 'builtin-default';
+
+function loadEmailTemplatesState() {
+  try {
+    const raw = localStorage.getItem(EMAIL_TEMPLATES_KEY);
+    if (raw) {
+      const state = JSON.parse(raw);
+      if (state?.templates?.length) return state;
+    }
+  } catch (e) {}
+  const legacy = localStorage.getItem(LEGACY_PROMPT_TEMPLATE_KEY);
+  const templates = [
+    { id: DEFAULT_EMAIL_TEMPLATE_ID, name: 'Default', body: DEFAULT_EMAIL_PROMPT, builtin: true },
+  ];
+  let activeId = DEFAULT_EMAIL_TEMPLATE_ID;
+  if (legacy && legacy.trim() && legacy !== DEFAULT_EMAIL_PROMPT) {
+    templates.push({ id: 'migrated-custom', name: 'Custom', body: legacy });
+    activeId = 'migrated-custom';
+  }
+  return { activeId, templates };
 }
 
-function saveEmailPromptTemplate(val) {
-  try { localStorage.setItem(PROMPT_TEMPLATE_KEY, val); } catch (e) {}
+function persistEmailTemplatesState(state) {
+  try { localStorage.setItem(EMAIL_TEMPLATES_KEY, JSON.stringify(state)); } catch (e) {}
 }
 
-function syncPromptTextareas(val) {
-  ['email-prompt-template', 'mobile-email-prompt-template'].forEach((id) => {
+function getActiveEmailTemplate() {
+  const state = loadEmailTemplatesState();
+  return state.templates.find((t) => t.id === state.activeId) || state.templates[0];
+}
+
+function emailTemplateFieldIds() {
+  return {
+    select: ['email-template-select', 'mobile-email-template-select'],
+    name: ['email-template-name', 'mobile-email-template-name'],
+    textarea: ['email-prompt-template', 'mobile-email-prompt-template'],
+    deleteBtn: ['email-template-delete', 'mobile-email-template-delete'],
+  };
+}
+
+function getEmailTemplateField(kind) {
+  const ids = emailTemplateFieldIds()[kind] || [];
+  for (const id of ids) {
     const el = document.getElementById(id);
-    if (el && el.value !== val) el.value = val;
+    if (el) return el;
+  }
+  return null;
+}
+
+function populateEmailTemplateSelects(state) {
+  const { select: selectIds } = emailTemplateFieldIds();
+  selectIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = state.templates.map((t) =>
+      `<option value="${escHtml(t.id)}">${escHtml(t.name)}</option>`
+    ).join('');
+    el.value = state.activeId;
   });
 }
 
-function onPromptTemplateInput(el) {
-  saveEmailPromptTemplate(el.value);
-  syncPromptTextareas(el.value);
+function syncEmailTemplateEditor(state = loadEmailTemplatesState()) {
+  const active = state.templates.find((t) => t.id === state.activeId) || state.templates[0];
+  if (!active) return;
+  const { name: nameIds, textarea: textareaIds, deleteBtn: deleteIds } = emailTemplateFieldIds();
+  nameIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = active.name;
+  });
+  textareaIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = active.body;
+  });
+  deleteIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = !!active.builtin;
+  });
+  populateEmailTemplateSelects(state);
+}
+
+function refreshEmailTemplateUI(state = loadEmailTemplatesState()) {
+  syncEmailTemplateEditor(state);
+}
+
+function onEmailTemplateSelect(el) {
+  const state = loadEmailTemplatesState();
+  state.activeId = el.value;
+  persistEmailTemplatesState(state);
+  syncEmailTemplateEditor(state);
+  emailTemplateFieldIds().select.forEach((id) => {
+    const other = document.getElementById(id);
+    if (other && other !== el) other.value = state.activeId;
+  });
+}
+
+function saveEmailTemplate() {
+  const state = loadEmailTemplatesState();
+  const name = (getEmailTemplateField('name')?.value || '').trim();
+  const body = getEmailTemplateField('textarea')?.value ?? '';
+  if (!name) {
+    alert('Enter a template name before saving.');
+    return;
+  }
+  const activeId = getEmailTemplateField('select')?.value || state.activeId;
+  const active = state.templates.find((t) => t.id === activeId);
+  const nameTaken = state.templates.find(
+    (t) => t.id !== activeId && t.name.toLowerCase() === name.toLowerCase()
+  );
+
+  if (nameTaken) {
+    if (!confirm(`Overwrite template "${name}"?`)) return;
+    nameTaken.body = body;
+    state.activeId = nameTaken.id;
+  } else if (active?.builtin && name.toLowerCase() !== active.name.toLowerCase()) {
+    const id = 'tpl_' + Date.now();
+    state.templates.push({ id, name, body });
+    state.activeId = id;
+  } else if (active) {
+    if (!active.builtin) active.name = name;
+    active.body = body;
+    state.activeId = active.id;
+  } else {
+    const id = 'tpl_' + Date.now();
+    state.templates.push({ id, name, body });
+    state.activeId = id;
+  }
+  persistEmailTemplatesState(state);
+  refreshEmailTemplateUI(state);
+}
+
+function deleteEmailTemplate() {
+  const state = loadEmailTemplatesState();
+  const activeId = getEmailTemplateField('select')?.value || state.activeId;
+  const active = state.templates.find((t) => t.id === activeId);
+  if (!active || active.builtin) return;
+  if (!confirm(`Delete template "${active.name}"?`)) return;
+  state.templates = state.templates.filter((t) => t.id !== activeId);
+  if (!state.templates.length) {
+    state.templates = [{ id: DEFAULT_EMAIL_TEMPLATE_ID, name: 'Default', body: DEFAULT_EMAIL_PROMPT, builtin: true }];
+  }
+  if (!state.templates.some((t) => t.id === state.activeId)) {
+    state.activeId = state.templates[0].id;
+  }
+  persistEmailTemplatesState(state);
+  refreshEmailTemplateUI(state);
+}
+
+function getEmailPromptTemplate() {
+  const el = getEmailTemplateField('textarea');
+  if (el && el.value.trim()) return el.value;
+  return getActiveEmailTemplate()?.body || DEFAULT_EMAIL_PROMPT;
 }
 
 function resetEmailPromptTemplate() {
-  if (!confirm('Reset the email template to the default?')) return;
-  saveEmailPromptTemplate(DEFAULT_EMAIL_PROMPT);
-  syncPromptTextareas(DEFAULT_EMAIL_PROMPT);
+  if (!confirm('Reset the default template to the built-in text?')) return;
+  const state = loadEmailTemplatesState();
+  const builtin = state.templates.find((t) => t.id === DEFAULT_EMAIL_TEMPLATE_ID);
+  if (builtin) builtin.body = DEFAULT_EMAIL_PROMPT;
+  state.activeId = DEFAULT_EMAIL_TEMPLATE_ID;
+  persistEmailTemplatesState(state);
+  refreshEmailTemplateUI(state);
 }
 
 function initPromptEditor() {
-  const val = localStorage.getItem(PROMPT_TEMPLATE_KEY) || DEFAULT_EMAIL_PROMPT;
-  syncPromptTextareas(val);
+  refreshEmailTemplateUI();
 }
 
 function applyPromptTemplate(c, template) {
@@ -1521,10 +1678,22 @@ function renderMobileSettings() {
       <button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signInWithMagicLink()">Send magic link</button>
       ${authUser ? `<button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signOutUser()">Sign out</button>` : ''}
     ` : ''}
-    <label style="margin-top:16px">Email template</label>
+    <label style="margin-top:16px">Email templates</label>
     <p class="prompt-hint">Placeholders: <code>{name}</code> <code>{Event Title Goes Here}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code></p>
-    <textarea class="prompt-template-input" id="mobile-email-prompt-template" style="min-height:160px" oninput="onPromptTemplateInput(this)"></textarea>
-    <button type="button" class="prompt-reset-btn" style="margin-bottom:16px" onclick="resetEmailPromptTemplate()">Reset to default template</button>
+    <div class="template-toolbar">
+      <div class="template-toolbar-row">
+        <select class="template-select" id="mobile-email-template-select" onchange="onEmailTemplateSelect(this)" aria-label="Saved templates"></select>
+      </div>
+      <div class="template-toolbar-row">
+        <input class="template-name-input" id="mobile-email-template-name" type="text" placeholder="Template name" aria-label="Template name">
+      </div>
+    </div>
+    <div class="template-actions">
+      <button type="button" class="template-save-btn" onclick="saveEmailTemplate()">Save</button>
+      <button type="button" class="template-delete-btn" id="mobile-email-template-delete" onclick="deleteEmailTemplate()">Delete</button>
+    </div>
+    <textarea class="prompt-template-input" id="mobile-email-prompt-template" style="min-height:160px"></textarea>
+    <button type="button" class="prompt-reset-btn" style="margin-bottom:16px" onclick="resetEmailPromptTemplate()">Reset default template</button>
     <button type="button" class="import-btn" style="width:100%;margin:0 0 12px" onclick="navigateDiscover()">🔍 Find contacts by region</button>
     <button type="button" class="import-btn" style="width:100%;margin:0 0 12px" onclick="startAutoEmailGeneration(true)">Generate all email drafts</button>
     <div class="mobile-banner">${phoneCount} with phone (call queue) · ${emailCount} with email · ${contacts.length - phoneCount} phone-less skipped on Calls tab</div>
