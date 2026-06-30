@@ -13,6 +13,12 @@ export interface SwapEvent {
   discoveredAt: string;
 }
 
+export interface LinkedInPerson {
+  name: string;
+  location: string;
+  role: string;
+}
+
 export interface EnrichedContact {
   sourceId: string;
   orgName: string;
@@ -21,6 +27,7 @@ export interface EnrichedContact {
   email: string;
   phone: string;
   facebook: string;
+  linkedinPeople: LinkedInPerson[];
   website: string;
   notes: string;
   enrichedAt: string;
@@ -75,6 +82,7 @@ export interface RawEnrichmentResult {
   email: string;
   phone: string;
   facebook: string;
+  linkedinPeople: LinkedInPerson[];
   website: string;
   notes: string;
 }

@@ -336,7 +336,7 @@ export async function printExport(outputDir: string): Promise<void> {
   console.log(`Total events:          ${events.size}`);
   console.log(`Total contacts:        ${contacts.size}`);
   console.log(
-    `With email/phone/FB:   ${Array.from(contacts.values()).filter((c) => c.contactFound).length}`
+    `With contact info:     ${Array.from(contacts.values()).filter((c) => c.contactFound).length}`
   );
   console.log('');
   console.log('Events by type:');

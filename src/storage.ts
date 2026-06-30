@@ -3,6 +3,7 @@ import path from 'path';
 import { parse } from 'csv-parse/sync';
 import { createObjectCsvWriter } from 'csv-writer';
 import { SwapEvent, EnrichedContact } from './types';
+import { parseLinkedinPeopleJson } from './linkedin-people';
 
 const EVENTS_FILE = 'events.csv';
 const CONTACTS_FILE = 'contacts.csv';
@@ -30,6 +31,7 @@ const CONTACT_HEADERS = [
   { id: 'email', title: 'email' },
   { id: 'phone', title: 'phone' },
   { id: 'facebook', title: 'facebook' },
+  { id: 'linkedinPeople', title: 'linkedinPeople' },
   { id: 'website', title: 'website' },
   { id: 'notes', title: 'notes' },
   { id: 'enrichedAt', title: 'enrichedAt' },
@@ -97,6 +99,7 @@ function rowToContact(row: Record<string, string>): EnrichedContact {
     email: row.email,
     phone: row.phone,
     facebook: row.facebook,
+    linkedinPeople: parseLinkedinPeopleJson(row.linkedinPeople || row.linkedin),
     website: row.website,
     notes: row.notes,
     enrichedAt: row.enrichedAt,
@@ -241,7 +244,17 @@ export async function saveContact(
 
   await writer.writeRecords([
     {
-      ...contact,
+      sourceId: contact.sourceId,
+      orgName: contact.orgName,
+      location: contact.location,
+      type: contact.type,
+      email: contact.email,
+      phone: contact.phone,
+      facebook: contact.facebook,
+      linkedinPeople: JSON.stringify(contact.linkedinPeople ?? []),
+      website: contact.website,
+      notes: contact.notes,
+      enrichedAt: contact.enrichedAt,
       contactFound: contact.contactFound,
     },
   ]);

@@ -51,11 +51,17 @@ export function logContactResults(found: {
   email: string;
   phone: string;
   facebook: string;
+  linkedinPeopleCount: number;
 }): void {
   const parts: string[] = [];
   if (found.email) parts.push('✓ Found email');
   if (found.phone) parts.push('✓ Found phone');
   if (found.facebook) parts.push('✓ Found Facebook');
+  if (found.linkedinPeopleCount > 0) {
+    parts.push(
+      `✓ Found ${found.linkedinPeopleCount} LinkedIn lead${found.linkedinPeopleCount === 1 ? '' : 's'}`
+    );
+  }
 
   if (parts.length > 0) {
     logSuccess(`  ${parts.join(', ')}`);

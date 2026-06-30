@@ -1,7 +1,7 @@
 # Swap Event Finder
 
 Finds non-profit gear swap events (bike swaps, ski swaps, etc.) across the USA
-and builds a contact database with emails, phone numbers, and Facebook pages.
+and builds a contact database with emails, phone numbers, Facebook pages, and LinkedIn leads (directors, organizers, volunteers).
 
 ## Setup
 

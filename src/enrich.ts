@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { SwapEvent, EnrichedContact, RawEnrichmentResult } from './types';
+import { normalizeLinkedinPeople } from './linkedin-people';
 import {
   getClient,
   callWithRetry,
@@ -28,12 +29,13 @@ Search the web to find their:
 1. Email address (check their website, Facebook About page, Eventbrite organizer profile)
 2. Phone number
 3. Facebook page URL
-4. Website URL (not Eventbrite — their own domain)
+4. Names and locations of gear swap Directors, Organizers, or Volunteers (from event pages, news articles, org websites, Facebook posts — only real names you find cited)
+5. Website URL (not Eventbrite — their own domain)
 
 Return ONLY a valid JSON object. No markdown, no backticks, no explanation.
-{"email":"","phone":"","facebook":"","website":"","notes":"1 sentence about the org"}
+{"email":"","phone":"","facebook":"","linkedinPeople":[{"name":"","location":"","role":""}],"website":"","notes":"1 sentence about the org"}
 
-Use empty string "" if not found. Never guess or fabricate contact info.`;
+For linkedinPeople: each entry needs name (required), location (city/state when known, else event area), and role ("Director", "Organizer", or "Volunteer" when known). Return [] if none found. Never guess or fabricate names or contact info.`;
 }
 
 export async function enrichEvent(
@@ -48,7 +50,7 @@ export async function enrichEvent(
     () =>
       anthropic.messages.create({
         model,
-        max_tokens: 500,
+        max_tokens: 800,
         tools: [WEB_SEARCH_TOOL],
         messages: [{ role: 'user', content: prompt }],
       }) as Promise<Anthropic.Message>,
@@ -88,7 +90,8 @@ export async function enrichEvent(
   const email = parsed.email || '';
   const phone = parsed.phone || '';
   const facebook = parsed.facebook || '';
-  const contactFound = !!(email || phone || facebook);
+  const linkedinPeople = normalizeLinkedinPeople(parsed.linkedinPeople);
+  const contactFound = !!(email || phone || facebook || linkedinPeople.length);
 
   const contact: EnrichedContact = {
     sourceId: event.id,
@@ -98,6 +101,7 @@ export async function enrichEvent(
     email,
     phone,
     facebook,
+    linkedinPeople,
     website: parsed.website || '',
     notes: parsed.notes || '',
     enrichedAt: new Date().toISOString(),
@@ -107,7 +111,7 @@ export async function enrichEvent(
   await saveContact(contact, outputDir);
   await markEnriched(event.id, outputDir);
 
-  logContactResults({ email, phone, facebook });
+  logContactResults({ email, phone, facebook, linkedinPeopleCount: linkedinPeople.length });
 
   return contact;
 }
