@@ -338,8 +338,11 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .superjob-table td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
 .superjob-table tr:last-child td { border-bottom: none; }
 .superjob-table tr:hover td { background: var(--surface2); }
+.superjob-region-cell { display: flex; align-items: flex-start; gap: 10px; }
+.superjob-region-info { min-width: 0; }
 .superjob-name { font-weight: 500; line-height: 1.3; }
 .superjob-place { font-size: 11px; color: var(--text3); margin-top: 2px; max-width: 220px; }
+.superjob-open-link { flex-shrink: 0; margin-top: 1px; }
 .superjob-model-select { width: 100%; min-width: 148px; max-width: 180px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: var(--font-sans); background: var(--surface2); color: var(--text); }
 .superjob-model-select:focus { border-color: var(--accent); outline: none; }
 .superjob-model-select:disabled { opacity: .55; cursor: default; }
@@ -1095,16 +1098,62 @@ function telHref(phone) {
 }
 const EMAIL_SUBJECT = 'Gear Swap Management Tool';
 
-function gmailComposeHref(email, body, subject) {
-  const params = new URLSearchParams({
-    view: 'cm',
-    fs: '1',
-    to: email || '',
-    su: subject || EMAIL_SUBJECT,
-    body: body || '',
-  });
-  return 'https://mail.google.com/mail/?' + params.toString();
+function gmailWebComposeHref(email, body, subject) {
+  const params = new URLSearchParams();
+  if (email) params.set('to', email);
+  params.set('su', subject || EMAIL_SUBJECT);
+  if (body) params.set('body', body);
+  params.set('tf', 'cm');
+  return 'https://mail.google.com/mail/u/0/?' + params.toString();
 }
+
+function gmailAppComposeHref(email, body, subject) {
+  const params = new URLSearchParams();
+  if (email) params.set('to', email);
+  params.set('subject', subject || EMAIL_SUBJECT);
+  if (body) params.set('body', body);
+  return 'googlegmail:///co?' + params.toString();
+}
+
+function mailtoComposeHref(email, body, subject) {
+  const params = new URLSearchParams();
+  params.set('subject', subject || EMAIL_SUBJECT);
+  if (body) params.set('body', body);
+  const qs = params.toString();
+  return `mailto:${email || ''}${qs ? '?' + qs : ''}`;
+}
+
+function gmailComposeHref(email, body, subject) {
+  return isMobileView()
+    ? gmailAppComposeHref(email, body, subject)
+    : gmailWebComposeHref(email, body, subject);
+}
+
+function openEmailCompose(email, body, subject, event) {
+  if (event) event.preventDefault();
+  if (!email) return;
+  const subj = subject || EMAIL_SUBJECT;
+  const msgBody = body || '';
+  if (isMobileView()) {
+    window.location.href = gmailAppComposeHref(email, msgBody, subj);
+    return;
+  }
+  window.open(gmailWebComposeHref(email, msgBody, subj), '_blank', 'noopener');
+}
+
+function openEmailComposeForContact(id, event) {
+  if (event) event.preventDefault();
+  const c = contacts.find(x => x.id === id);
+  if (!c?.email) return;
+  const draftEl = document.getElementById('email-draft') || document.getElementById('mobile-email-draft-' + id);
+  const body = draftEl ? draftEl.value : (getO(id).emailDraft || '');
+  openEmailCompose(c.email, body);
+}
+
+function openMobileEmailCompose(id) {
+  openEmailComposeForContact(id);
+}
+
 function mailtoHref(c, body) {
   return gmailComposeHref(c.email, body || '', EMAIL_SUBJECT);
 }
@@ -1697,8 +1746,8 @@ function selectContact(id) {
             : '<div class="cc-empty">Not found</div>')}
         ${channelCard('Email', 'email', hasEmail(c),
           c.email
-            ? `<div class="cc-value"><a href="${gmailComposeHref(c.email)}" target="_blank" rel="noopener">${escHtml(c.email)}</a></div>
-               <a class="email-btn" href="${gmailComposeHref(c.email)}" target="_blank" rel="noopener">✉ Open in Gmail</a>`
+            ? `<div class="cc-value"><a href="${gmailWebComposeHref(c.email)}" onclick="openEmailComposeForContact('${id}', event)">${escHtml(c.email)}</a></div>
+               <a class="email-btn" href="${gmailWebComposeHref(c.email)}" onclick="openEmailComposeForContact('${id}', event)">✉ Open in Gmail</a>`
             : '<div class="cc-empty">Not found</div>')}
         ${channelCard('Facebook', 'facebook', hasFacebook(c),
           c.facebook
@@ -1721,7 +1770,7 @@ function selectContact(id) {
         <textarea class="email-textarea" id="email-draft" placeholder="Filled from your email template. Edit before sending…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(o.emailDraft||'')}</textarea>
         <div class="email-actions">
           <button class="copy-btn" onclick="copyDraft()">Copy to clipboard</button>
-          ${c.email ? `<a class="mailto-btn" id="mailto-link" href="${gmailComposeHref(c.email, o.emailDraft || '')}" target="_blank" rel="noopener">Open in Gmail</a>` : ''}
+          ${c.email ? `<a class="mailto-btn" id="mailto-link" href="${gmailWebComposeHref(c.email, o.emailDraft || '')}" onclick="openEmailComposeForContact('${id}', event)">Open in Gmail</a>` : ''}
         </div>
       </div>
 
@@ -1828,7 +1877,7 @@ function saveEmailDraft(id, val) {
   // Update mailto link live
   const c = contacts.find(x => x.id === id);
   const ml = document.getElementById('mailto-link');
-  if(ml && c?.email) ml.href = gmailComposeHref(c.email, val);
+  if(ml && c?.email) ml.href = gmailWebComposeHref(c.email, val);
 }
 
 function saveFacebookDraft(id, val) {
@@ -1954,8 +2003,8 @@ function mobileChannelBodyHtml(c, o) {
     const draft = o.emailDraft || '';
     return `
       <div class="mobile-call-phone" style="font-size:16px;margin:12px 0">${escHtml(c.email)}</div>
-      <textarea class="mobile-draft-input" placeholder="Email draft…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(draft)}</textarea>
-      <a class="mobile-call-huge" style="background:var(--blue)" href="${gmailComposeHref(c.email, draft)}" target="_blank" rel="noopener">✉ Open in Gmail</a>
+      <textarea class="mobile-draft-input" id="mobile-email-draft-${id}" placeholder="Email draft…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(draft)}</textarea>
+      <a class="mobile-call-huge" style="background:var(--blue)" href="${gmailWebComposeHref(c.email, draft)}" onclick="openMobileEmailCompose('${id}'); return false;">✉ Open in Gmail</a>
       <div class="mobile-quick-row">
         <button type="button" class="mobile-quick-btn primary" onclick="mobileMarkChannelContacted('email')">✓ Mark email contacted</button>
       </div>`;
@@ -2054,8 +2103,8 @@ function renderMobileEmails() {
     const draftNote = draft
       ? escHtml(draft.slice(0, 120) + (draft.length > 120 ? '…' : ''))
       : 'No draft yet';
-    const send = draft && hasEmail(c)
-      ? `<a class="mobile-send-btn" href="${mailtoHref(c, draft)}" target="_blank" rel="noopener">✉ Open in Gmail</a>`
+    const send = hasEmail(c)
+      ? `<a class="mobile-send-btn" href="${gmailWebComposeHref(c.email, draft)}" onclick="openEmailComposeForContact('${c.id}', event)">✉ Open in Gmail</a>`
       : '';
     return `
       <div class="mobile-email-item">
@@ -2435,8 +2484,13 @@ function renderSuperjobTable() {
     const completedRuns = sj.completedRuns || [];
     return `<tr data-superjob-id="${escHtml(sj.id)}">
       <td>
-        <div class="superjob-name">${escHtml(sj.label)}</div>
-        <div class="superjob-place">${escHtml(sj.queryPlace || '')}</div>
+        <div class="superjob-region-cell">
+          ${hasResults ? `<a href="#/outreach/${escHtml(sj.id)}" class="superjob-open-link" onclick="event.preventDefault();navigateOutreach('${escHtml(sj.id)}')">Open outreach →</a>` : ''}
+          <div class="superjob-region-info">
+            <div class="superjob-name">${escHtml(sj.label)}</div>
+            <div class="superjob-place">${escHtml(sj.queryPlace || '')}</div>
+          </div>
+        </div>
       </td>
       <td class="superjob-pop">~${sj.approxPopM}M</td>
       <td>
@@ -2458,7 +2512,6 @@ function renderSuperjobTable() {
       <td>
         <div class="superjob-actions">
           <button type="button" class="superjob-run-link" data-run-superjob="${escHtml(sj.id)}"${!apiAvailable || isRunning ? ' disabled' : ''}>Run job</button>
-          ${hasResults ? `<a href="#/outreach/${escHtml(sj.id)}" class="superjob-open-link" onclick="event.preventDefault();navigateOutreach('${escHtml(sj.id)}')">Open outreach →</a>` : ''}
         </div>
       </td>
     </tr>`;
