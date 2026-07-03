@@ -16,7 +16,7 @@
     "pipeline": "npm run build && node dist/index.js run",
     "outreach:config": "node scripts/generate-supabase-config.js",
     "outreach:superjobs": "npm run build && node scripts/export-superjobs.js",
-    "outreach:sync": "npm run build && node scripts/export-superjobs.js; test -f contacts.csv || cp output/contacts.csv contacts.csv; cp contacts.csv docs/contacts.csv; cp index.html docs/index.html; cp job-detail.html docs/job-detail.html; mkdir -p docs/icons; cp -R icons/. docs/icons/; cp manifest.webmanifest docs/manifest.webmanifest; npm run outreach:config",
+    "outreach:sync": "npm run build && node scripts/export-superjobs.js; test -f contacts.csv || cp output/contacts.csv contacts.csv; cp contacts.csv docs/contacts.csv; cp index.html docs/index.html; cp job-detail.html docs/job-detail.html; npm run outreach:config",
     "outreach:dev": "npm run build && node dist/api-server.js",
     "outreach:serve": "npm run outreach:sync && npm run outreach:dev"
   },
