@@ -282,16 +282,12 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .mobile-call-btn:active { background: var(--accent2); }
 .phone-inline-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .call-btn-sm { padding: 3px 8px; font-size: 10px; margin-top: 0; }
-.mobile-call-huge { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 14px; font-size: 18px; font-weight: 700; border-radius: 12px; background: var(--accent); color: #fff; text-decoration: none; border: none; margin-bottom: 0; }
-.contact-btn.mobile-call-huge,
-button.mobile-call-huge.contact-btn { background: var(--accent); width: 100%; justify-content: center; margin-bottom: 0; }
-.contact-btn.mobile-call-huge.contacted,
-button.mobile-call-huge.contact-btn.contacted { background: var(--red); }
-.contact-btn.mobile-call-huge:active,
-button.mobile-call-huge.contact-btn:active { background: var(--accent2); }
+.mobile-call-huge { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 14px; font-size: 18px; font-weight: 700; border-radius: 12px; background: var(--accent); color: #fff; text-decoration: none; border: none; margin-bottom: 0; margin-top: 0; }
+.mobile-call-huge.contacted,
+button.mobile-call-huge.contacted { background: var(--red); }
+.mobile-call-huge:active:not(.contacted):not(:disabled) { background: var(--accent2); }
 button.mobile-send-btn.contact-btn { background: var(--accent); border: none; color: #fff; cursor: pointer; font-family: var(--font-sans); }
-button.mobile-send-btn.contact-btn.contacted { background: var(--red); cursor: default; }
-.mobile-call-huge:active { background: var(--accent2); }
+button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
 .mobile-nav { display: flex; border-top: 1px solid var(--border); background: var(--surface); padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0; }
 .mobile-nav-btn { flex: 1; padding: 12px 8px; border: none; background: transparent; color: var(--text3); font-size: 11px; font-family: var(--font-sans); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .mobile-nav-btn.active { color: var(--accent); font-weight: 600; }
@@ -1251,15 +1247,18 @@ function isCustomUrlScheme(href) {
 
 function openExternalHref(href) {
   if (!href || href === '#') return false;
-  if (isCustomUrlScheme(href)) {
-    const a = document.createElement('a');
-    a.href = href;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    return true;
+  // Prefer <a> clicks over window.open — mobile Safari often returns null from
+  // window.open (and blocks the second tab), which previously skipped "contacted".
+  const a = document.createElement('a');
+  a.href = href;
+  if (!isCustomUrlScheme(href)) {
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
   }
-  return !!window.open(href, '_blank', 'noopener,noreferrer');
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  return true;
 }
 
 function buildGmailWebCompose(email, body, subject) {
@@ -1372,13 +1371,41 @@ function messengerComposeHref(facebookUrl, body) {
 
 function getContactDrafts(id) {
   const o = getO(id);
-  const emailEl = document.getElementById('email-draft') || document.getElementById('mobile-email-draft-' + id);
-  const fbEl = document.getElementById('facebook-draft');
-  const mobileFbEl = document.getElementById('mobile-fb-draft-' + id) || document.querySelector('#mobile-panel-call textarea[placeholder="Messenger draft…"]');
+  // Desktop editors belong to currentId only — never reuse them for another org.
+  const useDesktopEditors = currentId === id;
+  const emailEl = useDesktopEditors ? document.getElementById('email-draft') : null;
+  const fbEl = useDesktopEditors ? document.getElementById('facebook-draft') : null;
+  const mobileEmailEl = document.getElementById('mobile-email-draft-' + id);
+  const mobileFbEl = document.getElementById('mobile-fb-draft-' + id)
+    || (mobileCurrentContact()?.id === id
+      ? document.querySelector('#mobile-panel-call textarea[placeholder="Messenger draft…"]')
+      : null);
   return {
-    email: emailEl ? emailEl.value : (o.emailDraft || ''),
-    facebook: fbEl ? fbEl.value : (mobileFbEl ? mobileFbEl.value : (o.facebookDraft || '')),
+    email: (emailEl || mobileEmailEl)?.value ?? (o.emailDraft || ''),
+    facebook: (fbEl || mobileFbEl)?.value ?? (o.facebookDraft || ''),
   };
+}
+
+/** Sync copy so the clipboard is set before opening Gmail/Messenger tabs. */
+function copyToClipboard(text) {
+  if (!text) return false;
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  // Keep in-viewport (iOS Safari rejects off-screen copy targets).
+  ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:none;outline:none;box-shadow:none;background:transparent;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, text.length);
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(ta);
+  if (!ok && navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    return true;
+  }
+  return ok;
 }
 
 function canContactViaEmailOrMessenger(c) {
@@ -1398,13 +1425,49 @@ function markWrittenContact(id) {
   return true;
 }
 
-function openContactForOrg(id, event) {
+/** Instantly flip the pressed Contact button to red Contacted. */
+function paintContactButtonContacted(btn) {
+  if (!btn || btn.disabled) return;
+  btn.classList.add('contacted');
+  btn.disabled = true;
+  btn.textContent = 'Contacted';
+  btn.removeAttribute('onclick');
+  btn.setAttribute('aria-label', 'Already contacted');
+  const slide = btn.closest('.mobile-carousel-slide');
+  if (slide) {
+    slide.classList.remove('is-uncontacted');
+    slide.classList.add('is-contacted');
+    const pill = slide.querySelector('.mobile-status-pill');
+    if (pill) {
+      pill.classList.remove('pending');
+      pill.classList.add('contacted');
+      pill.textContent = 'Contacted';
+    }
+  }
+}
+
+/** Re-render UI but keep this org on screen so the red button stays visible. */
+function refreshContactedUI(id) {
+  if (isMobileView()) {
+    const list = mobileContactList();
+    const idx = list.findIndex(c => c.id === id);
+    if (idx >= 0) mobileCallIndex = idx;
+    renderMobileAll();
+  } else {
+    renderAll();
+    selectContact(id);
+  }
+}
+
+function openContactForOrg(id, event, btnEl) {
   if (event) event.preventDefault();
   const c = contacts.find(x => x.id === id);
   if (!c || !canContactViaEmailOrMessenger(c) || isWrittenContactDone(c)) return;
 
   ensureContactDrafts(c);
   const drafts = getContactDrafts(id);
+  // Prefer email draft (primary form letter); fall back to Messenger draft.
+  const formLetter = (drafts.email || drafts.facebook || '').trim();
 
   const email = buildGmailWebCompose(c.email, drafts.email, EMAIL_SUBJECT);
   const messenger = buildMessengerCompose(c.facebook, drafts.facebook);
@@ -1413,45 +1476,24 @@ function openContactForOrg(id, event) {
     return;
   }
 
-  const copyBody = email.copyBody || messenger.copyBody;
-  if (copyBody) navigator.clipboard.writeText(copyBody).catch(() => {});
+  // Mark contacted and paint the button red immediately — do not wait on tabs.
+  // (GitHub Pages / mobile Safari often block or mis-report window.open.)
+  const btn = btnEl || event?.currentTarget || event?.target?.closest?.('button');
+  paintContactButtonContacted(btn);
+  markWrittenContact(id);
 
-  const emailOk = openExternalHref(email.href);
-  const messengerOk = openExternalHref(messenger.href);
-
-  if (!emailOk || !messengerOk) {
-    alert(
-      'Could not open both contact tabs. Allow pop-ups for this site and try again.' +
-      (copyBody ? ' Your draft was copied to the clipboard — paste it into the message body.' : '')
-    );
-    return;
-  }
-
-  if (copyBody) {
+  const copied = formLetter ? copyToClipboard(formLetter) : false;
+  if (copied) {
     const o = getO(id);
     o.log = o.log || [];
-    o.log.push({ ts: fmtTs(), text: 'Draft copied to clipboard — paste into Gmail and Messenger' });
+    o.log.push({ ts: fmtTs(), text: 'Form letter copied to clipboard — paste into Gmail and Messenger if needed' });
+    saveOutreach();
   }
 
-  markWrittenContact(id);
-  advanceToNextUncontacted(id);
-}
+  openExternalHref(email.href);
+  openExternalHref(messenger.href);
 
-function advanceToNextUncontacted(id) {
-  const next = findNextUncontacted(id);
-  if (isMobileView()) {
-    if (next) {
-      const list = mobileContactList();
-      const idx = list.findIndex(c => c.id === next.id);
-      if (idx >= 0) mobileCallIndex = idx;
-      mobileContactChannel = firstAvailableMobileChannel(next);
-    }
-    renderMobileAll();
-  } else {
-    renderAll();
-    if (next) selectContact(next.id);
-    else if (currentId === id) selectContact(id);
-  }
+  refreshContactedUI(id);
 }
 
 function contactHintText(c) {
@@ -1459,16 +1501,17 @@ function contactHintText(c) {
     return 'Needs both a valid email and Facebook page to contact.';
   }
   if (isWrittenContactDone(c)) return 'Already contacted.';
-  return 'Opens Gmail and Messenger in new tabs and marks this org as contacted.';
+  return 'Copies the form letter, opens Gmail and Messenger, and marks this org as contacted.';
 }
 
 function contactButtonHtml(id, className = 'contact-btn', label = 'Contact') {
   const c = contacts.find(x => x.id === id);
   if (!c || !canContactViaEmailOrMessenger(c)) return '';
+  const classes = /\bcontact-btn\b/.test(className) ? className : `contact-btn ${className}`;
   if (isWrittenContactDone(c)) {
-    return `<button type="button" class="${className} contacted" disabled aria-label="Already contacted">Contacted</button>`;
+    return `<button type="button" class="${classes} contacted" disabled aria-label="Already contacted">Contacted</button>`;
   }
-  return `<button type="button" class="${className}" onclick="openContactForOrg('${id}', event)">${label}</button>`;
+  return `<button type="button" class="${classes}" onclick="openContactForOrg('${id}', event, this)">${label}</button>`;
 }
 
 // ── PERSISTENCE ────────────────────────────────────────────
