@@ -250,7 +250,7 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .mobile-panel { display: none; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); min-height: 0; }
 .mobile-panel.active { display: block; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 #mobile-panel-call.active { display: flex; flex-direction: column; overflow: hidden; padding-bottom: 0; }
-.mobile-carousel-banner { flex-shrink: 0; background: var(--accent-dim); border: 1px solid rgba(47,107,58,.25); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text2); margin-bottom: 12px; text-align: center; }
+.mobile-carousel-banner { flex-shrink: 0; background: var(--accent-dim); border: 1px solid rgba(47,107,58,.25); border-radius: 8px; padding: 8px 10px; font-size: 12px; color: var(--text2); margin-bottom: 8px; text-align: center; }
 .mobile-carousel-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
 .mobile-carousel-viewport { flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; scrollbar-width: none; margin: 0 -16px; padding: 0 8px 16px; }
 .mobile-carousel-viewport::-webkit-scrollbar { display: none; }
@@ -258,22 +258,29 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .mobile-carousel-slide { flex: 0 0 88%; scroll-snap-align: center; scroll-snap-stop: always; min-width: 0; display: flex; }
 .mobile-carousel-slide.is-contacted .mobile-call-card { border-color: rgba(197,48,48,.35); box-shadow: 0 0 0 1px rgba(197,48,48,.08); }
 .mobile-carousel-slide.is-uncontacted .mobile-call-card { border-color: rgba(47,107,58,.35); }
-.mobile-status-pill { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; font-family: var(--font-mono); }
+.mobile-status-pill { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 4px 10px; border-radius: 20px; margin-bottom: 8px; font-family: var(--font-mono); }
 .mobile-status-pill.contacted { background: rgba(197,48,48,.12); color: var(--red); border: 1px solid rgba(197,48,48,.25); }
 .mobile-status-pill.pending { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(47,107,58,.25); }
-.mobile-call-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; width: 100%; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; max-height: 100%; }
-.mobile-call-name { font-size: 22px; font-weight: 600; line-height: 1.25; margin-bottom: 8px; }
-.mobile-call-loc { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
-.mobile-call-phone { font-family: var(--font-mono); font-size: 28px; font-weight: 500; color: var(--accent); margin: 20px 0; letter-spacing: .02em; }
-.mobile-phone-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+.mobile-call-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px 16px; text-align: center; width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; max-height: 100%; box-sizing: border-box; }
+.mobile-call-top { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.mobile-call-meta { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.mobile-call-meta .mobile-status-pill { margin-bottom: 0; }
+.mobile-call-meta .type-pill { margin-bottom: 0; }
+.mobile-call-name { font-size: 18px; font-weight: 600; line-height: 1.25; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mobile-call-loc { font-size: 13px; color: var(--text2); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mobile-call-channels { flex-shrink: 0; }
+.mobile-call-email { font-size: 13px; color: var(--text2); margin: 6px 0; word-break: break-all; line-height: 1.35; }
+.mobile-call-actions { flex-shrink: 0; width: 100%; margin-top: auto; padding-top: 12px; }
+.mobile-call-phone { font-family: var(--font-mono); font-size: 22px; font-weight: 500; color: var(--accent); margin: 8px 0; letter-spacing: .02em; }
+.mobile-phone-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
 .mobile-phone-row .mobile-call-phone { margin: 0; }
 .mobile-call-btn { display: inline-flex; align-items: center; gap: 4px; background: var(--accent); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: 600; text-decoration: none; white-space: nowrap; flex-shrink: 0; border: none; }
 .mobile-call-btn:active { background: var(--accent2); }
 .phone-inline-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .call-btn-sm { padding: 3px 8px; font-size: 10px; margin-top: 0; }
-.mobile-call-huge { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 18px; font-size: 20px; font-weight: 700; border-radius: 12px; background: var(--accent); color: #fff; text-decoration: none; border: none; margin-bottom: 16px; }
+.mobile-call-huge { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 14px; font-size: 18px; font-weight: 700; border-radius: 12px; background: var(--accent); color: #fff; text-decoration: none; border: none; margin-bottom: 0; }
 .contact-btn.mobile-call-huge,
-button.mobile-call-huge.contact-btn { background: var(--accent); width: 100%; justify-content: center; margin-bottom: 16px; }
+button.mobile-call-huge.contact-btn { background: var(--accent); width: 100%; justify-content: center; margin-bottom: 0; }
 .contact-btn.mobile-call-huge.contacted,
 button.mobile-call-huge.contact-btn.contacted { background: var(--red); }
 .contact-btn.mobile-call-huge:active,
@@ -1231,14 +1238,44 @@ function composeQueryString(params) {
     .join('&');
 }
 
-function gmailWebComposeHref(email, body, subject) {
-  const qs = composeQueryString({
+// Safari rejects very long compose URLs and custom schemes opened via window.open.
+const MAX_COMPOSE_URL_LEN = 1800;
+
+function isCustomUrlScheme(href) {
+  return /^[a-z][a-z0-9+.-]*:/i.test(href) && !/^https?:/i.test(href);
+}
+
+function openExternalHref(href) {
+  if (!href || href === '#') return false;
+  if (isCustomUrlScheme(href)) {
+    const a = document.createElement('a');
+    a.href = href;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    return true;
+  }
+  return !!window.open(href, '_blank', 'noopener,noreferrer');
+}
+
+function buildGmailWebCompose(email, body, subject) {
+  const subj = subject || EMAIL_SUBJECT;
+  const params = {
+    view: 'cm',
+    fs: '1',
     to: email || '',
-    su: subject || EMAIL_SUBJECT,
+    su: subj,
     body: body || '',
-    tf: 'cm',
-  });
-  return 'https://mail.google.com/mail/u/0/?' + qs;
+  };
+  const base = 'https://mail.google.com/mail/u/0/?';
+  let href = base + composeQueryString(params);
+  if (href.length <= MAX_COMPOSE_URL_LEN) return { href, copyBody: null };
+  href = base + composeQueryString({ ...params, body: '' });
+  return { href, copyBody: body || null };
+}
+
+function gmailWebComposeHref(email, body, subject) {
+  return buildGmailWebCompose(email, body, subject).href;
 }
 
 function gmailAppComposeHref(email, body, subject) {
@@ -1259,21 +1296,18 @@ function mailtoComposeHref(email, body, subject) {
 }
 
 function gmailComposeHref(email, body, subject) {
-  return isMobileView()
-    ? gmailAppComposeHref(email, body, subject)
-    : gmailWebComposeHref(email, body, subject);
+  return gmailWebComposeHref(email, body, subject);
 }
 
 function openEmailCompose(email, body, subject, event) {
   if (event) event.preventDefault();
   if (!email) return;
   const subj = subject || EMAIL_SUBJECT;
-  const msgBody = body || '';
-  if (isMobileView()) {
-    window.location.href = gmailAppComposeHref(email, msgBody, subj);
-    return;
+  const result = buildGmailWebCompose(email, body || '', subj);
+  if (result.copyBody) navigator.clipboard.writeText(result.copyBody).catch(() => {});
+  if (!openExternalHref(result.href)) {
+    openExternalHref(mailtoComposeHref(email, result.copyBody ? '' : (body || ''), subj));
   }
-  window.open(gmailWebComposeHref(email, msgBody, subj), '_blank', 'noopener');
 }
 
 function openEmailComposeForContact(id, event) {
@@ -1315,11 +1349,21 @@ function facebookPageSlug(facebookUrl) {
   }
 }
 
-function messengerComposeHref(facebookUrl, body) {
+function buildMessengerCompose(facebookUrl, body) {
   const slug = facebookPageSlug(facebookUrl);
-  if (!slug) return facebookUrl || '#';
-  const qs = composeQueryString({ text: body || '' });
-  return 'https://m.me/' + slug + (qs ? '?' + qs : '');
+  if (!slug) {
+    return { href: null, copyBody: null, error: 'Could not build a Messenger link for this Facebook page.' };
+  }
+  const base = 'https://m.me/' + encodeURIComponent(slug);
+  const msgBody = body || '';
+  let href = base + (msgBody ? '?' + composeQueryString({ text: msgBody }) : '');
+  if (href.length <= MAX_COMPOSE_URL_LEN) return { href, copyBody: null };
+  return { href: base, copyBody: msgBody || null };
+}
+
+function messengerComposeHref(facebookUrl, body) {
+  const result = buildMessengerCompose(facebookUrl, body);
+  return result.href || facebookUrl || '#';
 }
 
 function getContactDrafts(id) {
@@ -1358,17 +1402,31 @@ function openContactForOrg(id, event) {
   ensureContactDrafts(c);
   const drafts = getContactDrafts(id);
 
-  const emailHref = isMobileView()
-    ? gmailAppComposeHref(c.email, drafts.email, EMAIL_SUBJECT)
-    : gmailWebComposeHref(c.email, drafts.email, EMAIL_SUBJECT);
-  const emailWin = window.open(emailHref, '_blank', 'noopener');
-  const messengerWin = window.open(messengerComposeHref(c.facebook, drafts.facebook), '_blank', 'noopener');
-
-  if (!emailWin || !messengerWin) {
-    if (emailWin) try { emailWin.close(); } catch (e) {}
-    if (messengerWin) try { messengerWin.close(); } catch (e) {}
-    alert('Could not open both contact tabs. Allow pop-ups for this site and try again.');
+  const email = buildGmailWebCompose(c.email, drafts.email, EMAIL_SUBJECT);
+  const messenger = buildMessengerCompose(c.facebook, drafts.facebook);
+  if (!messenger.href) {
+    alert(messenger.error || 'Could not build a Messenger link for this Facebook page.');
     return;
+  }
+
+  const copyBody = email.copyBody || messenger.copyBody;
+  if (copyBody) navigator.clipboard.writeText(copyBody).catch(() => {});
+
+  const emailOk = openExternalHref(email.href);
+  const messengerOk = openExternalHref(messenger.href);
+
+  if (!emailOk || !messengerOk) {
+    alert(
+      'Could not open both contact tabs. Allow pop-ups for this site and try again.' +
+      (copyBody ? ' Your draft was copied to the clipboard — paste it into the message body.' : '')
+    );
+    return;
+  }
+
+  if (copyBody) {
+    const o = getO(id);
+    o.log = o.log || [];
+    o.log.push({ ts: fmtTs(), text: 'Draft copied to clipboard — paste into Gmail and Messenger' });
   }
 
   markWrittenContact(id);
@@ -2258,36 +2316,23 @@ function mobileChannelTabsHtml(c, o) {
       onclick="setMobileContactChannel('${ch}')" ${!has ? 'disabled' : ''}>${label}${done ? ' ✓' : ''}</button>`).join('')}</div>`;
 }
 
-function mobileCarouselCardBody(c, o) {
-  const id = c.id;
-  let html = '';
+function mobileCarouselChannelsHtml(c) {
+  let channels = '';
   if (hasPhone(c)) {
-    html += `
+    channels += `
       <div class="mobile-phone-row">
         <div class="mobile-call-phone">${escHtml(c.phone)}</div>
         <a class="mobile-call-btn" href="${telHref(c.phone)}">📞 Call</a>
       </div>`;
   }
   if (hasEmail(c)) {
-    const draft = o.emailDraft || '';
-    html += `
-      <div class="mobile-call-phone" style="font-size:15px;margin:12px 0">${escHtml(c.email)}</div>
-      <textarea class="mobile-draft-input" id="mobile-email-draft-${id}" placeholder="Email draft…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(draft)}</textarea>`;
+    channels += `<div class="mobile-call-email">${escHtml(c.email)}</div>`;
   }
-  if (hasFacebook(c)) {
-    const fbDraft = o.facebookDraft || '';
-    html += `
-      <div style="font-size:14px;margin:12px 0"><a href="${c.facebook}" target="_blank" rel="noopener" style="color:var(--blue)">View Facebook page ↗</a></div>
-      <textarea class="mobile-draft-input" id="mobile-fb-draft-${id}" placeholder="Messenger draft…" oninput="saveFacebookDraft('${id}',this.value)">${escHtml(fbDraft)}</textarea>`;
-  }
-  html += contactButtonHtml(id, 'mobile-call-huge');
-  html += `<div class="cc-empty" style="margin-top:8px;font-style:normal;text-align:center">${contactHintText(c)}</div>`;
-  return html;
+  return channels ? `<div class="mobile-call-channels">${channels}</div>` : '';
 }
 
 function mobileCarouselSlideHtml(c, idx) {
   ensureContactDrafts(c);
-  const o = getO(c.id);
   const contacted = isWrittenContactDone(c);
   const statusClass = contacted ? 'contacted' : 'pending';
   const statusLabel = contacted ? 'Contacted' : 'Uncontacted';
@@ -2295,12 +2340,16 @@ function mobileCarouselSlideHtml(c, idx) {
   return `
     <article class="mobile-carousel-slide ${slideClass}" data-carousel-index="${idx}" data-contact-id="${escHtml(c.id)}">
       <div class="mobile-call-card">
-        <span class="mobile-status-pill ${statusClass}">${statusLabel}</span>
-        <div class="type-pill type-${c.type}" style="display:inline-block;margin-bottom:12px">${TYPE_EMOJI[c.type]||''} ${c.type} swap</div>
-        <div class="mobile-call-name">${escHtml(c.name)}</div>
-        <div class="mobile-call-loc">📍 ${escHtml(c.loc || 'Unknown')}</div>
-        ${mobileCarouselCardBody(c, o)}
-        ${c.sourceNotes ? `<p style="margin-top:16px;font-size:12px;color:var(--text2);line-height:1.5;text-align:left">${escHtml(c.sourceNotes)}</p>` : ''}
+        <div class="mobile-call-top">
+          <div class="mobile-call-meta">
+            <span class="mobile-status-pill ${statusClass}">${statusLabel}</span>
+            <span class="type-pill type-${c.type}">${TYPE_EMOJI[c.type]||''} ${c.type} swap</span>
+          </div>
+          <div class="mobile-call-name">${escHtml(c.name)}</div>
+          <div class="mobile-call-loc">📍 ${escHtml(c.loc || 'Unknown')}</div>
+          ${mobileCarouselChannelsHtml(c)}
+        </div>
+        <div class="mobile-call-actions">${contactButtonHtml(c.id, 'mobile-call-huge')}</div>
       </div>
     </article>`;
 }
@@ -2311,8 +2360,8 @@ function updateMobileCarouselBanner() {
   const banner = document.getElementById('mobile-carousel-banner');
   if (!banner) return;
   const list = mobileContactList();
-  const pending = list.filter(isUncontactedForMode).length;
-  const contacted = list.length - pending;
+  const pending = list.filter(isUncontactedWritten).length;
+  const contacted = list.filter(c => hasWrittenContactChannels(c) && isWrittenContactDone(c)).length;
   banner.innerHTML = `<div>${mobileCallIndex + 1} of ${list.length}</div>
     <div class="mobile-carousel-hint">${contacted} contacted · ${pending} uncontacted · swipe ← →</div>`;
 }
