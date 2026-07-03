@@ -52,9 +52,9 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .tstat-val.green { color: var(--accent); }
 .tstat-val.blue { color: var(--blue); }
 .tstat-val.orange { color: var(--orange); }
-.import-btn { margin-left: 16px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); letter-spacing: .02em; transition: background .15s; white-space: nowrap; }
+.import-btn { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); letter-spacing: .02em; transition: background .15s; white-space: nowrap; }
 .import-btn:hover { background: var(--accent2); }
-.sync-wrap { display: flex; align-items: center; gap: 8px; margin-left: auto; font-size: 11px; color: var(--text3); }
+.sync-wrap { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text3); }
 .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
 .sync-dot.live { background: var(--accent); }
 .sync-dot.syncing { background: var(--orange); animation: pulse 1s infinite; }
@@ -161,6 +161,11 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .cc-empty { color: var(--text3); font-style: italic; font-size: 12px; }
 .call-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #fff; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; text-decoration: none; margin-top: 8px; transition: background .15s; }
 .call-btn:hover { background: var(--accent2); }
+.contact-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 600; text-decoration: none; margin-top: 8px; transition: background .15s; cursor: pointer; font-family: var(--font-sans); }
+.contact-btn:hover { background: var(--accent2); }
+.contact-btn.contacted { background: var(--red); cursor: default; opacity: 1; }
+.contact-btn.contacted:hover { background: var(--red); }
+.contact-btn:disabled:not(.contacted) { opacity: .5; cursor: default; }
 .email-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--surface3); color: var(--text); border: 1px solid var(--border2); border-radius: 6px; padding: 6px 12px; font-size: 12px; text-decoration: none; margin-top: 8px; transition: all .15s; cursor: pointer; font-family: var(--font-sans); }
 .email-btn:hover { border-color: var(--accent); color: var(--accent); }
 .linkedin-person { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
@@ -233,23 +238,53 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 /* ── MOBILE ── */
 .mobile-shell { display: none; flex-direction: column; height: 100vh; height: 100dvh; background: var(--bg); }
 .mobile-header { padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top)); background: var(--surface); border-bottom: 1px solid var(--border); }
+.mobile-header-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .mobile-header h1 { font-family: var(--font-mono); font-size: 14px; color: var(--accent); font-weight: 500; }
+.hard-refresh-btn { flex-shrink: 0; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600; line-height: 1; cursor: pointer; font-family: var(--font-sans); white-space: nowrap; }
+.hard-refresh-btn:hover { border-color: var(--border2); color: var(--text); }
+.hard-refresh-btn:active { background: var(--surface3); }
 .mobile-header .mh-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
 .mobile-progress { height: 4px; background: var(--surface3); margin-top: 10px; border-radius: 2px; overflow: hidden; }
 .mobile-progress-fill { height: 100%; background: var(--accent); transition: width .25s; }
-.mobile-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.mobile-panel { display: none; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
-.mobile-panel.active { display: block; }
-.mobile-nav { display: flex; border-top: 1px solid var(--border); background: var(--surface); padding-bottom: env(safe-area-inset-bottom); }
-.mobile-nav-btn { flex: 1; padding: 12px 8px; border: none; background: transparent; color: var(--text3); font-size: 11px; font-family: var(--font-sans); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.mobile-nav-btn.active { color: var(--accent); font-weight: 600; }
-.mobile-nav-btn .nav-icon { font-size: 20px; line-height: 1; }
-.mobile-call-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+.mobile-body { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.mobile-panel { display: none; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); min-height: 0; }
+.mobile-panel.active { display: block; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+#mobile-panel-call.active { display: flex; flex-direction: column; overflow: hidden; padding-bottom: 0; }
+.mobile-carousel-banner { flex-shrink: 0; background: var(--accent-dim); border: 1px solid rgba(47,107,58,.25); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text2); margin-bottom: 12px; text-align: center; }
+.mobile-carousel-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.mobile-carousel-viewport { flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; scrollbar-width: none; margin: 0 -16px; padding: 0 8px 16px; }
+.mobile-carousel-viewport::-webkit-scrollbar { display: none; }
+.mobile-carousel-track { display: flex; gap: 12px; height: 100%; align-items: stretch; }
+.mobile-carousel-slide { flex: 0 0 88%; scroll-snap-align: center; scroll-snap-stop: always; min-width: 0; display: flex; }
+.mobile-carousel-slide.is-contacted .mobile-call-card { border-color: rgba(197,48,48,.35); box-shadow: 0 0 0 1px rgba(197,48,48,.08); }
+.mobile-carousel-slide.is-uncontacted .mobile-call-card { border-color: rgba(47,107,58,.35); }
+.mobile-status-pill { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; font-family: var(--font-mono); }
+.mobile-status-pill.contacted { background: rgba(197,48,48,.12); color: var(--red); border: 1px solid rgba(197,48,48,.25); }
+.mobile-status-pill.pending { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(47,107,58,.25); }
+.mobile-call-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; width: 100%; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; max-height: 100%; }
 .mobile-call-name { font-size: 22px; font-weight: 600; line-height: 1.25; margin-bottom: 8px; }
 .mobile-call-loc { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
 .mobile-call-phone { font-family: var(--font-mono); font-size: 28px; font-weight: 500; color: var(--accent); margin: 20px 0; letter-spacing: .02em; }
+.mobile-phone-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+.mobile-phone-row .mobile-call-phone { margin: 0; }
+.mobile-call-btn { display: inline-flex; align-items: center; gap: 4px; background: var(--accent); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: 600; text-decoration: none; white-space: nowrap; flex-shrink: 0; border: none; }
+.mobile-call-btn:active { background: var(--accent2); }
+.phone-inline-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.call-btn-sm { padding: 3px 8px; font-size: 10px; margin-top: 0; }
 .mobile-call-huge { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 18px; font-size: 20px; font-weight: 700; border-radius: 12px; background: var(--accent); color: #fff; text-decoration: none; border: none; margin-bottom: 16px; }
+.contact-btn.mobile-call-huge,
+button.mobile-call-huge.contact-btn { background: var(--accent); width: 100%; justify-content: center; margin-bottom: 16px; }
+.contact-btn.mobile-call-huge.contacted,
+button.mobile-call-huge.contact-btn.contacted { background: var(--red); }
+.contact-btn.mobile-call-huge:active,
+button.mobile-call-huge.contact-btn:active { background: var(--accent2); }
+button.mobile-send-btn.contact-btn { background: var(--accent); border: none; color: #fff; cursor: pointer; font-family: var(--font-sans); }
+button.mobile-send-btn.contact-btn.contacted { background: var(--red); cursor: default; }
 .mobile-call-huge:active { background: var(--accent2); }
+.mobile-nav { display: flex; border-top: 1px solid var(--border); background: var(--surface); padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0; }
+.mobile-nav-btn { flex: 1; padding: 12px 8px; border: none; background: transparent; color: var(--text3); font-size: 11px; font-family: var(--font-sans); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.mobile-nav-btn.active { color: var(--accent); font-weight: 600; }
+.mobile-nav-btn .nav-icon { font-size: 20px; line-height: 1; }
 .mobile-channel-tabs { display: flex; gap: 0; margin-bottom: 16px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
 .mobile-channel-tab { flex: 1; padding: 11px 6px; border: none; background: var(--surface2); color: var(--text3); font-size: 11px; font-weight: 600; font-family: var(--font-sans); cursor: pointer; border-right: 1px solid var(--border); }
 .mobile-channel-tab:last-child { border-right: none; }
@@ -306,7 +341,7 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 /* Discover / superjob runner */
 .discover-shell { display: none; min-height: 100vh; flex-direction: column; background: var(--bg); }
 .discover-header { display: flex; align-items: center; gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
-.discover-header h1 { font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--accent); }
+.discover-header h1 { font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--accent); flex: 1; min-width: 0; }
 .discover-header h1 span { color: var(--text2); font-weight: 300; }
 .discover-body { flex: 1; overflow-y: auto; padding: 32px 24px 48px; }
 .superjob-completed-select { width: 100%; min-width: 160px; max-width: 220px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: var(--font-sans); background: var(--surface2); color: var(--text); }
@@ -357,8 +392,21 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .superjob-open-link { color: var(--text2); font-size: 12px; text-decoration: none; }
 .superjob-open-link:hover { color: var(--accent); text-decoration: underline; }
 .superjob-pop { font-family: var(--font-mono); font-size: 12px; color: var(--text2); white-space: nowrap; }
-.region-badge { font-size: 11px; color: var(--text2); background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; display: none; }
-.region-badge.visible { display: inline-block; }
+.topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.topbar-right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; }
+.superjob-picker-wrap { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.superjob-picker-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); font-family: var(--font-mono); white-space: nowrap; }
+.superjob-select { min-width: 180px; max-width: 280px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 12px; font-family: var(--font-sans); background: var(--surface2); color: var(--text); cursor: pointer; }
+.superjob-select:focus { border-color: var(--accent); outline: none; }
+.run-superjobs-btn { background: var(--surface); color: var(--accent); border: 1px solid rgba(47,107,58,.35); border-radius: var(--radius); padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); white-space: nowrap; transition: all .15s; }
+.run-superjobs-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+.discover-back-btn { margin-left: 16px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--font-sans); white-space: nowrap; }
+.discover-back-btn:hover { border-color: var(--border2); color: var(--text); }
+.first-uncontacted-btn { background: var(--surface2); color: var(--accent); border: 1px solid rgba(47,107,58,.35); border-radius: var(--radius); padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); white-space: nowrap; transition: all .15s; }
+.first-uncontacted-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+.mobile-superjob-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.mobile-superjob-row .superjob-select { flex: 1; min-width: 0; max-width: none; }
+.mobile-superjob-row .run-superjobs-btn { padding: 6px 10px; font-size: 11px; flex-shrink: 0; }
 
 @media (max-width: 768px) {
   .shell { display: none !important; }
@@ -376,10 +424,12 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 <div class="discover-shell" id="discover-view">
   <header class="discover-header">
     <h1>swap<span>/</span>superjobs</h1>
+    <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Hard refresh page">↻ Refresh</button>
+    <button type="button" class="discover-back-btn" onclick="navigateBackToOutreach()">← Back to outreach</button>
   </header>
   <div class="discover-body">
     <div class="discover-panel">
-      <p class="discover-lead">Each superjob covers a ~10M-person region. Pick discovery and enrichment models per row, run the job, then open outreach for calls, emails, and notes.</p>
+      <p class="discover-lead">Run discovery and enrichment jobs for ~10M-person regions. When a job finishes, contacts appear in outreach — pick the region from the dropdown on the main page.</p>
       <div class="discover-api-warn" id="discover-api-warn">
         Superjob runs need the local API server: <code>npm run outreach:dev</code> (uses <code>ANTHROPIC_API_KEY</code> from <code>.env</code>). You can still open superjobs you've already run.
       </div>
@@ -411,26 +461,37 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 <div class="shell" id="outreach-shell">
   <!-- TOPBAR -->
   <header class="topbar">
-    <div class="topbar-logo">swap<span>/</span>outreach</div>
-    <span class="region-badge" id="region-badge" title="Active region"></span>
-    <button type="button" class="auth-btn" onclick="navigateDiscover()" title="Run superjobs by region">🔍 Superjobs</button>
+    <div class="topbar-left">
+      <div class="topbar-logo">swap<span>/</span>outreach</div>
+      <div class="superjob-picker-wrap">
+        <label class="superjob-picker-label" for="superjob-select">Region</label>
+        <select class="superjob-select" id="superjob-select" onchange="onSuperjobSelectChange(this)" aria-label="Select superjob region">
+          <option value="">Loading regions…</option>
+        </select>
+      </div>
+      <button type="button" class="first-uncontacted-btn" onclick="goToFirstUncontacted()" title="Jump to the first org with pending outreach">First Uncontacted →</button>
+    </div>
     <div class="topbar-stats">
       <div class="tstat"><div class="tstat-val" id="s-total">—</div><div class="tstat-lbl">Total</div></div>
       <div class="tstat"><div class="tstat-val orange" id="s-uncontacted-phone">—</div><div class="tstat-lbl">Uncontacted phone</div></div>
       <div class="tstat"><div class="tstat-val blue" id="s-uncontacted-email">—</div><div class="tstat-lbl">Uncontacted email</div></div>
       <div class="tstat"><div class="tstat-val green" id="s-uncontacted-fb">—</div><div class="tstat-lbl">Uncontacted facebook</div></div>
     </div>
-    <div class="sync-wrap" id="desktop-sync-wrap">
-      <span class="sync-dot" id="sync-dot"></span>
-      <span id="sync-label">Local only</span>
-      <span class="sync-email" id="sync-email"></span>
-      <button type="button" class="auth-btn" id="auth-btn" onclick="handleAuthClick()">Sign in</button>
+    <div class="topbar-right">
+      <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Hard refresh page">↻ Refresh</button>
+      <div class="sync-wrap" id="desktop-sync-wrap">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span id="sync-label">Local only</span>
+        <span class="sync-email" id="sync-email"></span>
+        <button type="button" class="auth-btn" id="auth-btn" onclick="handleAuthClick()">Sign in</button>
+      </div>
+      <button class="import-btn" style="background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="exportOutreach()">↓ Export progress</button>
+      <label class="import-btn" style="background:var(--surface);color:var(--text);border:1px solid var(--border);margin-left:0" for="progress-upload">↑ Import progress</label>
+      <input type="file" id="progress-upload" accept=".json" style="display:none">
+      <label class="import-btn" for="csv-upload">↑ Import CSV</label>
+      <input type="file" id="csv-upload" accept=".csv" style="display:none">
+      <button type="button" class="run-superjobs-btn" onclick="navigateDiscover()" title="Run discovery and enrichment jobs by region">Run superjobs</button>
     </div>
-    <button class="import-btn" style="background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="exportOutreach()">↓ Export progress</button>
-    <label class="import-btn" style="background:var(--surface);color:var(--text);border:1px solid var(--border);margin-left:0" for="progress-upload">↑ Import progress</label>
-    <input type="file" id="progress-upload" accept=".json" style="display:none">
-    <label class="import-btn" for="csv-upload">↑ Import CSV</label>
-    <input type="file" id="csv-upload" accept=".csv" style="display:none">
   </header>
 
   <!-- SIDEBAR -->
@@ -442,7 +503,7 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
     <details class="auth-panel" id="csv-help-panel">
       <summary>🔍 Find contacts by region</summary>
       <div class="auth-panel-body">
-        <p class="auth-msg">Use <strong>🔍 Superjobs</strong> in the top bar to pick a ~10M-population superjob, run discovery, and open outreach for that region.</p>
+        <p class="auth-msg">Pick a region from the <strong>Region</strong> dropdown in the top bar. To generate new contacts, use <strong>Run superjobs</strong> in the upper right.</p>
       </div>
     </details>
 
@@ -534,7 +595,7 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
       <div class="welcome-panel">
         <div class="empty-icon">⇅</div>
         <div class="empty-title" id="empty-title">Loading contacts…</div>
-        <p class="welcome-lead" id="welcome-lead">Track outreach to nonprofit gear swap organizers — phone calls, emails, and Facebook messages — from a simple contact list.</p>
+        <p class="welcome-lead" id="welcome-lead">Track outreach to nonprofit gear swap organizers — phone calls, emails, and Facebook messages — from a simple contact list. Pick a region from the dropdown above to get started.</p>
 
         <div class="welcome-instructions" id="welcome-instructions">
           <h3>Find contacts (built-in)</h3>
@@ -578,8 +639,18 @@ npm run outreach:sync   # copy contacts.csv into this app</div>
 <!-- Mobile outreach mode -->
 <div class="mobile-shell" id="mobile-shell">
   <header class="mobile-header">
-    <h1>swap/outreach</h1>
-    <div class="mh-sub" id="mobile-header-sub">Phone, email & messenger</div>
+    <div class="mobile-header-top">
+      <h1>swap/outreach</h1>
+      <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Hard refresh page" aria-label="Hard refresh page">↻ Refresh</button>
+    </div>
+    <div class="mobile-superjob-row">
+      <select class="superjob-select" id="mobile-superjob-select" onchange="onSuperjobSelectChange(this)" aria-label="Select superjob region">
+        <option value="">Loading regions…</option>
+      </select>
+      <button type="button" class="first-uncontacted-btn" onclick="goToFirstUncontacted()" title="Jump to the first org with pending outreach">First Uncontacted →</button>
+      <button type="button" class="run-superjobs-btn" onclick="navigateDiscover()">Run superjobs</button>
+    </div>
+    <div class="mh-sub" id="mobile-header-sub">Swipe through orgs · phone, email & messenger</div>
     <div class="mobile-progress"><div class="mobile-progress-fill" id="mobile-progress-fill" style="width:0%"></div></div>
   </header>
   <div class="mobile-body">
@@ -625,6 +696,7 @@ let superjobCatalog = [];
 let claudeModels = [];
 let modelDefaults = { discovery: 'claude-opus-4-5', enrichment: 'claude-sonnet-4-5' };
 const MODEL_PREFS_KEY = 'swap_superjob_models_v1';
+const LAST_SUPERJOB_KEY = 'swap_last_superjob_v1';
 let apiAvailable = false;
 let superjobPollTimer = null;
 
@@ -1009,6 +1081,22 @@ function applyPromptTemplate(c, template) {
 function isMobileView() {
   return window.matchMedia('(max-width: 768px)').matches;
 }
+
+async function hardRefreshPage() {
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  } catch (e) {}
+  const url = new URL(window.location.href);
+  url.searchParams.set('_', Date.now().toString());
+  window.location.replace(url.toString());
+}
 function hasPhone(c) {
   return !!(c.phone && c.phone.replace(/\D/g, '').length >= 7);
 }
@@ -1079,7 +1167,19 @@ function isUncontactedForMode(c) {
   if (sortMode === 'phone') return isUncontactedPhone(c);
   if (sortMode === 'email') return isUncontactedEmail(c);
   if (sortMode === 'facebook') return isUncontactedFacebook(c);
-  return isUncontactedPhone(c) || isUncontactedEmail(c) || isUncontactedFacebook(c);
+  return isUncontactedWritten(c);
+}
+function hasWrittenContactChannels(c) {
+  return hasEmail(c) && hasFacebook(c);
+}
+function isUncontactedWritten(c) {
+  if (!hasWrittenContactChannels(c)) return false;
+  return !isWrittenContactDone(c);
+}
+function isWrittenContactDone(c) {
+  if (!hasWrittenContactChannels(c)) return false;
+  const o = getO(c.id);
+  return !!(o.contacted?.email && o.contacted?.facebook);
 }
 function findNextUncontacted(currentId) {
   const list = filteredContacts();
@@ -1093,33 +1193,68 @@ function findNextUncontacted(currentId) {
   }
   return null;
 }
+
+function findFirstUncontacted() {
+  return filteredContacts().find(c => isUncontactedForMode(c)) || null;
+}
+
+function goToFirstUncontacted() {
+  const first = findFirstUncontacted();
+  if (!first) {
+    if (isMobileView()) {
+      renderMobileAll();
+    } else if (contacts.length) {
+      selectContact(contacts[0].id);
+    }
+    return;
+  }
+  if (isMobileView()) {
+    const list = mobileContactList();
+    const idx = list.findIndex(c => c.id === first.id);
+    mobileCallIndex = idx >= 0 ? idx : 0;
+    mobileContactChannel = firstAvailableMobileChannel(first);
+    switchMobileTab('call', document.querySelector('[data-mobile-tab="call"]'));
+    renderMobileAll();
+  } else {
+    selectContact(first.id);
+  }
+}
 function telHref(phone) {
   return 'tel:' + phone.replace(/[^\d+]/g, '');
 }
 const EMAIL_SUBJECT = 'Gear Swap Management Tool';
 
+function composeQueryString(params) {
+  return Object.entries(params)
+    .filter(([, v]) => v != null && v !== '')
+    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v)))
+    .join('&');
+}
+
 function gmailWebComposeHref(email, body, subject) {
-  const params = new URLSearchParams();
-  if (email) params.set('to', email);
-  params.set('su', subject || EMAIL_SUBJECT);
-  if (body) params.set('body', body);
-  params.set('tf', 'cm');
-  return 'https://mail.google.com/mail/u/0/?' + params.toString();
+  const qs = composeQueryString({
+    to: email || '',
+    su: subject || EMAIL_SUBJECT,
+    body: body || '',
+    tf: 'cm',
+  });
+  return 'https://mail.google.com/mail/u/0/?' + qs;
 }
 
 function gmailAppComposeHref(email, body, subject) {
-  const params = new URLSearchParams();
-  if (email) params.set('to', email);
-  params.set('subject', subject || EMAIL_SUBJECT);
-  if (body) params.set('body', body);
-  return 'googlegmail:///co?' + params.toString();
+  const qs = composeQueryString({
+    to: email || '',
+    subject: subject || EMAIL_SUBJECT,
+    body: body || '',
+  });
+  return 'googlegmail:///co?' + qs;
 }
 
 function mailtoComposeHref(email, body, subject) {
-  const params = new URLSearchParams();
-  params.set('subject', subject || EMAIL_SUBJECT);
-  if (body) params.set('body', body);
-  const qs = params.toString();
+  const qs = composeQueryString({
+    subject: subject || EMAIL_SUBJECT,
+    body: body || '',
+  });
   return `mailto:${email || ''}${qs ? '?' + qs : ''}`;
 }
 
@@ -1183,10 +1318,95 @@ function facebookPageSlug(facebookUrl) {
 function messengerComposeHref(facebookUrl, body) {
   const slug = facebookPageSlug(facebookUrl);
   if (!slug) return facebookUrl || '#';
-  const params = new URLSearchParams();
-  if (body) params.set('text', body);
-  const qs = params.toString();
+  const qs = composeQueryString({ text: body || '' });
   return 'https://m.me/' + slug + (qs ? '?' + qs : '');
+}
+
+function getContactDrafts(id) {
+  const o = getO(id);
+  const emailEl = document.getElementById('email-draft') || document.getElementById('mobile-email-draft-' + id);
+  const fbEl = document.getElementById('facebook-draft');
+  const mobileFbEl = document.getElementById('mobile-fb-draft-' + id) || document.querySelector('#mobile-panel-call textarea[placeholder="Messenger draft…"]');
+  return {
+    email: emailEl ? emailEl.value : (o.emailDraft || ''),
+    facebook: fbEl ? fbEl.value : (mobileFbEl ? mobileFbEl.value : (o.facebookDraft || '')),
+  };
+}
+
+function canContactViaEmailOrMessenger(c) {
+  return hasWrittenContactChannels(c);
+}
+
+function markWrittenContact(id) {
+  const c = contacts.find(x => x.id === id);
+  if (!c || isWrittenContactDone(c)) return false;
+  const o = getO(id);
+  o.contacted = o.contacted || {};
+  o.log = o.log || [];
+  if (hasEmail(c)) o.contacted.email = true;
+  if (hasFacebook(c)) o.contacted.facebook = true;
+  o.log.push({ ts: fmtTs(), text: 'Contacted via email & Messenger ✓' });
+  saveOutreach();
+  return true;
+}
+
+function openContactForOrg(id, event) {
+  if (event) event.preventDefault();
+  const c = contacts.find(x => x.id === id);
+  if (!c || !canContactViaEmailOrMessenger(c) || isWrittenContactDone(c)) return;
+
+  ensureContactDrafts(c);
+  const drafts = getContactDrafts(id);
+
+  const emailHref = isMobileView()
+    ? gmailAppComposeHref(c.email, drafts.email, EMAIL_SUBJECT)
+    : gmailWebComposeHref(c.email, drafts.email, EMAIL_SUBJECT);
+  const emailWin = window.open(emailHref, '_blank', 'noopener');
+  const messengerWin = window.open(messengerComposeHref(c.facebook, drafts.facebook), '_blank', 'noopener');
+
+  if (!emailWin || !messengerWin) {
+    if (emailWin) try { emailWin.close(); } catch (e) {}
+    if (messengerWin) try { messengerWin.close(); } catch (e) {}
+    alert('Could not open both contact tabs. Allow pop-ups for this site and try again.');
+    return;
+  }
+
+  markWrittenContact(id);
+  advanceToNextUncontacted(id);
+}
+
+function advanceToNextUncontacted(id) {
+  const next = findNextUncontacted(id);
+  if (isMobileView()) {
+    if (next) {
+      const list = mobileContactList();
+      const idx = list.findIndex(c => c.id === next.id);
+      if (idx >= 0) mobileCallIndex = idx;
+      mobileContactChannel = firstAvailableMobileChannel(next);
+    }
+    renderMobileAll();
+  } else {
+    renderAll();
+    if (next) selectContact(next.id);
+    else if (currentId === id) selectContact(id);
+  }
+}
+
+function contactHintText(c) {
+  if (!canContactViaEmailOrMessenger(c)) {
+    return 'Needs both a valid email and Facebook page to contact.';
+  }
+  if (isWrittenContactDone(c)) return 'Already contacted.';
+  return 'Opens Gmail and Messenger in new tabs and marks this org as contacted.';
+}
+
+function contactButtonHtml(id, className = 'contact-btn', label = 'Contact') {
+  const c = contacts.find(x => x.id === id);
+  if (!c || !canContactViaEmailOrMessenger(c)) return '';
+  if (isWrittenContactDone(c)) {
+    return `<button type="button" class="${className} contacted" disabled aria-label="Already contacted">Contacted</button>`;
+  }
+  return `<button type="button" class="${className}" onclick="openContactForOrg('${id}', event)">${label}</button>`;
 }
 
 // ── PERSISTENCE ────────────────────────────────────────────
@@ -1210,7 +1430,59 @@ function loadOutreach() {
 }
 function saveOutreach() {
   saveOutreachLocalOnly();
-  if (!activeSuperjobId) scheduleCloudSync();
+  scheduleCloudSync();
+}
+
+function readOutreachFromLocalKey(key) {
+  try {
+    const d = localStorage.getItem(key);
+    return d ? JSON.parse(d) : {};
+  } catch {
+    return {};
+  }
+}
+
+function buildCloudOutreachSnapshot() {
+  const snapshot = { _format: 'scoped_v1', default: readOutreachFromLocalKey(STORAGE_KEY), superjobs: {} };
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith(`${STORAGE_KEY}_sj_`)) continue;
+    const sjId = key.slice(`${STORAGE_KEY}_sj_`.length);
+    snapshot.superjobs[sjId] = readOutreachFromLocalKey(key);
+  }
+  if (activeSuperjobId) snapshot.superjobs[activeSuperjobId] = outreach;
+  else snapshot.default = outreach;
+  return snapshot;
+}
+
+function mergeCloudSnapshots(local, remote) {
+  if (!remote || typeof remote !== 'object') return local;
+  if (remote._format !== 'scoped_v1') {
+    return {
+      _format: 'scoped_v1',
+      default: mergeOutreachRecords(local.default || {}, remote),
+      superjobs: { ...(local.superjobs || {}) },
+    };
+  }
+  const merged = { _format: 'scoped_v1', default: mergeOutreachRecords(local.default, remote.default), superjobs: {} };
+  const sjIds = new Set([
+    ...Object.keys(local.superjobs || {}),
+    ...Object.keys(remote.superjobs || {}),
+  ]);
+  sjIds.forEach((sjId) => {
+    merged.superjobs[sjId] = mergeOutreachRecords(local.superjobs?.[sjId], remote.superjobs?.[sjId]);
+  });
+  return merged;
+}
+
+function applyCloudSnapshotToLocal(snapshot) {
+  if (!snapshot || snapshot._format !== 'scoped_v1') return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot.default || {}));
+  Object.entries(snapshot.superjobs || {}).forEach(([sjId, data]) => {
+    localStorage.setItem(`${STORAGE_KEY}_sj_${sjId}`, JSON.stringify(data || {}));
+  });
+  if (activeSuperjobId) outreach = snapshot.superjobs?.[activeSuperjobId] || {};
+  else outreach = snapshot.default || {};
 }
 
 function initSupabaseClient() {
@@ -1310,7 +1582,7 @@ async function pushOutreachToCloud() {
   updateSyncUI('syncing');
   const { error } = await supabaseClient.from('outreach_state').upsert({
     user_id: authUser.id,
-    outreach,
+    outreach: buildCloudOutreachSnapshot(),
     updated_at: new Date().toISOString(),
   }, { onConflict: 'user_id' });
   isPushingCloud = false;
@@ -1342,13 +1614,21 @@ async function pullAndMergeOutreach() {
     updateSyncUI('error', error.message);
     return;
   }
-  const local = { ...outreach };
+  const localSnapshot = buildCloudOutreachSnapshot();
   if (!data?.outreach || Object.keys(data.outreach).length === 0) {
-    if (Object.keys(local).length) await pushOutreachToCloud();
-    else updateSyncUI('live');
+    if (Object.keys(localSnapshot.default || {}).length || Object.keys(localSnapshot.superjobs || {}).length) {
+      await pushOutreachToCloud();
+    } else {
+      updateSyncUI('live');
+    }
     return;
   }
-  applyOutreachData(mergeOutreachRecords(local, data.outreach));
+  const merged = mergeCloudSnapshots(localSnapshot, data.outreach);
+  applyCloudSnapshotToLocal(merged);
+  saveOutreachLocalOnly();
+  renderAll();
+  if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
+  if (isMobileView()) renderMobileAll();
   updateSyncUI('live');
 }
 
@@ -1370,7 +1650,12 @@ function subscribeOutreachRealtime() {
       const remote = payload.new?.outreach;
       if (!remote) return;
       isApplyingRemote = true;
-      applyOutreachData(mergeOutreachRecords(outreach, remote));
+      const merged = mergeCloudSnapshots(buildCloudOutreachSnapshot(), remote);
+      applyCloudSnapshotToLocal(merged);
+      saveOutreachLocalOnly();
+      renderAll();
+      if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
+      if (isMobileView()) renderMobileAll();
       updateSyncUI('live');
       isApplyingRemote = false;
     })
@@ -1510,14 +1795,10 @@ function onContactsLoaded(sourceLabel) {
   document.getElementById('empty-state').style.display = contacts.length ? 'none' : '';
   document.getElementById('contact-detail').style.display = contacts.length ? '' : 'none';
   renderAll();
-  renderMobileAll();
-  if(isMobileView()) {
-    mobileCallIndex = 0;
-    switchMobileTab('call', document.querySelector('[data-mobile-tab="call"]'));
-  } else if(contacts.length && !currentId) {
-    selectContact(contacts[0].id);
-  } else if(currentId && contacts.find(c => c.id === currentId)) {
-    selectContact(currentId);
+  if (contacts.length) {
+    goToFirstUncontacted();
+  } else {
+    renderMobileAll();
   }
   ensureAllDrafts();
   if(sourceLabel) {
@@ -1714,10 +1995,12 @@ function selectContact(id) {
     const checked = o.contacted[channel] ? 'checked' : '';
     const disabled = has ? '' : 'disabled';
     const cls = has ? '' : ' disabled';
+    const autoMarked = channel === 'email' || channel === 'facebook';
+    const inputDisabled = !has || autoMarked ? 'disabled' : '';
     return `
       <div class="contact-card">
         <label class="channel-check${cls}">
-          <input type="checkbox" ${checked} ${disabled} onchange="toggleContacted('${id}','${channel}',this.checked)">
+          <input type="checkbox" ${checked} ${disabled} ${inputDisabled} onchange="toggleContacted('${id}','${channel}',this.checked)">
           <span>${label}</span>
         </label>
         ${contentHtml}
@@ -1741,18 +2024,24 @@ function selectContact(id) {
       <div class="contact-cards">
         ${channelCard('Phone', 'phone', hasPhone(c),
           c.phone
-            ? `<div class="cc-value"><a href="tel:${c.phone.replace(/\s/g,'')}">${escHtml(c.phone)}</a></div>
-               <a class="call-btn" href="tel:${c.phone.replace(/\s/g,'')}">📞 Call now</a>`
+            ? `<div class="phone-inline-row">
+                 <div class="cc-value" style="margin:0"><a href="tel:${c.phone.replace(/\s/g,'')}">${escHtml(c.phone)}</a></div>
+                 <a class="call-btn call-btn-sm" href="tel:${c.phone.replace(/\s/g,'')}">📞 Call</a>
+               </div>`
             : '<div class="cc-empty">Not found</div>')}
         ${channelCard('Email', 'email', hasEmail(c),
           c.email
-            ? `<div class="cc-value"><a href="${gmailWebComposeHref(c.email)}" onclick="openEmailComposeForContact('${id}', event)">${escHtml(c.email)}</a></div>
-               <a class="email-btn" href="${gmailWebComposeHref(c.email)}" onclick="openEmailComposeForContact('${id}', event)">✉ Open in Gmail</a>`
+            ? `<div class="cc-value">${escHtml(c.email)}</div>`
             : '<div class="cc-empty">Not found</div>')}
         ${channelCard('Facebook', 'facebook', hasFacebook(c),
           c.facebook
             ? `<div class="cc-value"><a href="${c.facebook}" target="_blank">View page ↗</a></div>`
             : '<div class="cc-empty">Not found</div>')}
+        ${canContactViaEmailOrMessenger(c) ? `
+        <div class="contact-card">
+          ${contactButtonHtml(id, 'contact-btn')}
+          <div class="cc-empty" style="margin-top:6px;font-style:normal">${contactHintText(c)}</div>
+        </div>` : ''}
         ${channelCard('LinkedIn leads', 'linkedin', hasLinkedinPeople(c), linkedinPeopleCardHtml(c))}
         ${channelCard('Website', 'website', hasWebsite(c),
           c.website
@@ -1770,7 +2059,6 @@ function selectContact(id) {
         <textarea class="email-textarea" id="email-draft" placeholder="Filled from your email template. Edit before sending…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(o.emailDraft||'')}</textarea>
         <div class="email-actions">
           <button class="copy-btn" onclick="copyDraft()">Copy to clipboard</button>
-          ${c.email ? `<a class="mailto-btn" id="mailto-link" href="${gmailWebComposeHref(c.email, o.emailDraft || '')}" onclick="openEmailComposeForContact('${id}', event)">Open in Gmail</a>` : ''}
         </div>
       </div>
 
@@ -1783,7 +2071,6 @@ function selectContact(id) {
         <textarea class="email-textarea" id="facebook-draft" placeholder="Filled from your Facebook template. Edit before sending…" oninput="saveFacebookDraft('${id}',this.value)">${escHtml(o.facebookDraft||'')}</textarea>
         <div class="email-actions">
           <button class="copy-btn" onclick="copyFacebookDraft()">Copy to clipboard</button>
-          ${c.facebook ? `<a class="mailto-btn" id="messenger-link" href="${messengerComposeHref(c.facebook, o.facebookDraft || '')}" target="_blank" rel="noopener">Open in Messenger</a>` : ''}
         </div>
       </div>` : ''}
 
@@ -1820,17 +2107,6 @@ function toggleContacted(id, channel, checked, opts = {}) {
     renderAll();
     if (currentId === id) selectContact(id);
   }
-}
-
-function mobileMarkPhoneContacted() {
-  mobileMarkChannelContacted('phone');
-}
-
-function mobileMarkChannelContacted(channel) {
-  const c = mobileCurrentContact();
-  if (!c) return;
-  toggleContacted(c.id, channel, true);
-  renderMobileCall();
 }
 
 function mobileContactList() {
@@ -1937,7 +2213,7 @@ function switchMobileTab(tab, el) {
   document.getElementById('mobile-panel-' + tab)?.classList.add('active');
   document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
   if(el) el.classList.add('active');
-  const subs = { call: 'Phone, email & messenger', emails: 'Email drafts ready to send', list: 'All contacts', settings: 'Templates & data' };
+  const subs = { call: 'Swipe through orgs', emails: 'Email drafts ready to send', list: 'All contacts', settings: 'Templates & data' };
   const sub = document.getElementById('mobile-header-sub');
   if(sub) sub.textContent = subs[tab] || '';
   if(tab === 'call') renderMobileCall();
@@ -1956,13 +2232,8 @@ function renderMobileAll() {
 }
 
 function updateMobileProgress() {
-  const total = contacts.filter(c => hasPhone(c) || hasEmail(c) || hasFacebook(c)).length;
-  const done = contacts.filter(c => {
-    const o = getO(c.id);
-    return (!hasPhone(c) || o.contacted.phone)
-      && (!hasEmail(c) || o.contacted.email)
-      && (!hasFacebook(c) || o.contacted.facebook);
-  }).length;
+  const total = contacts.filter(hasWrittenContactChannels).length;
+  const done = contacts.filter(c => hasWrittenContactChannels(c) && !isUncontactedWritten(c)).length;
   const pct = total ? Math.round((done / total) * 100) : 0;
   const fill = document.getElementById('mobile-progress-fill');
   if(fill) fill.style.width = pct + '%';
@@ -1987,50 +2258,119 @@ function mobileChannelTabsHtml(c, o) {
       onclick="setMobileContactChannel('${ch}')" ${!has ? 'disabled' : ''}>${label}${done ? ' ✓' : ''}</button>`).join('')}</div>`;
 }
 
-function mobileChannelBodyHtml(c, o) {
+function mobileCarouselCardBody(c, o) {
   const id = c.id;
-  if (mobileContactChannel === 'phone') {
-    if (!hasPhone(c)) return '<div class="mobile-channel-empty">No phone number on file</div>';
-    return `
-      <div class="mobile-call-phone">${escHtml(c.phone)}</div>
-      <a class="mobile-call-huge" href="${telHref(c.phone)}">📞 Call now</a>
-      <div class="mobile-quick-row">
-        <button type="button" class="mobile-quick-btn primary" onclick="mobileMarkChannelContacted('phone')">✓ Mark phone contacted</button>
+  let html = '';
+  if (hasPhone(c)) {
+    html += `
+      <div class="mobile-phone-row">
+        <div class="mobile-call-phone">${escHtml(c.phone)}</div>
+        <a class="mobile-call-btn" href="${telHref(c.phone)}">📞 Call</a>
       </div>`;
   }
-  if (mobileContactChannel === 'email') {
-    if (!hasEmail(c)) return '<div class="mobile-channel-empty">No email address on file</div>';
+  if (hasEmail(c)) {
     const draft = o.emailDraft || '';
-    return `
-      <div class="mobile-call-phone" style="font-size:16px;margin:12px 0">${escHtml(c.email)}</div>
-      <textarea class="mobile-draft-input" id="mobile-email-draft-${id}" placeholder="Email draft…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(draft)}</textarea>
-      <a class="mobile-call-huge" style="background:var(--blue)" href="${gmailWebComposeHref(c.email, draft)}" onclick="openMobileEmailCompose('${id}'); return false;">✉ Open in Gmail</a>
-      <div class="mobile-quick-row">
-        <button type="button" class="mobile-quick-btn primary" onclick="mobileMarkChannelContacted('email')">✓ Mark email contacted</button>
-      </div>`;
+    html += `
+      <div class="mobile-call-phone" style="font-size:15px;margin:12px 0">${escHtml(c.email)}</div>
+      <textarea class="mobile-draft-input" id="mobile-email-draft-${id}" placeholder="Email draft…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(draft)}</textarea>`;
   }
-  if (!hasFacebook(c)) return '<div class="mobile-channel-empty">No Facebook page on file</div>';
-  const fbDraft = o.facebookDraft || '';
+  if (hasFacebook(c)) {
+    const fbDraft = o.facebookDraft || '';
+    html += `
+      <div style="font-size:14px;margin:12px 0"><a href="${c.facebook}" target="_blank" rel="noopener" style="color:var(--blue)">View Facebook page ↗</a></div>
+      <textarea class="mobile-draft-input" id="mobile-fb-draft-${id}" placeholder="Messenger draft…" oninput="saveFacebookDraft('${id}',this.value)">${escHtml(fbDraft)}</textarea>`;
+  }
+  html += contactButtonHtml(id, 'mobile-call-huge');
+  html += `<div class="cc-empty" style="margin-top:8px;font-style:normal;text-align:center">${contactHintText(c)}</div>`;
+  return html;
+}
+
+function mobileCarouselSlideHtml(c, idx) {
+  ensureContactDrafts(c);
+  const o = getO(c.id);
+  const contacted = isWrittenContactDone(c);
+  const statusClass = contacted ? 'contacted' : 'pending';
+  const statusLabel = contacted ? 'Contacted' : 'Uncontacted';
+  const slideClass = contacted ? 'is-contacted' : 'is-uncontacted';
   return `
-    <div style="font-size:14px;margin:12px 0"><a href="${c.facebook}" target="_blank" rel="noopener" style="color:var(--blue)">View Facebook page ↗</a></div>
-    <textarea class="mobile-draft-input" placeholder="Messenger draft…" oninput="saveFacebookDraft('${id}',this.value)">${escHtml(fbDraft)}</textarea>
-    <a class="mobile-call-huge" style="background:#0084ff" href="${messengerComposeHref(c.facebook, fbDraft)}" target="_blank" rel="noopener">💬 Open in Messenger</a>
-    <div class="mobile-quick-row">
-      <button type="button" class="mobile-quick-btn primary" onclick="mobileMarkChannelContacted('facebook')">✓ Mark messenger contacted</button>
-    </div>`;
+    <article class="mobile-carousel-slide ${slideClass}" data-carousel-index="${idx}" data-contact-id="${escHtml(c.id)}">
+      <div class="mobile-call-card">
+        <span class="mobile-status-pill ${statusClass}">${statusLabel}</span>
+        <div class="type-pill type-${c.type}" style="display:inline-block;margin-bottom:12px">${TYPE_EMOJI[c.type]||''} ${c.type} swap</div>
+        <div class="mobile-call-name">${escHtml(c.name)}</div>
+        <div class="mobile-call-loc">📍 ${escHtml(c.loc || 'Unknown')}</div>
+        ${mobileCarouselCardBody(c, o)}
+        ${c.sourceNotes ? `<p style="margin-top:16px;font-size:12px;color:var(--text2);line-height:1.5;text-align:left">${escHtml(c.sourceNotes)}</p>` : ''}
+      </div>
+    </article>`;
+}
+
+let mobileCarouselScrollTimer = null;
+
+function updateMobileCarouselBanner() {
+  const banner = document.getElementById('mobile-carousel-banner');
+  if (!banner) return;
+  const list = mobileContactList();
+  const pending = list.filter(isUncontactedWritten).length;
+  const contacted = list.filter(c => hasWrittenContactChannels(c) && isWrittenContactDone(c)).length;
+  banner.innerHTML = `<div>${mobileCallIndex + 1} of ${list.length}</div>
+    <div class="mobile-carousel-hint">${contacted} contacted · ${pending} uncontacted · swipe ← →</div>`;
+}
+
+function syncMobileCarouselIndexFromScroll() {
+  const vp = document.getElementById('mobile-carousel-viewport');
+  const slides = vp?.querySelectorAll('.mobile-carousel-slide');
+  if (!vp || !slides?.length) return;
+  const center = vp.scrollLeft + vp.clientWidth / 2;
+  let best = 0;
+  let bestDist = Infinity;
+  slides.forEach((slide, i) => {
+    const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
+    const dist = Math.abs(center - slideCenter);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = i;
+    }
+  });
+  if (best !== mobileCallIndex) {
+    mobileCallIndex = best;
+    updateMobileCarouselBanner();
+  }
+}
+
+function onMobileCarouselScroll() {
+  clearTimeout(mobileCarouselScrollTimer);
+  mobileCarouselScrollTimer = setTimeout(syncMobileCarouselIndexFromScroll, 60);
+}
+
+function scrollMobileCarouselToIndex(idx, smooth = true) {
+  const vp = document.getElementById('mobile-carousel-viewport');
+  const slide = vp?.querySelector(`.mobile-carousel-slide[data-carousel-index="${idx}"]`);
+  if (!vp || !slide) return;
+  const left = slide.offsetLeft - (vp.clientWidth - slide.offsetWidth) / 2;
+  vp.scrollTo({ left: Math.max(0, left), behavior: smooth ? 'smooth' : 'auto' });
+  mobileCallIndex = idx;
+  updateMobileCarouselBanner();
+}
+
+function bindMobileCarousel() {
+  const vp = document.getElementById('mobile-carousel-viewport');
+  if (!vp) return;
+  vp.removeEventListener('scroll', onMobileCarouselScroll);
+  vp.addEventListener('scroll', onMobileCarouselScroll, { passive: true });
+  requestAnimationFrame(() => scrollMobileCarouselToIndex(mobileCallIndex, false));
 }
 
 function renderMobileCall() {
   const panel = document.getElementById('mobile-panel-call');
   if(!panel) return;
   const list = mobileContactList();
-  const pending = list.filter(isUncontactedForMode);
   if(contacts.length === 0) {
     panel.innerHTML = `
       <div class="mobile-empty">
         <h2>No contacts loaded</h2>
-        <p>Pick a region and run discovery, or import a CSV.</p>
-        <button type="button" class="import-btn" style="width:100%;margin-top:16px" onclick="navigateDiscover()">🔍 Find by region</button>
+        <p>Select a region from the dropdown above, or run superjobs to generate contacts.</p>
+        <button type="button" class="import-btn" style="width:100%;margin-top:16px" onclick="navigateDiscover()">Run superjobs</button>
       </div>`;
     updateMobileProgress();
     return;
@@ -2041,24 +2381,14 @@ function renderMobileCall() {
     return;
   }
   if(mobileCallIndex >= list.length) mobileCallIndex = 0;
-  const c = list[mobileCallIndex];
-  ensureContactDrafts(c);
-  const o = getO(c.id);
-  if (!hasPhone(c) && mobileContactChannel === 'phone') mobileContactChannel = firstAvailableMobileChannel(c);
-  if (!hasEmail(c) && mobileContactChannel === 'email') mobileContactChannel = firstAvailableMobileChannel(c);
-  if (!hasFacebook(c) && mobileContactChannel === 'facebook') mobileContactChannel = firstAvailableMobileChannel(c);
-  const pos = mobileCallIndex + 1;
   panel.innerHTML = `
-    <div class="mobile-banner">${pos} of ${list.length} · ${pending.length} with pending outreach</div>
-    <div class="mobile-call-card">
-      <div class="type-pill type-${c.type}" style="display:inline-block;margin-bottom:12px">${TYPE_EMOJI[c.type]||''} ${c.type} swap</div>
-      <div class="mobile-call-name">${escHtml(c.name)}</div>
-      <div class="mobile-call-loc">📍 ${escHtml(c.loc || 'Unknown')}</div>
-      ${mobileChannelTabsHtml(c, o)}
-      ${mobileChannelBodyHtml(c, o)}
-      <button type="button" class="mobile-skip-btn" onclick="skipMobileCall()">Next contact →</button>
-      ${c.sourceNotes ? `<p style="margin-top:16px;font-size:12px;color:var(--text2);line-height:1.5;text-align:left">${escHtml(c.sourceNotes)}</p>` : ''}
+    <div class="mobile-carousel-banner" id="mobile-carousel-banner"></div>
+    <div class="mobile-carousel-viewport" id="mobile-carousel-viewport">
+      <div class="mobile-carousel-track" id="mobile-carousel-track">
+        ${list.map((c, i) => mobileCarouselSlideHtml(c, i)).join('')}
+      </div>
     </div>`;
+  bindMobileCarousel();
   updateMobileProgress();
 }
 
@@ -2077,15 +2407,8 @@ function mobileOpenContact(id) {
 
 function skipMobileCall() {
   const list = mobileContactList();
-  if(!list.length) return;
-  const c = list[mobileCallIndex];
-  const o = getO(c.id);
-  o.log = o.log || [];
-  o.log.push({ ts: fmtTs(), text: 'Skipped to next contact' });
-  saveOutreach();
-  mobileCallIndex = (mobileCallIndex + 1) % list.length;
-  mobileContactChannel = firstAvailableMobileChannel(list[mobileCallIndex]);
-  renderMobileCall();
+  if (!list.length) return;
+  scrollMobileCarouselToIndex((mobileCallIndex + 1) % list.length, true);
 }
 
 function renderMobileEmails() {
@@ -2103,8 +2426,8 @@ function renderMobileEmails() {
     const draftNote = draft
       ? escHtml(draft.slice(0, 120) + (draft.length > 120 ? '…' : ''))
       : 'No draft yet';
-    const send = hasEmail(c)
-      ? `<a class="mobile-send-btn" href="${gmailWebComposeHref(c.email, draft)}" onclick="openEmailComposeForContact('${c.id}', event)">✉ Open in Gmail</a>`
+    const send = canContactViaEmailOrMessenger(c)
+      ? contactButtonHtml(c.id, 'mobile-send-btn')
       : '';
     return `
       <div class="mobile-email-item">
@@ -2121,14 +2444,12 @@ function renderMobileList() {
   if(!panel) return;
   panel.innerHTML = contacts.map(c => {
     const o = getO(c.id);
-    const pending = (hasPhone(c) && !o.contacted.phone ? '📞' : '')
-      + (hasEmail(c) && !o.contacted.email ? ' ✉' : '')
-      + (hasFacebook(c) && !o.contacted.facebook ? ' f' : '');
+    const pending = isUncontactedWritten(c) ? '✉💬 pending' : (hasWrittenContactChannels(c) ? '✓ contacted' : '— no email+facebook');
     return `
       <div class="mobile-list-item" onclick="mobileOpenContact('${c.id}')">
         <div style="flex:1">
           <div style="font-weight:500;font-size:14px">${escHtml(c.name)}</div>
-          <div style="font-size:11px;color:var(--text3)">${escHtml(c.loc)} ${pending || '✓ all contacted'}</div>
+          <div style="font-size:11px;color:var(--text3)">${escHtml(c.loc)} · ${pending}</div>
         </div>
       </div>`;
   }).join('') || '<div class="mobile-empty">No contacts</div>';
@@ -2180,7 +2501,7 @@ function renderMobileSettings() {
     </div>
     <textarea class="prompt-template-input" id="mobile-facebook-prompt-template" style="min-height:160px"></textarea>
     <button type="button" class="prompt-reset-btn" style="margin-bottom:16px" onclick="resetFacebookPromptTemplate()">Reset default template</button>
-    <button type="button" class="import-btn" style="width:100%;margin:0 0 12px" onclick="navigateDiscover()">🔍 Find contacts by region</button>
+    <button type="button" class="import-btn" style="width:100%;margin:0 0 12px" onclick="navigateDiscover()">Run superjobs</button>
     <div class="mobile-banner">${phoneCount} with phone (call queue) · ${emailCount} with email · ${contacts.length - phoneCount} phone-less skipped on Calls tab</div>
     <button type="button" class="mobile-skip-btn" onclick="exportOutreach()">↓ Export progress JSON</button>
     <label style="margin-top:16px;display:block">
@@ -2300,11 +2621,16 @@ function parseRoute() {
   if (parts[0] === 'outreach') {
     return { view: 'outreach', superjobId: parts[1] || null };
   }
-  return { view: 'discover' };
+  return { view: 'outreach', superjobId: null };
 }
 
 function navigateDiscover() {
   location.hash = '#/discover';
+}
+
+function navigateBackToOutreach() {
+  const id = activeSuperjobId || resolveDefaultSuperjobId();
+  navigateOutreach(id);
 }
 
 function navigateOutreach(superjobId) {
@@ -2328,17 +2654,70 @@ function showOutreachView() {
   }
 }
 
-function updateRegionBadge() {
-  const badge = document.getElementById('region-badge');
-  if (!badge) return;
-  if (!activeSuperjobId) {
-    badge.classList.remove('visible');
-    badge.textContent = '';
-    return;
+function saveLastSuperjob(id) {
+  if (id) localStorage.setItem(LAST_SUPERJOB_KEY, id);
+}
+
+function loadLastSuperjob() {
+  try {
+    return localStorage.getItem(LAST_SUPERJOB_KEY) || null;
+  } catch {
+    return null;
   }
-  const sj = superjobCatalog.find(s => s.id === activeSuperjobId);
-  badge.textContent = sj ? sj.label : activeSuperjobId;
-  badge.classList.add('visible');
+}
+
+function superjobHasResults(sj) {
+  return !!(sj.hasResults || sj.meta?.contactCount > 0);
+}
+
+function resolveDefaultSuperjobId() {
+  const last = loadLastSuperjob();
+  if (last && superjobCatalog.some(s => s.id === last && superjobHasResults(s))) return last;
+  const withResults = superjobCatalog.find(s => superjobHasResults(s));
+  if (withResults) return withResults.id;
+  if (last && superjobCatalog.some(s => s.id === last)) return last;
+  return superjobCatalog[0]?.id || null;
+}
+
+function renderSuperjobSelects() {
+  const selects = [
+    document.getElementById('superjob-select'),
+    document.getElementById('mobile-superjob-select'),
+  ].filter(Boolean);
+  if (!selects.length) return;
+
+  let html = '';
+  if (!superjobCatalog.length) {
+    html = '<option value="">No regions loaded</option>';
+  } else {
+    html = superjobCatalog.map(sj => {
+      const hasResults = superjobHasResults(sj);
+      const label = sj.label || sj.id;
+      const suffix = hasResults ? '' : ' (no contacts yet)';
+      const selected = activeSuperjobId === sj.id ? ' selected' : '';
+      return `<option value="${escHtml(sj.id)}"${selected}>${escHtml(label)}${escHtml(suffix)}</option>`;
+    }).join('');
+  }
+
+  selects.forEach(sel => {
+    sel.innerHTML = html;
+    if (activeSuperjobId) sel.value = activeSuperjobId;
+  });
+}
+
+function onSuperjobSelectChange(sel) {
+  const id = sel.value;
+  if (!id || id === activeSuperjobId) return;
+  navigateOutreach(id);
+}
+
+function showOutreachNoContactsMessage() {
+  const title = document.getElementById('empty-title');
+  const sub = document.getElementById('empty-sub');
+  if (title) title.textContent = 'No contacts for this region yet';
+  if (sub) sub.innerHTML = 'Use <strong>Run superjobs</strong> in the upper right to generate contacts, or pick another region from the dropdown.';
+  document.getElementById('empty-state').style.display = '';
+  document.getElementById('contact-detail').style.display = 'none';
 }
 
 async function enrichCatalogResults() {
@@ -2625,22 +3004,33 @@ async function applyRoute() {
     return;
   }
 
+  if (!route.superjobId) {
+    const defaultId = resolveDefaultSuperjobId();
+    if (defaultId) {
+      navigateOutreach(defaultId);
+      return;
+    }
+  }
+
   showOutreachView();
   currentId = null;
 
   if (route.superjobId) {
     activeSuperjobId = route.superjobId;
+    saveLastSuperjob(route.superjobId);
     loadOutreach();
-    updateRegionBadge();
+    renderSuperjobSelects();
     const ok = await loadSuperjobContacts(route.superjobId);
     if (!ok) {
-      alert('No contacts for this region yet. Run it from Discover first.');
-      navigateDiscover();
+      contacts = [];
+      outreach = {};
+      showOutreachNoContactsMessage();
+      renderAll();
     }
   } else {
     activeSuperjobId = null;
     loadOutreach();
-    updateRegionBadge();
+    renderSuperjobSelects();
     await loadContactsFromUrl(CONTACTS_URL);
   }
 
@@ -2676,7 +3066,7 @@ async function bootApp() {
   await initLocalApi();
   await initAuth();
   await initSuperjobUI();
-  if (!location.hash) location.hash = '#/discover';
+  if (!location.hash) location.hash = '#/outreach';
   await applyRoute();
 }
 
