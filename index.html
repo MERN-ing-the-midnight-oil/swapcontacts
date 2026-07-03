@@ -6,10 +6,22 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Swap Outreach">
 <meta name="theme-color" content="#f5f6f2">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png" class="site-icon">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png" class="site-icon">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" class="site-icon">
+<link rel="manifest" href="manifest.webmanifest" class="site-icon">
+<script>
+(function () {
+  var path = location.pathname;
+  var base = path.endsWith('/') ? path : path.slice(0, path.lastIndexOf('/') + 1);
+  document.querySelectorAll('.site-icon').forEach(function (el) {
+    var href = el.getAttribute('href');
+    if (href && href.indexOf('://') === -1 && href.charAt(0) !== '/') {
+      el.setAttribute('href', base + href);
+    }
+  });
+})();
+</script>
 <title>Swap Outreach</title>
 <!-- build: light-v3 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
