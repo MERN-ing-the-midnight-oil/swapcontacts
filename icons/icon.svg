@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Swap Outreach">
+  <rect width="180" height="180" rx="40" fill="#2f6b3a"/>
+  <g fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M90 38v52"/>
+    <path d="M68 60l22-22 22 22"/>
+    <path d="M90 142V90"/>
+    <path d="M68 120l22 22 22-22"/>
+  </g>
+</svg>

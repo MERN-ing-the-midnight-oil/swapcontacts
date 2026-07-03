@@ -142,6 +142,9 @@ async function serveStatic(urlPath: string, res: http.ServerResponse): Promise<b
       '.css': 'text/css',
       '.csv': 'text/csv',
       '.json': 'application/json',
+      '.png': 'image/png',
+      '.svg': 'image/svg+xml',
+      '.webmanifest': 'application/manifest+json',
     };
     const body = await fs.readFile(filePath);
     res.writeHead(200, { 'Content-Type': types[ext] || 'application/octet-stream' });

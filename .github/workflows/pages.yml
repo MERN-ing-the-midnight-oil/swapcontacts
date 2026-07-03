@@ -28,6 +28,8 @@ jobs:
           test -f contacts.csv || cp output/contacts.csv contacts.csv 2>/dev/null || true
           cp contacts.csv docs/contacts.csv
           cp index.html docs/index.html
+          cp -R icons docs/icons
+          cp manifest.webmanifest docs/manifest.webmanifest
           if [ -n "${{ secrets.SUPABASE_URL }}" ] && [ -n "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
             node scripts/generate-supabase-config.js
           fi
