@@ -3,27 +3,31 @@
 const fs = require('fs');
 const path = require('path');
 
-const distPath = path.join(__dirname, '..', 'dist', 'superjobs.js');
+const root = path.join(__dirname, '..');
+const distPath = path.join(root, 'dist', 'superjobs.js');
 if (!fs.existsSync(distPath)) {
   console.error('Run npm run build first.');
   process.exit(1);
 }
 
 const { SUPERJOBS } = require(distPath);
-const out = path.join(__dirname, '..', 'docs', 'superjobs.json');
+const docsSuperjobs = path.join(root, 'docs', 'superjobs');
+const out = path.join(root, 'docs', 'superjobs.json');
 fs.mkdirSync(path.dirname(out), { recursive: true });
-fs.writeFileSync(
-  out,
-  JSON.stringify(
-    SUPERJOBS.map((sj) => ({
-      id: sj.id,
-      label: sj.label,
-      queryPlace: sj.queryPlace,
-      approxPopM: sj.approxPopM,
-      stateCodes: sj.stateCodes,
-    })),
-    null,
-    2
-  )
-);
-console.log('Wrote docs/superjobs.json');
+
+const catalog = SUPERJOBS.map((sj) => {
+  const csvPath = path.join(docsSuperjobs, sj.id, 'contacts.csv');
+  const hasResults = fs.existsSync(csvPath);
+  return {
+    id: sj.id,
+    label: sj.label,
+    queryPlace: sj.queryPlace,
+    approxPopM: sj.approxPopM,
+    stateCodes: sj.stateCodes,
+    hasResults,
+  };
+});
+
+fs.writeFileSync(out, JSON.stringify(catalog, null, 2));
+const withResults = catalog.filter((s) => s.hasResults).length;
+console.log(`Wrote docs/superjobs.json (${withResults}/${catalog.length} with contacts)`);

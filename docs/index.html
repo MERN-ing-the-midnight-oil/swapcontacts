@@ -6,13 +6,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Swap Outreach">
 <meta name="theme-color" content="#f5f6f2">
-<link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/MERN-ing-the-midnight-oil/swapcontacts/main/icons/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="https://raw.githubusercontent.com/MERN-ing-the-midnight-oil/swapcontacts/main/icons/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/MERN-ing-the-midnight-oil/swapcontacts/main/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <title>Swap Outreach</title>
 <!-- build: light-v3 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
 <style>
 :root {
   --bg: #f5f6f2;
@@ -682,8 +684,6 @@ npm run outreach:sync   # copy contacts.csv into this app</div>
   </nav>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js" onerror="window.SUPABASE_CONFIG=null"></script>
 <script>
 // ── STATE ──────────────────────────────────────────────────
 let contacts = [];      // all loaded contacts
@@ -705,7 +705,10 @@ let modelDefaults = { discovery: 'claude-opus-4-5', enrichment: 'claude-sonnet-4
 const MODEL_PREFS_KEY = 'swap_superjob_models_v1';
 const LAST_SUPERJOB_KEY = 'swap_last_superjob_v1';
 let apiAvailable = false;
+let apiChecked = false;
+let catalogFetched = false;
 let superjobPollTimer = null;
+let supabaseLoadPromise = null;
 
 function outreachStorageKey() {
   return activeSuperjobId ? `${STORAGE_KEY}_sj_${activeSuperjobId}` : STORAGE_KEY;
@@ -1089,6 +1092,10 @@ function isMobileView() {
   return window.matchMedia('(max-width: 768px)').matches;
 }
 
+function isMobileBrowser() {
+  return isMobileView() || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
 async function hardRefreshPage() {
   try {
     if ('serviceWorker' in navigator) {
@@ -1245,13 +1252,13 @@ function isCustomUrlScheme(href) {
   return /^[a-z][a-z0-9+.-]*:/i.test(href) && !/^https?:/i.test(href);
 }
 
-function openExternalHref(href) {
+function openExternalHref(href, opts = {}) {
   if (!href || href === '#') return false;
-  // Prefer <a> clicks over window.open — mobile Safari often returns null from
-  // window.open (and blocks the second tab), which previously skipped "contacted".
+  // iOS Chrome/Safari often leave programmatic _blank tabs stuck on "Untitled".
+  const useSameTab = opts.sameTab ?? (isMobileBrowser() && !opts.newTab && !isCustomUrlScheme(href));
   const a = document.createElement('a');
   a.href = href;
-  if (!isCustomUrlScheme(href)) {
+  if (!useSameTab && !isCustomUrlScheme(href)) {
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
   }
@@ -1259,6 +1266,13 @@ function openExternalHref(href) {
   a.click();
   a.remove();
   return true;
+}
+
+function buildMobileEmailCompose(email, body, subject) {
+  const subj = subject || EMAIL_SUBJECT;
+  const href = mailtoComposeHref(email, body || '', subj);
+  if (href.length <= MAX_COMPOSE_URL_LEN) return { href, copyBody: null };
+  return { href: mailtoComposeHref(email, '', subj), copyBody: body || null };
 }
 
 function buildGmailWebCompose(email, body, subject) {
@@ -1306,6 +1320,12 @@ function openEmailCompose(email, body, subject, event) {
   if (event) event.preventDefault();
   if (!email) return;
   const subj = subject || EMAIL_SUBJECT;
+  if (isMobileBrowser()) {
+    const result = buildMobileEmailCompose(email, body || '', subj);
+    if (result.copyBody) copyToClipboard(result.copyBody);
+    openExternalHref(result.href);
+    return;
+  }
   const result = buildGmailWebCompose(email, body || '', subj);
   if (result.copyBody) navigator.clipboard.writeText(result.copyBody).catch(() => {});
   if (!openExternalHref(result.href)) {
@@ -1469,7 +1489,9 @@ function openContactForOrg(id, event, btnEl) {
   // Prefer email draft (primary form letter); fall back to Messenger draft.
   const formLetter = (drafts.email || drafts.facebook || '').trim();
 
-  const email = buildGmailWebCompose(c.email, drafts.email, EMAIL_SUBJECT);
+  const email = isMobileBrowser()
+    ? buildMobileEmailCompose(c.email, drafts.email, EMAIL_SUBJECT)
+    : buildGmailWebCompose(c.email, drafts.email, EMAIL_SUBJECT);
   const messenger = buildMessengerCompose(c.facebook, drafts.facebook);
   if (!messenger.href) {
     alert(messenger.error || 'Could not build a Messenger link for this Facebook page.');
@@ -1477,7 +1499,6 @@ function openContactForOrg(id, event, btnEl) {
   }
 
   // Mark contacted and paint the button red immediately — do not wait on tabs.
-  // (GitHub Pages / mobile Safari often block or mis-report window.open.)
   const btn = btnEl || event?.currentTarget || event?.target?.closest?.('button');
   paintContactButtonContacted(btn);
   markWrittenContact(id);
@@ -1490,8 +1511,24 @@ function openContactForOrg(id, event, btnEl) {
     saveOutreach();
   }
 
-  openExternalHref(email.href);
-  openExternalHref(messenger.href);
+  if (isMobileBrowser()) {
+    // Mobile browsers choke on two programmatic _blank tabs (Gmail web + m.me spin forever).
+    if (c.email && email.href) {
+      if (email.copyBody) copyToClipboard(email.copyBody);
+      openExternalHref(email.href);
+    }
+    const messengerPrompt = copied
+      ? 'Form letter copied to clipboard.\n\nSend your email, then tap OK to open Messenger (paste the letter there).'
+      : 'Send your email, then tap OK to open Messenger.';
+    if (confirm(messengerPrompt)) {
+      const msg = buildMessengerCompose(c.facebook, drafts.facebook);
+      if (msg.copyBody) copyToClipboard(msg.copyBody);
+      openExternalHref(msg.href, { sameTab: true });
+    }
+  } else {
+    openExternalHref(email.href);
+    openExternalHref(messenger.href);
+  }
 
   refreshContactedUI(id);
 }
@@ -1501,6 +1538,9 @@ function contactHintText(c) {
     return 'Needs both a valid email and Facebook page to contact.';
   }
   if (isWrittenContactDone(c)) return 'Already contacted.';
+  if (isMobileBrowser()) {
+    return 'Copies the form letter, opens your mail app, then Messenger (one at a time).';
+  }
   return 'Copies the form letter, opens Gmail and Messenger, and marks this org as contacted.';
 }
 
@@ -1590,10 +1630,48 @@ function applyCloudSnapshotToLocal(snapshot) {
   else outreach = snapshot.default || {};
 }
 
+function loadScript(src) {
+  return new Promise((resolve) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
 function initSupabaseClient() {
   const cfg = window.SUPABASE_CONFIG;
   if (!cfg?.url || !cfg?.anonKey || cfg.url.includes('YOUR_PROJECT') || !window.supabase) return null;
   return window.supabase.createClient(cfg.url, cfg.anonKey);
+}
+
+/** Load config + SDK only when cloud sync is configured (skips ~50KB on static-only deploys). */
+async function ensureSupabase() {
+  if (supabaseClient) return supabaseClient;
+  if (window.SUPABASE_CONFIG === null) return null;
+  if (!supabaseLoadPromise) {
+    supabaseLoadPromise = (async () => {
+      if (window.SUPABASE_CONFIG === undefined) {
+        const ok = await loadScript('supabase-config.js');
+        if (!ok) {
+          window.SUPABASE_CONFIG = null;
+          return null;
+        }
+      }
+      const cfg = window.SUPABASE_CONFIG;
+      if (!cfg?.url || !cfg?.anonKey || cfg.url.includes('YOUR_PROJECT')) {
+        window.SUPABASE_CONFIG = null;
+        return null;
+      }
+      if (!window.supabase) {
+        const ok = await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+        if (!ok || !window.supabase) return null;
+      }
+      return initSupabaseClient();
+    })();
+  }
+  return supabaseLoadPromise;
 }
 
 function mergeOneOutreach(a, b) {
@@ -1768,7 +1846,7 @@ function subscribeOutreachRealtime() {
 }
 
 async function initAuth() {
-  supabaseClient = initSupabaseClient();
+  supabaseClient = await ensureSupabase();
   cloudSyncEnabled = !!supabaseClient;
   updateSyncUI('local');
 
@@ -2618,6 +2696,13 @@ window.addEventListener('resize', () => {
 });
 
 async function initLocalApi() {
+  if (apiChecked) return;
+  apiChecked = true;
+  // GitHub Pages (and similar) never host the local API — skip the 404 probe.
+  if (/\.github\.io$/i.test(location.hostname)) {
+    apiAvailable = false;
+    return;
+  }
   try {
     const res = await fetch('/api/health');
     if (!res.ok) return;
@@ -2816,38 +2901,42 @@ function showOutreachNoContactsMessage() {
   document.getElementById('contact-detail').style.display = 'none';
 }
 
-async function enrichCatalogResults() {
+/** When API is up, refresh run status. Static catalog already bakes in hasResults. */
+async function enrichCatalogFromApi() {
+  if (!apiAvailable) return;
   await Promise.all(superjobCatalog.map(async (sj) => {
-    if (sj.hasResults) return;
     try {
-      const r = await fetch(`superjobs/${encodeURIComponent(sj.id)}/contacts.csv`, { method: 'HEAD' });
-      if (r.ok) sj.hasResults = true;
-    } catch { /* static hosting */ }
-    if (!sj.hasResults && apiAvailable) {
-      try {
-        const r = await fetch(`/api/superjobs/${encodeURIComponent(sj.id)}/status`);
-        if (r.ok) {
-          const d = await r.json();
-          sj.hasResults = d.hasResults;
-          sj.meta = d.meta;
-          sj.run = d.run;
-        }
-      } catch { /* ignore */ }
-    }
+      const r = await fetch(`/api/superjobs/${encodeURIComponent(sj.id)}/status`);
+      if (r.ok) {
+        const d = await r.json();
+        sj.hasResults = d.hasResults;
+        sj.meta = d.meta;
+        sj.run = d.run;
+        if (d.completedRuns) sj.completedRuns = d.completedRuns;
+      }
+    } catch { /* ignore */ }
   }));
 }
 
-async function fetchSuperjobCatalog() {
-  try {
-    const res = await fetch('/api/superjobs');
-    if (!res.ok) throw new Error('api');
-    const data = await res.json();
-    superjobCatalog = data.superjobs || [];
-    apiAvailable = true;
-    return;
-  } catch {
-    apiAvailable = false;
+async function fetchSuperjobCatalog(opts = {}) {
+  const force = !!opts.force;
+  if (catalogFetched && !force) return;
+
+  if (!apiChecked) await initLocalApi();
+
+  if (apiAvailable) {
+    try {
+      const res = await fetch('/api/superjobs');
+      if (!res.ok) throw new Error('api');
+      const data = await res.json();
+      superjobCatalog = data.superjobs || [];
+      catalogFetched = true;
+      return;
+    } catch {
+      apiAvailable = false;
+    }
   }
+
   try {
     const res = await fetch('superjobs.json');
     if (!res.ok) throw new Error('static');
@@ -2855,7 +2944,7 @@ async function fetchSuperjobCatalog() {
   } catch {
     superjobCatalog = [];
   }
-  await enrichCatalogResults();
+  catalogFetched = true;
 }
 
 function loadModelPrefs() {
@@ -2994,6 +3083,19 @@ function renderSuperjobTable() {
 }
 
 async function fetchClaudeModels() {
+  if (!apiAvailable) {
+    claudeModels = [
+      { id: 'claude-fable-5', label: 'Claude Fable 5', inputPerMTok: 10, outputPerMTok: 50 },
+      { id: 'claude-opus-4-8', label: 'Claude Opus 4.8', inputPerMTok: 5, outputPerMTok: 25 },
+      { id: 'claude-opus-4-7', label: 'Claude Opus 4.7', inputPerMTok: 5, outputPerMTok: 25 },
+      { id: 'claude-opus-4-6', label: 'Claude Opus 4.6', inputPerMTok: 5, outputPerMTok: 25 },
+      { id: 'claude-opus-4-5', label: 'Claude Opus 4.5', inputPerMTok: 5, outputPerMTok: 25 },
+      { id: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6', inputPerMTok: 3, outputPerMTok: 15 },
+      { id: 'claude-sonnet-4-5', label: 'Claude Sonnet 4.5', inputPerMTok: 3, outputPerMTok: 15 },
+      { id: 'claude-haiku-4-5', label: 'Claude Haiku 4.5', inputPerMTok: 1, outputPerMTok: 5 },
+    ];
+    return;
+  }
   try {
     const res = await fetch('/api/models');
     if (!res.ok) throw new Error('models');
@@ -3040,7 +3142,7 @@ async function pollSuperjobRun(superjobId) {
     if (run?.status === 'running') return;
     clearInterval(superjobPollTimer);
     superjobPollTimer = null;
-    await fetchSuperjobCatalog();
+    await fetchSuperjobCatalog({ force: true });
     renderSuperjobTable();
     if (run?.status === 'done') {
       if (confirm(`Found ${run.contactCount ?? 0} contacts for this superjob. Open outreach now?`)) {
@@ -3079,14 +3181,12 @@ async function runSuperjob(superjobId) {
 }
 
 async function loadSuperjobContacts(superjobId) {
-  const urls = [
-    `/api/superjobs/${encodeURIComponent(superjobId)}/contacts.csv`,
-    `superjobs/${encodeURIComponent(superjobId)}/contacts.csv`,
-  ];
-  for (const url of urls) {
-    if (await loadContactsFromUrl(url)) return true;
+  if (apiAvailable) {
+    if (await loadContactsFromUrl(`/api/superjobs/${encodeURIComponent(superjobId)}/contacts.csv`)) {
+      return true;
+    }
   }
-  return false;
+  return loadContactsFromUrl(`superjobs/${encodeURIComponent(superjobId)}/contacts.csv`);
 }
 
 async function applyRoute() {
@@ -3095,28 +3195,33 @@ async function applyRoute() {
 
   if (route.view === 'discover') {
     showDiscoverView();
+    if (apiAvailable) await enrichCatalogFromApi();
     await fetchClaudeModels();
     renderSuperjobTable();
     return;
   }
 
-  if (!route.superjobId) {
-    const defaultId = resolveDefaultSuperjobId();
-    if (defaultId) {
-      navigateOutreach(defaultId);
-      return;
+  // Resolve default region in-place (replaceState) so we don't re-run catalog fetch via hashchange.
+  let superjobId = route.superjobId;
+  if (!superjobId) {
+    superjobId = resolveDefaultSuperjobId();
+    if (superjobId) {
+      const nextHash = `#/outreach/${superjobId}`;
+      if (location.hash !== nextHash) {
+        history.replaceState(null, '', nextHash);
+      }
     }
   }
 
   showOutreachView();
   currentId = null;
 
-  if (route.superjobId) {
-    activeSuperjobId = route.superjobId;
-    saveLastSuperjob(route.superjobId);
+  if (superjobId) {
+    activeSuperjobId = superjobId;
+    saveLastSuperjob(superjobId);
     loadOutreach();
     renderSuperjobSelects();
-    const ok = await loadSuperjobContacts(route.superjobId);
+    const ok = await loadSuperjobContacts(superjobId);
     if (!ok) {
       contacts = [];
       outreach = {};
@@ -3160,9 +3265,11 @@ async function initSuperjobUI() {
 async function bootApp() {
   initPromptEditor();
   await initLocalApi();
-  await initAuth();
+  // Auth can load in parallel with first paint path; await before route so cloud merge applies.
+  const authReady = initAuth();
   await initSuperjobUI();
-  if (!location.hash) location.hash = '#/outreach';
+  if (!location.hash) history.replaceState(null, '', '#/outreach');
+  await authReady;
   await applyRoute();
 }
 

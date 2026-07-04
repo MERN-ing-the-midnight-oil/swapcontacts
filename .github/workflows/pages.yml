@@ -23,14 +23,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
       - name: Sync site files into docs/
         run: |
           test -f contacts.csv || cp output/contacts.csv contacts.csv 2>/dev/null || true
           cp contacts.csv docs/contacts.csv
           cp index.html docs/index.html
-          if [ -n "${{ secrets.SUPABASE_URL }}" ] && [ -n "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
-            node scripts/generate-supabase-config.js
-          fi
+          cp job-detail.html docs/job-detail.html
+          npm ci
+          npm run build
+          node scripts/export-superjobs.js
+          node scripts/generate-supabase-config.js
+          # Guarantee a tiny config file so the app never 404s this request on Pages.
+          test -f docs/supabase-config.js || echo 'window.SUPABASE_CONFIG = null;' > docs/supabase-config.js
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
