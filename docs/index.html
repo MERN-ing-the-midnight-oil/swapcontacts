@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Swap Outreach">
 <meta name="theme-color" content="#f5f6f2">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
@@ -172,6 +173,12 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .contact-btn.contacted { background: var(--red); cursor: default; opacity: 1; }
 .contact-btn.contacted:hover { background: var(--red); }
 .contact-btn:disabled:not(.contacted) { opacity: .5; cursor: default; }
+.contact-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-top: 8px; }
+.contact-actions-row .contact-btn { margin-top: 0; justify-content: center; text-align: center; }
+.contact-sent-wrap { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.contact-sent-wrap .contact-btn { margin-top: 0; justify-content: center; text-align: center; }
+.contact-reset-btn { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); transition: all .15s; }
+.contact-reset-btn:hover { border-color: var(--border2); color: var(--text); background: var(--surface3); }
 .email-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--surface3); color: var(--text); border: 1px solid var(--border2); border-radius: 6px; padding: 6px 12px; font-size: 12px; text-decoration: none; margin-top: 8px; transition: all .15s; cursor: pointer; font-family: var(--font-sans); }
 .email-btn:hover { border-color: var(--accent); color: var(--accent); }
 .linkedin-person { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
@@ -262,6 +269,17 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .mobile-carousel-viewport::-webkit-scrollbar { display: none; }
 .mobile-carousel-track { display: flex; gap: 12px; height: 100%; align-items: stretch; }
 .mobile-carousel-slide { flex: 0 0 88%; scroll-snap-align: center; scroll-snap-stop: always; min-width: 0; display: flex; }
+.desktop-carousel-wrap { flex: 1; display: none; flex-direction: column; min-height: 0; padding: 12px 16px 0; background: var(--bg); }
+.desktop-carousel-viewport { flex: 1; min-height: 0; max-height: none; margin: 0; padding: 0 0 12px; }
+.desktop-carousel-viewport .mobile-carousel-track { height: 100%; align-items: stretch; }
+.desktop-carousel-viewport .mobile-carousel-slide { flex: 0 0 96%; scroll-snap-align: center; }
+.desktop-swap-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; text-align: left; box-sizing: border-box; }
+.desktop-swap-card-body { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 24px 24px; }
+.desktop-swap-card-body .contact-detail { padding: 0; }
+.desktop-swap-card-body .email-textarea { min-height: 140px; }
+.desktop-swap-card-body .notes-textarea { min-height: 72px; }
+.desktop-carousel-slide.is-contacted .desktop-swap-card { border-color: rgba(197,48,48,.35); box-shadow: 0 0 0 1px rgba(197,48,48,.08); }
+.desktop-carousel-slide.is-uncontacted .desktop-swap-card { border-color: rgba(47,107,58,.35); }
 .mobile-carousel-slide.is-contacted .mobile-call-card { border-color: rgba(197,48,48,.35); box-shadow: 0 0 0 1px rgba(197,48,48,.08); }
 .mobile-carousel-slide.is-uncontacted .mobile-call-card { border-color: rgba(47,107,58,.35); }
 .mobile-status-pill { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 4px 10px; border-radius: 20px; margin-bottom: 8px; font-family: var(--font-mono); }
@@ -277,6 +295,8 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .mobile-call-channels { flex-shrink: 0; }
 .mobile-call-email { font-size: 13px; color: var(--text2); margin: 6px 0; word-break: break-all; line-height: 1.35; }
 .mobile-call-actions { flex-shrink: 0; width: 100%; margin-top: auto; padding-top: 12px; }
+.mobile-call-actions .contact-actions-row { margin-top: 0; }
+.mobile-call-actions .contact-actions-row .mobile-call-huge { padding: 12px 8px; font-size: 14px; line-height: 1.25; }
 .mobile-call-phone { font-family: var(--font-mono); font-size: 22px; font-weight: 500; color: var(--accent); margin: 8px 0; letter-spacing: .02em; }
 .mobile-phone-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
 .mobile-phone-row .mobile-call-phone { margin: 0; }
@@ -639,6 +659,12 @@ npm run outreach:sync   # copy contacts.csv into this app</div>
         <div class="upload-zone" onclick="document.getElementById('csv-upload').click()">
           <div class="upload-label"><strong>Choose a CSV file</strong> or drag and drop</div>
         </div>
+      </div>
+    </div>
+    <div class="desktop-carousel-wrap" id="desktop-carousel-wrap">
+      <div class="mobile-carousel-banner" id="desktop-carousel-banner"></div>
+      <div class="mobile-carousel-viewport desktop-carousel-viewport" id="desktop-carousel-viewport">
+        <div class="mobile-carousel-track" id="desktop-carousel-track"></div>
       </div>
     </div>
     <div id="contact-detail" style="display:none"></div>
@@ -1096,6 +1122,11 @@ function isMobileBrowser() {
   return isMobileView() || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 }
 
+/** True only on phone/tablet UAs — not narrow desktop windows (those should still open Gmail in a tab). */
+function isMobileUserAgent() {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
 async function hardRefreshPage() {
   try {
     if ('serviceWorker' in navigator) {
@@ -1218,7 +1249,11 @@ function goToFirstUncontacted() {
     if (isMobileView()) {
       renderMobileAll();
     } else if (contacts.length) {
-      selectContact(contacts[0].id);
+      currentId = contacts[0].id;
+      mobileCallIndex = 0;
+      renderAll();
+      scrollCarouselToIndex('desktop', 0, true);
+      document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-' + contacts[0].id));
     }
     return;
   }
@@ -1230,7 +1265,13 @@ function goToFirstUncontacted() {
     switchMobileTab('call', document.querySelector('[data-mobile-tab="call"]'));
     renderMobileAll();
   } else {
-    selectContact(first.id);
+    const list = mobileContactList();
+    const idx = list.findIndex(c => c.id === first.id);
+    mobileCallIndex = idx >= 0 ? idx : 0;
+    currentId = first.id;
+    renderAll();
+    scrollCarouselToIndex('desktop', mobileCallIndex, true);
+    document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-' + first.id));
   }
 }
 function telHref(phone) {
@@ -1252,19 +1293,68 @@ function isCustomUrlScheme(href) {
   return /^[a-z][a-z0-9+.-]*:/i.test(href) && !/^https?:/i.test(href);
 }
 
+function outreachLog(label, detail) {
+  if (detail === undefined) console.log('[outreach]', label);
+  else console.log('[outreach]', label, detail);
+}
+
+function outreachHrefPreview(href, max = 120) {
+  if (!href) return href;
+  return href.length <= max ? href : href.slice(0, max) + '… (' + href.length + ' chars)';
+}
+
 function openExternalHref(href, opts = {}) {
-  if (!href || href === '#') return false;
+  const tag = opts.tag || 'openExternalHref';
+  if (!href || href === '#') {
+    outreachLog(tag + ': skipped — empty href', { href, opts });
+    return false;
+  }
+  const customScheme = isCustomUrlScheme(href);
   // iOS Chrome/Safari often leave programmatic _blank tabs stuck on "Untitled".
-  const useSameTab = opts.sameTab ?? (isMobileBrowser() && !opts.newTab && !isCustomUrlScheme(href));
-  const a = document.createElement('a');
-  a.href = href;
-  if (!useSameTab && !isCustomUrlScheme(href)) {
+  const useSameTab = opts.sameTab ?? (!opts.newTab && isMobileUserAgent() && !customScheme);
+  outreachLog(tag + ': attempting open', {
+    href: outreachHrefPreview(href),
+    useSameTab,
+    customScheme,
+    mobileView: isMobileView(),
+    mobileUA: isMobileUserAgent(),
+    opts,
+  });
+  // mailto / custom schemes: synthetic <a> clicks are ignored on iOS — navigate directly.
+  if (customScheme) {
+    try {
+      window.location.assign(href);
+      outreachLog(tag + ': navigated via location.assign', { href: outreachHrefPreview(href) });
+      return true;
+    } catch (e) {
+      outreachLog(tag + ': location.assign threw', e);
+    }
+  }
+  if (!useSameTab) {
+    // One synthetic <a> click only — window.open with noopener returns null even on
+    // success, which previously caused a second tab via the anchor fallback.
+    const a = document.createElement('a');
+    a.href = href;
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    outreachLog(tag + ': clicked synthetic <a>', {
+      href: outreachHrefPreview(href),
+      target: '_blank',
+    });
+    return true;
   }
+  const a = document.createElement('a');
+  a.href = href;
   document.body.appendChild(a);
   a.click();
   a.remove();
+  outreachLog(tag + ': clicked synthetic <a>', {
+    href: outreachHrefPreview(href),
+    target: '(same tab)',
+  });
   return true;
 }
 
@@ -1320,7 +1410,7 @@ function openEmailCompose(email, body, subject, event) {
   if (event) event.preventDefault();
   if (!email) return;
   const subj = subject || EMAIL_SUBJECT;
-  if (isMobileBrowser()) {
+  if (isMobileUserAgent()) {
     const result = buildMobileEmailCompose(email, body || '', subj);
     if (result.copyBody) copyToClipboard(result.copyBody);
     openExternalHref(result.href);
@@ -1337,7 +1427,7 @@ function openEmailComposeForContact(id, event) {
   if (event) event.preventDefault();
   const c = contacts.find(x => x.id === id);
   if (!c?.email) return;
-  const draftEl = document.getElementById('email-draft') || document.getElementById('mobile-email-draft-' + id);
+  const draftEl = document.getElementById('email-draft-' + id) || document.getElementById('email-draft') || document.getElementById('mobile-email-draft-' + id);
   const body = draftEl ? draftEl.value : (getO(id).emailDraft || '');
   openEmailCompose(c.email, body);
 }
@@ -1391,10 +1481,8 @@ function messengerComposeHref(facebookUrl, body) {
 
 function getContactDrafts(id) {
   const o = getO(id);
-  // Desktop editors belong to currentId only — never reuse them for another org.
-  const useDesktopEditors = currentId === id;
-  const emailEl = useDesktopEditors ? document.getElementById('email-draft') : null;
-  const fbEl = useDesktopEditors ? document.getElementById('facebook-draft') : null;
+  const emailEl = document.getElementById('email-draft-' + id) || document.getElementById('email-draft');
+  const fbEl = document.getElementById('facebook-draft-' + id) || document.getElementById('facebook-draft');
   const mobileEmailEl = document.getElementById('mobile-email-draft-' + id);
   const mobileFbEl = document.getElementById('mobile-fb-draft-' + id)
     || (mobileCurrentContact()?.id === id
@@ -1432,37 +1520,104 @@ function canContactViaEmailOrMessenger(c) {
   return hasWrittenContactChannels(c);
 }
 
-function markWrittenContact(id) {
+function markEmailContact(id) {
   const c = contacts.find(x => x.id === id);
-  if (!c || isWrittenContactDone(c)) return false;
+  if (!c || !hasEmail(c) || getO(id).contacted?.email) return false;
   const o = getO(id);
   o.contacted = o.contacted || {};
   o.log = o.log || [];
-  if (hasEmail(c)) o.contacted.email = true;
-  if (hasFacebook(c)) o.contacted.facebook = true;
-  o.log.push({ ts: fmtTs(), text: 'Contacted via email & Messenger ✓' });
+  o.contacted.email = true;
+  o.log.push({ ts: fmtTs(), text: 'Email sent ✓' });
   saveOutreach();
   return true;
 }
 
-/** Instantly flip the pressed Contact button to red Contacted. */
-function paintContactButtonContacted(btn) {
+function resetEmailContact(id) {
+  const c = contacts.find(x => x.id === id);
+  if (!c || !hasEmail(c) || !getO(id).contacted?.email) return false;
+  const o = getO(id);
+  o.contacted = o.contacted || {};
+  o.log = o.log || [];
+  o.contacted.email = false;
+  o.log.push({ ts: fmtTs(), text: 'Email send reset — ready to send again' });
+  saveOutreach();
+  return true;
+}
+
+function markFacebookContact(id) {
+  const c = contacts.find(x => x.id === id);
+  if (!c || !hasFacebook(c) || getO(id).contacted?.facebook) return false;
+  const o = getO(id);
+  o.contacted = o.contacted || {};
+  o.log = o.log || [];
+  o.contacted.facebook = true;
+  o.log.push({ ts: fmtTs(), text: 'FB message sent ✓' });
+  saveOutreach();
+  return true;
+}
+
+function resetFacebookContact(id) {
+  const c = contacts.find(x => x.id === id);
+  if (!c || !hasFacebook(c) || !getO(id).contacted?.facebook) return false;
+  const o = getO(id);
+  o.contacted = o.contacted || {};
+  o.log = o.log || [];
+  o.contacted.facebook = false;
+  o.log.push({ ts: fmtTs(), text: 'FB message reset — ready to send again' });
+  saveOutreach();
+  return true;
+}
+
+function syncCarouselSlideContactedState(slide, c) {
+  if (!slide || !c) return;
+  const done = isWrittenContactDone(c);
+  slide.classList.toggle('is-uncontacted', !done);
+  slide.classList.toggle('is-contacted', done);
+  const pill = slide.querySelector('.mobile-status-pill');
+  if (pill) {
+    pill.classList.toggle('pending', !done);
+    pill.classList.toggle('contacted', done);
+    pill.textContent = done ? 'Contacted' : 'Uncontacted';
+  }
+}
+
+/** Instantly flip the pressed channel button to red with a sent label and Reset control. */
+function paintContactChannelButtonContacted(btn, channel, id) {
   if (!btn || btn.disabled) return;
+  const sentLabel = channel === 'email' ? 'Email has been sent' : 'FB message has been sent';
+  const ariaLabel = channel === 'email' ? 'Email already sent' : 'Message already sent';
+  const resetFn = channel === 'email' ? resetEmailForOrg : resetFacebookForOrg;
+  const resetAria = channel === 'email' ? 'Reset email sent status' : 'Reset FB message sent status';
   btn.classList.add('contacted');
   btn.disabled = true;
-  btn.textContent = 'Contacted';
+  btn.textContent = sentLabel;
   btn.removeAttribute('onclick');
-  btn.setAttribute('aria-label', 'Already contacted');
+  btn.setAttribute('aria-label', ariaLabel);
+
+  let wrap = btn.closest('.contact-sent-wrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.className = 'contact-sent-wrap';
+    btn.parentNode.insertBefore(wrap, btn);
+    wrap.appendChild(btn);
+  }
+  if (!wrap.querySelector('.contact-reset-btn')) {
+    const orgId = id || btn.closest('.mobile-carousel-slide')?.dataset?.contactId || currentId;
+    if (orgId) {
+      const resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.className = 'contact-reset-btn';
+      resetBtn.textContent = 'Reset';
+      resetBtn.setAttribute('aria-label', resetAria);
+      resetBtn.addEventListener('click', (e) => resetFn(orgId, e, resetBtn));
+      wrap.appendChild(resetBtn);
+    }
+  }
+
   const slide = btn.closest('.mobile-carousel-slide');
   if (slide) {
-    slide.classList.remove('is-uncontacted');
-    slide.classList.add('is-contacted');
-    const pill = slide.querySelector('.mobile-status-pill');
-    if (pill) {
-      pill.classList.remove('pending');
-      pill.classList.add('contacted');
-      pill.textContent = 'Contacted';
-    }
+    const c = contacts.find(x => x.id === slide.dataset.contactId);
+    syncCarouselSlideContactedState(slide, c);
   }
 }
 
@@ -1474,84 +1629,200 @@ function refreshContactedUI(id) {
     if (idx >= 0) mobileCallIndex = idx;
     renderMobileAll();
   } else {
-    renderAll();
-    selectContact(id);
+    const list = mobileContactList();
+    const idx = list.findIndex(c => c.id === id);
+    if (idx >= 0) mobileCallIndex = idx;
+    currentId = id;
+    renderDesktopCarousel();
+    scrollCarouselToIndex('desktop', mobileCallIndex, false);
+    document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-' + id));
   }
 }
 
-function openContactForOrg(id, event, btnEl) {
+function openEmailForOrg(id, event, btnEl) {
   if (event) event.preventDefault();
   const c = contacts.find(x => x.id === id);
-  if (!c || !canContactViaEmailOrMessenger(c) || isWrittenContactDone(c)) return;
+  outreachLog('openEmailForOrg: click', {
+    id,
+    name: c?.name,
+    hasEmail: !!c && hasEmail(c),
+    alreadyContacted: !!getO(id).contacted?.email,
+    mobileView: isMobileView(),
+    mobileUA: isMobileUserAgent(),
+  });
+  if (!c || !hasEmail(c) || getO(id).contacted?.email) {
+    outreachLog('openEmailForOrg: aborted — missing contact, email, or already sent');
+    return;
+  }
 
   ensureContactDrafts(c);
   const drafts = getContactDrafts(id);
-  // Prefer email draft (primary form letter); fall back to Messenger draft.
-  const formLetter = (drafts.email || drafts.facebook || '').trim();
+  const email = buildGmailWebCompose(c.email, drafts.email, EMAIL_SUBJECT);
+  outreachLog('openEmailForOrg: compose built', {
+    composeMode: 'gmail-web',
+    to: c.email,
+    hrefLen: email.href?.length || 0,
+    href: outreachHrefPreview(email.href),
+    copyBody: !!email.copyBody,
+    draftLen: (drafts.email || '').length,
+  });
+  if (!email.href) {
+    outreachLog('openEmailForOrg: aborted — empty compose href');
+    return;
+  }
 
-  const email = isMobileBrowser()
-    ? buildMobileEmailCompose(c.email, drafts.email, EMAIL_SUBJECT)
-    : buildGmailWebCompose(c.email, drafts.email, EMAIL_SUBJECT);
+  // Open while still inside the click handler — popup blockers reject tabs opened after re-render/copy.
+  let opened = openExternalHref(email.href, { tag: 'openEmailForOrg:gmail-web', newTab: true });
+  if (!opened && isMobileUserAgent()) {
+    outreachLog('openEmailForOrg: gmail-web failed — trying Gmail app scheme');
+    opened = openExternalHref(
+      gmailAppComposeHref(c.email, email.copyBody ? '' : drafts.email, EMAIL_SUBJECT),
+      { tag: 'openEmailForOrg:gmail-app', sameTab: true }
+    );
+  }
+  if (!opened) {
+    outreachLog('openEmailForOrg: trying mailto fallback');
+    openExternalHref(
+      mailtoComposeHref(c.email, email.copyBody ? '' : drafts.email, EMAIL_SUBJECT),
+      { tag: 'openEmailForOrg:mailto-fallback', sameTab: true }
+    );
+  }
+  if (email.copyBody) {
+    const copied = copyToClipboard(email.copyBody);
+    outreachLog('openEmailForOrg: copyBody to clipboard', { copied, bytes: email.copyBody.length });
+  }
+
+  const btn = btnEl || event?.currentTarget || event?.target?.closest?.('button');
+  paintContactChannelButtonContacted(btn, 'email', id);
+  markEmailContact(id);
+  outreachLog('openEmailForOrg: marked email sent', { id, name: c.name });
+  setTimeout(() => refreshContactedUI(id), 0);
+}
+
+function resetEmailForOrg(id, event, btnEl) {
+  if (event) event.preventDefault();
+  outreachLog('resetEmailForOrg: click', { id });
+  if (!resetEmailContact(id)) {
+    outreachLog('resetEmailForOrg: aborted — not sent or missing email');
+    return;
+  }
+  outreachLog('resetEmailForOrg: email send status cleared', { id });
+  setTimeout(() => refreshContactedUI(id), 0);
+}
+
+function resetFacebookForOrg(id, event, btnEl) {
+  if (event) event.preventDefault();
+  outreachLog('resetFacebookForOrg: click', { id });
+  if (!resetFacebookContact(id)) {
+    outreachLog('resetFacebookForOrg: aborted — not sent or missing facebook');
+    return;
+  }
+  outreachLog('resetFacebookForOrg: facebook send status cleared', { id });
+  setTimeout(() => refreshContactedUI(id), 0);
+}
+
+function openFacebookForOrg(id, event, btnEl) {
+  if (event) event.preventDefault();
+  const c = contacts.find(x => x.id === id);
+  outreachLog('openFacebookForOrg: click', {
+    id,
+    name: c?.name,
+    hasFacebook: !!c && hasFacebook(c),
+    alreadyContacted: !!getO(id).contacted?.facebook,
+    mobileView: isMobileView(),
+    mobileUA: isMobileUserAgent(),
+  });
+  if (!c || !hasFacebook(c) || getO(id).contacted?.facebook) {
+    outreachLog('openFacebookForOrg: aborted — missing contact, facebook, or already sent');
+    return;
+  }
+
+  ensureContactDrafts(c);
+  const drafts = getContactDrafts(id);
   const messenger = buildMessengerCompose(c.facebook, drafts.facebook);
+  outreachLog('openFacebookForOrg: compose built', {
+    facebook: c.facebook,
+    hrefLen: messenger.href?.length || 0,
+    href: outreachHrefPreview(messenger.href),
+    copyBody: !!messenger.copyBody,
+    draftLen: (drafts.facebook || '').length,
+    error: messenger.error || null,
+  });
   if (!messenger.href) {
+    outreachLog('openFacebookForOrg: aborted — no messenger href', { error: messenger.error });
     alert(messenger.error || 'Could not build a Messenger link for this Facebook page.');
     return;
   }
 
-  // Mark contacted and paint the button red immediately — do not wait on tabs.
+  // Open while still inside the click handler — popup blockers reject tabs opened after re-render/copy.
+  let opened = openExternalHref(messenger.href, { tag: 'openFacebookForOrg:primary', newTab: true });
+  if (!opened) {
+    outreachLog('openFacebookForOrg: m.me failed — trying facebook page fallback');
+    opened = openExternalHref(c.facebook, { tag: 'openFacebookForOrg:fb-page', newTab: true });
+  }
+  if (messenger.copyBody) {
+    const copied = copyToClipboard(messenger.copyBody);
+    outreachLog('openFacebookForOrg: copyBody to clipboard', { copied, bytes: messenger.copyBody.length });
+  }
+
   const btn = btnEl || event?.currentTarget || event?.target?.closest?.('button');
-  paintContactButtonContacted(btn);
-  markWrittenContact(id);
-
-  const copied = formLetter ? copyToClipboard(formLetter) : false;
-  if (copied) {
-    const o = getO(id);
-    o.log = o.log || [];
-    o.log.push({ ts: fmtTs(), text: 'Form letter copied to clipboard — paste into Gmail and Messenger if needed' });
-    saveOutreach();
-  }
-
-  if (isMobileBrowser()) {
-    // Mobile browsers choke on two programmatic _blank tabs (Gmail web + m.me spin forever).
-    if (c.email && email.href) {
-      if (email.copyBody) copyToClipboard(email.copyBody);
-      openExternalHref(email.href);
-    }
-    const messengerPrompt = copied
-      ? 'Form letter copied to clipboard.\n\nSend your email, then tap OK to open Messenger (paste the letter there).'
-      : 'Send your email, then tap OK to open Messenger.';
-    if (confirm(messengerPrompt)) {
-      const msg = buildMessengerCompose(c.facebook, drafts.facebook);
-      if (msg.copyBody) copyToClipboard(msg.copyBody);
-      openExternalHref(msg.href, { sameTab: true });
-    }
-  } else {
-    openExternalHref(email.href);
-    openExternalHref(messenger.href);
-  }
-
-  refreshContactedUI(id);
+  paintContactChannelButtonContacted(btn, 'facebook', id);
+  markFacebookContact(id);
+  outreachLog('openFacebookForOrg: marked facebook sent', { id, name: c.name });
+  setTimeout(() => refreshContactedUI(id), 0);
 }
 
 function contactHintText(c) {
   if (!canContactViaEmailOrMessenger(c)) {
     return 'Needs both a valid email and Facebook page to contact.';
   }
-  if (isWrittenContactDone(c)) return 'Already contacted.';
-  if (isMobileBrowser()) {
-    return 'Copies the form letter, opens your mail app, then Messenger (one at a time).';
+  const o = getO(c.id);
+  const hints = [];
+  if (hasEmail(c) && !o.contacted?.email) {
+    hints.push('Send Email opens Gmail with your draft.');
   }
-  return 'Copies the form letter, opens Gmail and Messenger, and marks this org as contacted.';
+  if (hasFacebook(c) && !o.contacted?.facebook) {
+    hints.push('Send FB Message opens Messenger with your draft.');
+  }
+  if (!hints.length) return 'Email and Messenger outreach complete.';
+  return hints.join(' ');
 }
 
-function contactButtonHtml(id, className = 'contact-btn', label = 'Contact') {
+function channelContactButtonHtml(id, channel, className = 'contact-btn') {
   const c = contacts.find(x => x.id === id);
-  if (!c || !canContactViaEmailOrMessenger(c)) return '';
+  if (!c) return '';
+  const o = getO(id);
   const classes = /\bcontact-btn\b/.test(className) ? className : `contact-btn ${className}`;
-  if (isWrittenContactDone(c)) {
-    return `<button type="button" class="${classes} contacted" disabled aria-label="Already contacted">Contacted</button>`;
+  if (channel === 'email') {
+    if (!hasEmail(c)) return '';
+    if (o.contacted?.email) {
+      return `<div class="contact-sent-wrap">
+        <button type="button" class="${classes} contacted" disabled aria-label="Email already sent">Email has been sent</button>
+        <button type="button" class="contact-reset-btn" onclick="resetEmailForOrg('${id}', event, this)" aria-label="Reset email sent status">Reset</button>
+      </div>`;
+    }
+    return `<button type="button" class="${classes}" onclick="openEmailForOrg('${id}', event, this)">Send Email</button>`;
   }
-  return `<button type="button" class="${classes}" onclick="openContactForOrg('${id}', event, this)">${label}</button>`;
+  if (channel === 'facebook') {
+    if (!hasFacebook(c)) return '';
+    if (o.contacted?.facebook) {
+      return `<div class="contact-sent-wrap">
+        <button type="button" class="${classes} contacted" disabled aria-label="Message already sent">FB message has been sent</button>
+        <button type="button" class="contact-reset-btn" onclick="resetFacebookForOrg('${id}', event, this)" aria-label="Reset FB message sent status">Reset</button>
+      </div>`;
+    }
+    return `<button type="button" class="${classes}" onclick="openFacebookForOrg('${id}', event, this)">Send FB Message</button>`;
+  }
+  return '';
+}
+
+function contactButtonsHtml(id, className = 'contact-btn', channels = ['email', 'facebook']) {
+  const c = contacts.find(x => x.id === id);
+  if (!c) return '';
+  const buttons = channels.map(ch => channelContactButtonHtml(id, ch, className)).filter(Boolean);
+  if (!buttons.length) return '';
+  if (buttons.length === 1) return buttons[0];
+  return `<div class="contact-actions-row">${buttons.join('')}</div>`;
 }
 
 // ── PERSISTENCE ────────────────────────────────────────────
@@ -1976,7 +2247,9 @@ function normalizeContact(row) {
 
 function onContactsLoaded(sourceLabel) {
   document.getElementById('empty-state').style.display = contacts.length ? 'none' : '';
-  document.getElementById('contact-detail').style.display = contacts.length ? '' : 'none';
+  document.getElementById('contact-detail').style.display = 'none';
+  const carouselWrap = document.getElementById('desktop-carousel-wrap');
+  if (carouselWrap) carouselWrap.style.display = contacts.length ? 'flex' : 'none';
   renderAll();
   if (contacts.length) {
     goToFirstUncontacted();
@@ -2105,6 +2378,7 @@ function renderAll() {
   renderStats();
   renderList();
   if(isMobileView()) renderMobileAll();
+  else renderDesktopCarousel();
 }
 
 function callQueue() {
@@ -2155,81 +2429,72 @@ function renderList() {
 }
 
 // ── CONTACT DETAIL ─────────────────────────────────────────
-function selectContact(id) {
-  currentId = id;
-  document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-'+id));
-  const c = contacts.find(x => x.id === id);
-  if(!c) return;
+function channelCardHtml(id, label, channel, has, contentHtml, o) {
+  const checked = o.contacted[channel] ? 'checked' : '';
+  const disabled = has ? '' : 'disabled';
+  const cls = has ? '' : ' disabled';
+  const autoMarked = channel === 'email' || channel === 'facebook';
+  const inputDisabled = !has || autoMarked ? 'disabled' : '';
+  return `
+    <div class="contact-card">
+      <label class="channel-check${cls}">
+        <input type="checkbox" ${checked} ${disabled} ${inputDisabled} onchange="toggleContacted('${id}','${channel}',this.checked)">
+        <span>${label}</span>
+      </label>
+      ${contentHtml}
+    </div>`;
+}
+
+function contactDetailBodyHtml(c) {
+  const id = c.id;
   ensureContactDrafts(c);
   const o = getO(id);
-  const panel = document.getElementById('contact-detail');
-  panel.style.display = '';
-  document.getElementById('empty-state').style.display = 'none';
-
-  const typeClass = 'type-'+c.type;
-
-  const logHTML = (o.log||[]).map(e =>
+  const typeClass = 'type-' + c.type;
+  const logHTML = (o.log || []).map(e =>
     `<div class="log-entry"><span class="log-ts">${e.ts}</span><span class="log-text">${escHtml(e.text)}</span></div>`
   ).join('') || '<div style="color:var(--text3);font-size:12px;padding:4px 0">No activity logged yet</div>';
-
   const nextContact = findNextUncontacted(id);
 
-  function channelCard(label, channel, has, contentHtml) {
-    const checked = o.contacted[channel] ? 'checked' : '';
-    const disabled = has ? '' : 'disabled';
-    const cls = has ? '' : ' disabled';
-    const autoMarked = channel === 'email' || channel === 'facebook';
-    const inputDisabled = !has || autoMarked ? 'disabled' : '';
-    return `
-      <div class="contact-card">
-        <label class="channel-check${cls}">
-          <input type="checkbox" ${checked} ${disabled} ${inputDisabled} onchange="toggleContacted('${id}','${channel}',this.checked)">
-          <span>${label}</span>
-        </label>
-        ${contentHtml}
-      </div>`;
-  }
-
-  panel.innerHTML = `
+  return `
     <div class="contact-detail">
       <div class="cd-header">
-        <div class="cd-badge ${typeClass}" style="font-size:24px">${TYPE_EMOJI[c.type]||'🔄'}</div>
+        <div class="cd-badge ${typeClass}" style="font-size:24px">${TYPE_EMOJI[c.type] || '🔄'}</div>
         <div class="cd-title">
           <div class="cd-name">${escHtml(c.name)}</div>
           <div class="cd-meta">
-            <span>📍 ${escHtml(c.loc||'Unknown')}</span>
+            <span>📍 ${escHtml(c.loc || 'Unknown')}</span>
             <span class="type-pill ${typeClass}">${c.type} swap</span>
           </div>
         </div>
-        ${nextContact ? `<button class="next-btn" onclick="selectContact('${nextContact.id}')">Next uncontacted →</button>` : ''}
+        ${nextContact ? `<button class="next-btn" onclick="goToCarouselContact('${nextContact.id}')">Next uncontacted →</button>` : ''}
       </div>
 
       <div class="contact-cards">
-        ${channelCard('Phone', 'phone', hasPhone(c),
+        ${channelCardHtml(id, 'Phone', 'phone', hasPhone(c),
           c.phone
             ? `<div class="phone-inline-row">
-                 <div class="cc-value" style="margin:0"><a href="tel:${c.phone.replace(/\s/g,'')}">${escHtml(c.phone)}</a></div>
-                 <a class="call-btn call-btn-sm" href="tel:${c.phone.replace(/\s/g,'')}">📞 Call</a>
+                 <div class="cc-value" style="margin:0"><a href="tel:${c.phone.replace(/\s/g, '')}">${escHtml(c.phone)}</a></div>
+                 <a class="call-btn call-btn-sm" href="tel:${c.phone.replace(/\s/g, '')}">📞 Call</a>
                </div>`
-            : '<div class="cc-empty">Not found</div>')}
-        ${channelCard('Email', 'email', hasEmail(c),
+            : '<div class="cc-empty">Not found</div>', o)}
+        ${channelCardHtml(id, 'Email', 'email', hasEmail(c),
           c.email
             ? `<div class="cc-value">${escHtml(c.email)}</div>`
-            : '<div class="cc-empty">Not found</div>')}
-        ${channelCard('Facebook', 'facebook', hasFacebook(c),
+            : '<div class="cc-empty">Not found</div>', o)}
+        ${channelCardHtml(id, 'Facebook', 'facebook', hasFacebook(c),
           c.facebook
             ? `<div class="cc-value"><a href="${c.facebook}" target="_blank">View page ↗</a></div>`
-            : '<div class="cc-empty">Not found</div>')}
+            : '<div class="cc-empty">Not found</div>', o)}
         ${canContactViaEmailOrMessenger(c) ? `
         <div class="contact-card">
-          ${contactButtonHtml(id, 'contact-btn')}
+          ${contactButtonsHtml(id, 'contact-btn')}
           <div class="cc-empty" style="margin-top:6px;font-style:normal">${contactHintText(c)}</div>
         </div>` : ''}
-        ${channelCard('LinkedIn leads', 'linkedin', hasLinkedinPeople(c), linkedinPeopleCardHtml(c))}
-        ${channelCard('Website', 'website', hasWebsite(c),
+        ${channelCardHtml(id, 'LinkedIn leads', 'linkedin', hasLinkedinPeople(c), linkedinPeopleCardHtml(c), o)}
+        ${channelCardHtml(id, 'Website', 'website', hasWebsite(c),
           c.website
             ? `<div class="cc-value"><a href="${c.website}" target="_blank">Visit site ↗</a></div>`
-            : '<div class="cc-empty">Not found</div>')}
+            : '<div class="cc-empty">Not found</div>', o)}
       </div>
 
       ${c.sourceNotes ? `<div class="contact-card" style="margin-bottom:16px"><div class="cc-label">About this org</div><div class="cc-value" style="line-height:1.6;color:var(--text2)">${escHtml(c.sourceNotes)}</div></div>` : ''}
@@ -2239,9 +2504,9 @@ function selectContact(id) {
           <div class="ai-label">✉ Email draft</div>
           <span style="font-size:11px;color:var(--text3)">Template: sidebar → <strong style="color:var(--text2)">Email template</strong></span>
         </div>
-        <textarea class="email-textarea" id="email-draft" placeholder="Filled from your email template. Edit before sending…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(o.emailDraft||'')}</textarea>
+        <textarea class="email-textarea" id="email-draft-${id}" placeholder="Filled from your email template. Edit before sending…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(o.emailDraft || '')}</textarea>
         <div class="email-actions">
-          <button class="copy-btn" onclick="copyDraft()">Copy to clipboard</button>
+          <button class="copy-btn" onclick="copyDraft('${id}')">Copy to clipboard</button>
         </div>
       </div>
 
@@ -2251,26 +2516,56 @@ function selectContact(id) {
           <div class="ai-label">Facebook message draft</div>
           <span style="font-size:11px;color:var(--text3)">Template: sidebar → <strong style="color:var(--text2)">Facebook contact template</strong></span>
         </div>
-        <textarea class="email-textarea" id="facebook-draft" placeholder="Filled from your Facebook template. Edit before sending…" oninput="saveFacebookDraft('${id}',this.value)">${escHtml(o.facebookDraft||'')}</textarea>
+        <textarea class="email-textarea" id="facebook-draft-${id}" placeholder="Filled from your Facebook template. Edit before sending…" oninput="saveFacebookDraft('${id}',this.value)">${escHtml(o.facebookDraft || '')}</textarea>
         <div class="email-actions">
-          <button class="copy-btn" onclick="copyFacebookDraft()">Copy to clipboard</button>
+          <button class="copy-btn" onclick="copyFacebookDraft('${id}')">Copy to clipboard</button>
         </div>
       </div>` : ''}
 
       <div class="notes-section">
         <div class="notes-label">Notes</div>
-        <textarea class="notes-textarea" placeholder="Call notes, follow-up reminders, anything…" oninput="saveNotes('${id}',this.value)">${escHtml(o.notes||'')}</textarea>
+        <textarea class="notes-textarea" placeholder="Call notes, follow-up reminders, anything…" oninput="saveNotes('${id}',this.value)">${escHtml(o.notes || '')}</textarea>
       </div>
 
       <div class="log-section">
         <div class="notes-label" style="margin-bottom:8px">Activity log</div>
-        <div id="log-entries">${logHTML}</div>
+        <div id="log-entries-${id}">${logHTML}</div>
         <div class="log-input-row">
-          <input class="log-input" id="log-input" placeholder="Log a call, email, or note…" onkeydown="if(event.key==='Enter')addLog('${id}')">
+          <input class="log-input" id="log-input-${id}" placeholder="Log a call, email, or note…" onkeydown="if(event.key==='Enter')addLog('${id}')">
           <button class="log-add-btn" onclick="addLog('${id}')">Add</button>
         </div>
       </div>
     </div>`;
+}
+
+function goToCarouselContact(id) {
+  if (isMobileView()) {
+    mobileOpenContact(id);
+    return;
+  }
+  selectContact(id);
+}
+
+function selectContact(id) {
+  currentId = id;
+  document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-' + id));
+  if (!isMobileView()) {
+    const list = mobileContactList();
+    const idx = list.findIndex(c => c.id === id);
+    if (idx >= 0) {
+      mobileCallIndex = idx;
+      scrollCarouselToIndex('desktop', idx, true);
+      updateCarouselBanner('desktop');
+    }
+    return;
+  }
+  const c = contacts.find(x => x.id === id);
+  if (!c) return;
+  ensureContactDrafts(c);
+  const panel = document.getElementById('contact-detail');
+  panel.style.display = '';
+  document.getElementById('empty-state').style.display = 'none';
+  panel.innerHTML = contactDetailBodyHtml(c);
 }
 
 function escHtml(s) {
@@ -2288,7 +2583,15 @@ function toggleContacted(id, channel, checked, opts = {}) {
     advanceMobileCallQueue();
   } else {
     renderAll();
-    if (currentId === id) selectContact(id);
+    if (currentId === id && !isMobileView()) {
+      const idx = mobileContactList().findIndex(c => c.id === id);
+      if (idx >= 0) {
+        mobileCallIndex = idx;
+        scrollCarouselToIndex('desktop', idx, false);
+      }
+    } else if (currentId === id) {
+      selectContact(id);
+    }
   }
 }
 
@@ -2350,16 +2653,16 @@ function saveFacebookDraft(id, val) {
 }
 
 function addLog(id) {
-  const input = document.getElementById('log-input');
-  const text = (input?.value||'').trim();
-  if(!text) return;
+  const input = document.getElementById('log-input-' + id) || document.getElementById('log-input');
+  const text = (input?.value || '').trim();
+  if (!text) return;
   const o = getO(id);
   o.log = o.log || [];
   o.log.push({ ts: fmtTs(), text });
   saveOutreach();
   input.value = '';
-  const container = document.getElementById('log-entries');
-  if(container) {
+  const container = document.getElementById('log-entries-' + id) || document.getElementById('log-entries');
+  if (container) {
     const div = document.createElement('div');
     div.className = 'log-entry';
     div.innerHTML = `<span class="log-ts">${fmtTs()}</span><span class="log-text">${escHtml(text)}</span>`;
@@ -2367,21 +2670,23 @@ function addLog(id) {
   }
 }
 
-function copyDraft() {
-  const ta = document.getElementById('email-draft');
-  if(!ta) return;
+function copyDraft(id) {
+  id = id || currentId;
+  const ta = document.getElementById('email-draft-' + id) || document.getElementById('email-draft');
+  if (!ta) return;
   navigator.clipboard.writeText(ta.value).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    if(btn){ btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy to clipboard',1500); }
+    const btn = ta.closest('.ai-section')?.querySelector('.copy-btn');
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy to clipboard', 1500); }
   });
 }
 
-function copyFacebookDraft() {
-  const ta = document.getElementById('facebook-draft');
-  if(!ta) return;
+function copyFacebookDraft(id) {
+  id = id || currentId;
+  const ta = document.getElementById('facebook-draft-' + id) || document.getElementById('facebook-draft');
+  if (!ta) return;
   navigator.clipboard.writeText(ta.value).then(() => {
     const btn = ta.closest('.ai-section')?.querySelector('.copy-btn');
-    if(btn){ btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy to clipboard',1500); }
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy to clipboard', 1500); }
   });
 }
 
@@ -2456,6 +2761,20 @@ function mobileCarouselChannelsHtml(c) {
   return channels ? `<div class="mobile-call-channels">${channels}</div>` : '';
 }
 
+function desktopCarouselSlideHtml(c, idx) {
+  ensureContactDrafts(c);
+  const contacted = isWrittenContactDone(c);
+  const slideClass = contacted ? 'is-contacted' : 'is-uncontacted';
+  return `
+    <article class="mobile-carousel-slide desktop-carousel-slide ${slideClass}" data-carousel-index="${idx}" data-contact-id="${escHtml(c.id)}">
+      <div class="desktop-swap-card">
+        <div class="desktop-swap-card-body">
+          ${contactDetailBodyHtml(c)}
+        </div>
+      </div>
+    </article>`;
+}
+
 function mobileCarouselSlideHtml(c, idx) {
   ensureContactDrafts(c);
   const contacted = isWrittenContactDone(c);
@@ -2474,25 +2793,27 @@ function mobileCarouselSlideHtml(c, idx) {
           <div class="mobile-call-loc">📍 ${escHtml(c.loc || 'Unknown')}</div>
           ${mobileCarouselChannelsHtml(c)}
         </div>
-        <div class="mobile-call-actions">${contactButtonHtml(c.id, 'mobile-call-huge')}</div>
+        <div class="mobile-call-actions">${contactButtonsHtml(c.id, 'mobile-call-huge contact-btn')}</div>
       </div>
     </article>`;
 }
 
-let mobileCarouselScrollTimer = null;
+const carouselScrollTimers = {};
+const carouselScrollHandlers = {};
 
-function updateMobileCarouselBanner() {
-  const banner = document.getElementById('mobile-carousel-banner');
+function updateCarouselBanner(prefix) {
+  const banner = document.getElementById(`${prefix}-carousel-banner`);
   if (!banner) return;
   const list = mobileContactList();
   const pending = list.filter(isUncontactedWritten).length;
   const contacted = list.filter(c => hasWrittenContactChannels(c) && isWrittenContactDone(c)).length;
+  const scrollHint = prefix === 'desktop' ? 'scroll ← →' : 'swipe ← →';
   banner.innerHTML = `<div>${mobileCallIndex + 1} of ${list.length}</div>
-    <div class="mobile-carousel-hint">${contacted} contacted · ${pending} uncontacted · swipe ← →</div>`;
+    <div class="mobile-carousel-hint">${contacted} contacted · ${pending} uncontacted · ${scrollHint}</div>`;
 }
 
-function syncMobileCarouselIndexFromScroll() {
-  const vp = document.getElementById('mobile-carousel-viewport');
+function syncCarouselIndexFromScroll(prefix) {
+  const vp = document.getElementById(`${prefix}-carousel-viewport`);
   const slides = vp?.querySelectorAll('.mobile-carousel-slide');
   if (!vp || !slides?.length) return;
   const center = vp.scrollLeft + vp.clientWidth / 2;
@@ -2508,31 +2829,42 @@ function syncMobileCarouselIndexFromScroll() {
   });
   if (best !== mobileCallIndex) {
     mobileCallIndex = best;
-    updateMobileCarouselBanner();
+    updateCarouselBanner(prefix);
+    if (prefix === 'desktop') {
+      const c = mobileContactList()[best];
+      if (c) {
+        currentId = c.id;
+        document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-' + c.id));
+      }
+    }
   }
 }
 
-function onMobileCarouselScroll() {
-  clearTimeout(mobileCarouselScrollTimer);
-  mobileCarouselScrollTimer = setTimeout(syncMobileCarouselIndexFromScroll, 60);
+function onCarouselScroll(prefix) {
+  clearTimeout(carouselScrollTimers[prefix]);
+  carouselScrollTimers[prefix] = setTimeout(() => syncCarouselIndexFromScroll(prefix), 60);
 }
 
-function scrollMobileCarouselToIndex(idx, smooth = true) {
-  const vp = document.getElementById('mobile-carousel-viewport');
+function scrollCarouselToIndex(prefix, idx, smooth = true) {
+  const vp = document.getElementById(`${prefix}-carousel-viewport`);
   const slide = vp?.querySelector(`.mobile-carousel-slide[data-carousel-index="${idx}"]`);
   if (!vp || !slide) return;
   const left = slide.offsetLeft - (vp.clientWidth - slide.offsetWidth) / 2;
   vp.scrollTo({ left: Math.max(0, left), behavior: smooth ? 'smooth' : 'auto' });
   mobileCallIndex = idx;
-  updateMobileCarouselBanner();
+  updateCarouselBanner(prefix);
 }
 
-function bindMobileCarousel() {
-  const vp = document.getElementById('mobile-carousel-viewport');
+function bindCarousel(prefix) {
+  const vp = document.getElementById(`${prefix}-carousel-viewport`);
   if (!vp) return;
-  vp.removeEventListener('scroll', onMobileCarouselScroll);
-  vp.addEventListener('scroll', onMobileCarouselScroll, { passive: true });
-  requestAnimationFrame(() => scrollMobileCarouselToIndex(mobileCallIndex, false));
+  if (carouselScrollHandlers[prefix]) {
+    vp.removeEventListener('scroll', carouselScrollHandlers[prefix]);
+  }
+  const handler = () => onCarouselScroll(prefix);
+  carouselScrollHandlers[prefix] = handler;
+  vp.addEventListener('scroll', handler, { passive: true });
+  requestAnimationFrame(() => scrollCarouselToIndex(prefix, mobileCallIndex, false));
 }
 
 function renderMobileCall() {
@@ -2562,8 +2894,28 @@ function renderMobileCall() {
         ${list.map((c, i) => mobileCarouselSlideHtml(c, i)).join('')}
       </div>
     </div>`;
-  bindMobileCarousel();
+  bindCarousel('mobile');
   updateMobileProgress();
+}
+
+function renderDesktopCarousel() {
+  const wrap = document.getElementById('desktop-carousel-wrap');
+  const track = document.getElementById('desktop-carousel-track');
+  if (!wrap || !track) return;
+  const list = mobileContactList();
+  if (!contacts.length) {
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'flex';
+  if (!list.length) {
+    track.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text3);font-size:13px;width:100%">No contacts match current filters</div>';
+    updateCarouselBanner('desktop');
+    return;
+  }
+  if (mobileCallIndex >= list.length) mobileCallIndex = 0;
+  track.innerHTML = list.map((c, i) => desktopCarouselSlideHtml(c, i)).join('');
+  bindCarousel('desktop');
 }
 
 function mobileOpenContact(id) {
@@ -2582,7 +2934,7 @@ function mobileOpenContact(id) {
 function skipMobileCall() {
   const list = mobileContactList();
   if (!list.length) return;
-  scrollMobileCarouselToIndex((mobileCallIndex + 1) % list.length, true);
+  scrollCarouselToIndex('mobile', (mobileCallIndex + 1) % list.length, true);
 }
 
 function renderMobileEmails() {
@@ -2600,8 +2952,8 @@ function renderMobileEmails() {
     const draftNote = draft
       ? escHtml(draft.slice(0, 120) + (draft.length > 120 ? '…' : ''))
       : 'No draft yet';
-    const send = canContactViaEmailOrMessenger(c)
-      ? contactButtonHtml(c.id, 'mobile-send-btn')
+    const send = hasEmail(c)
+      ? contactButtonsHtml(c.id, 'mobile-send-btn contact-btn', ['email'])
       : '';
     return `
       <div class="mobile-email-item">
@@ -2692,6 +3044,7 @@ window.addEventListener('resize', () => {
     renderMobileAll();
   } else {
     showOutreachView();
+    renderDesktopCarousel();
   }
 });
 
@@ -2899,6 +3252,8 @@ function showOutreachNoContactsMessage() {
   if (sub) sub.innerHTML = 'Use <strong>Run superjobs</strong> in the upper right to generate contacts, or pick another region from the dropdown.';
   document.getElementById('empty-state').style.display = '';
   document.getElementById('contact-detail').style.display = 'none';
+  const carouselWrap = document.getElementById('desktop-carousel-wrap');
+  if (carouselWrap) carouselWrap.style.display = 'none';
 }
 
 /** When API is up, refresh run status. Static catalog already bakes in hasResults. */
