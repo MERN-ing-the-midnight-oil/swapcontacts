@@ -30,6 +30,8 @@ export interface EnrichedContact {
   linkedinPeople: LinkedInPerson[];
   website: string;
   notes: string;
+  /** Friendly opener referencing upcoming swap timing, for outreach templates. */
+  eventSpecificLine: string;
   enrichedAt: string;
   contactFound: boolean;
 }
@@ -85,4 +87,5 @@ export interface RawEnrichmentResult {
   linkedinPeople: LinkedInPerson[];
   website: string;
   notes: string;
+  eventSpecificLine: string;
 }

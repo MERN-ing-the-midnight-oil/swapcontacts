@@ -34,6 +34,7 @@ const CONTACT_HEADERS = [
   { id: 'linkedinPeople', title: 'linkedinPeople' },
   { id: 'website', title: 'website' },
   { id: 'notes', title: 'notes' },
+  { id: 'eventSpecificLine', title: 'eventSpecificLine' },
   { id: 'enrichedAt', title: 'enrichedAt' },
   { id: 'contactFound', title: 'contactFound' },
 ];
@@ -102,6 +103,7 @@ function rowToContact(row: Record<string, string>): EnrichedContact {
     linkedinPeople: parseLinkedinPeopleJson(row.linkedinPeople || row.linkedin),
     website: row.website,
     notes: row.notes,
+    eventSpecificLine: row.eventspecificline || row.eventSpecificLine || '',
     enrichedAt: row.enrichedAt,
     contactFound: parseBool(row.contactFound),
   };
@@ -254,6 +256,7 @@ export async function saveContact(
       linkedinPeople: JSON.stringify(contact.linkedinPeople ?? []),
       website: contact.website,
       notes: contact.notes,
+      eventSpecificLine: contact.eventSpecificLine,
       enrichedAt: contact.enrichedAt,
       contactFound: contact.contactFound,
     },

@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { SwapEvent, EnrichedContact, RawEnrichmentResult } from './types';
 import { normalizeLinkedinPeople } from './linkedin-people';
+import { resolveEventSpecificLine } from './event-specific-line';
 import {
   getClient,
   callWithRetry,
@@ -17,6 +18,13 @@ const WEB_SEARCH_TOOL = {
 } as unknown as Anthropic.Messages.Tool;
 
 function buildEnrichmentPrompt(event: SwapEvent): string {
+  const scheduleHint = event.date
+    ? `Known schedule from discovery (may be incomplete): "${event.date}"`
+    : 'Known schedule from discovery: none yet';
+  const descriptionHint = event.description
+    ? `Event description: "${event.description}"`
+    : '';
+
   return `Find contact information for this swap event organizer:
 
 Organization/Event: "${event.name}"
@@ -24,6 +32,8 @@ Organizer: "${event.organizer}"
 Location: "${event.location}"
 Event URL: "${event.eventUrl}"
 Event type: ${event.type} swap
+${scheduleHint}
+${descriptionHint}
 
 Search the web to find their:
 1. Email address (check their website, Facebook About page, Eventbrite organizer profile)
@@ -31,11 +41,14 @@ Search the web to find their:
 3. Facebook page URL
 4. Names and locations of gear swap Directors, Organizers, or Volunteers (from event pages, news articles, org websites, Facebook posts — only real names you find cited)
 5. Website URL (not Eventbrite — their own domain)
+6. When their next swap is (or typically runs) — check event pages, Facebook events, news, and registration posts
 
 Return ONLY a valid JSON object. No markdown, no backticks, no explanation.
-{"email":"","phone":"","facebook":"","linkedinPeople":[{"name":"","location":"","role":""}],"website":"","notes":"1 sentence about the org"}
+{"email":"","phone":"","facebook":"","linkedinPeople":[{"name":"","location":"","role":""}],"website":"","notes":"1 sentence about the org","eventSpecificLine":""}
 
-For linkedinPeople: each entry needs name (required), location (city/state when known, else event area), and role ("Director", "Organizer", or "Volunteer" when known). Return [] if none found. Never guess or fabricate names or contact info.`;
+For linkedinPeople: each entry needs name (required), location (city/state when known, else event area), and role ("Director", "Organizer", or "Volunteer" when known). Return [] if none found. Never guess or fabricate names or contact info.
+
+For eventSpecificLine: one short friendly opener about their upcoming or typical swap timing, using the real event name. Example: "Looks like the Seattle Bike Swap is coming up this spring — hope planning's going well." Use natural season/month phrasing ("this fall", "this October"). Return "" if timing is unknown — do not guess dates.`;
 }
 
 export async function enrichEvent(
@@ -50,7 +63,7 @@ export async function enrichEvent(
     () =>
       anthropic.messages.create({
         model,
-        max_tokens: 800,
+        max_tokens: 1024,
         tools: [WEB_SEARCH_TOOL],
         messages: [{ role: 'user', content: prompt }],
       }) as Promise<Anthropic.Message>,
@@ -104,6 +117,7 @@ export async function enrichEvent(
     linkedinPeople,
     website: parsed.website || '',
     notes: parsed.notes || '',
+    eventSpecificLine: resolveEventSpecificLine(event, parsed.eventSpecificLine),
     enrichedAt: new Date().toISOString(),
     contactFound,
   };

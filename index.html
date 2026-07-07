@@ -79,6 +79,19 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .auth-panel input[type=email] { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 12px; font-family: var(--font-sans); outline: none; }
 .auth-panel input[type=email]:focus { border-color: var(--accent); }
 .auth-msg { font-size: 11px; color: var(--text3); line-height: 1.4; }
+.fb-send-summary { font-size: 12px; color: var(--text2); line-height: 1.55; margin-bottom: 10px; padding: 10px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+.fb-send-summary strong { color: var(--text); font-weight: 600; }
+.fb-send-period { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--border); }
+.fb-send-period:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.fb-send-period-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); font-family: var(--font-mono); margin-bottom: 4px; }
+.fb-send-log-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.fb-send-log-item { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 11px; padding: 6px 8px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); }
+.fb-send-log-item.is-unsuccessful { border-color: rgba(197,48,48,.35); background: rgba(197,48,48,.06); }
+.fb-send-log-ts { font-family: var(--font-mono); color: var(--text3); flex-shrink: 0; font-size: 10px; }
+.fb-send-log-org { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text2); }
+.fb-send-flag-btn { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; border: 1px solid var(--border); background: var(--surface); color: var(--text3); cursor: pointer; font-family: var(--font-sans); flex-shrink: 0; }
+.fb-send-flag-btn:hover { border-color: var(--orange); color: var(--orange); }
+.fb-send-flag-btn.is-flagged { border-color: rgba(197,48,48,.35); color: var(--red); background: rgba(197,48,48,.08); }
 
 /* ── SIDEBAR ── */
 .sidebar { background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
@@ -153,6 +166,11 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .cd-meta span { display: flex; align-items: center; gap: 4px; }
 .next-btn { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); transition: background .15s; white-space: nowrap; }
 .next-btn:hover { background: var(--accent2); }
+.carousel-nav-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
+.nav-btn { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); border-radius: var(--radius); padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); transition: all .15s; white-space: nowrap; }
+.nav-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.nav-btn:disabled { opacity: .45; cursor: default; }
+.mobile-carousel-banner .carousel-nav-btns { justify-content: center; margin-top: 8px; }
 
 /* Status row */
 .status-row { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
@@ -173,7 +191,10 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .contact-btn.contacted { background: var(--red); cursor: default; opacity: 1; }
 .contact-btn.contacted:hover { background: var(--red); }
 .contact-btn:disabled:not(.contacted) { opacity: .5; cursor: default; }
+.contact-actions-wrap { width: 100%; }
+.contact-actions-wrap > .send-both-btn { width: 100%; margin-top: 8px; justify-content: center; text-align: center; }
 .contact-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-top: 8px; }
+.contact-actions-wrap .contact-actions-row { margin-top: 8px; }
 .contact-actions-row .contact-btn { margin-top: 0; justify-content: center; text-align: center; }
 .contact-sent-wrap { display: flex; flex-direction: column; gap: 6px; width: 100%; }
 .contact-sent-wrap .contact-btn { margin-top: 0; justify-content: center; text-align: center; }
@@ -347,6 +368,19 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
 .prompt-editor-wrap[open] summary { color: var(--accent); margin-bottom: 8px; }
 .prompt-hint { font-size: 11px; color: var(--text3); line-height: 1.5; margin-bottom: 8px; }
 .prompt-hint code { font-family: var(--font-mono); font-size: 10px; color: var(--accent); background: var(--accent-dim); padding: 1px 4px; border-radius: 3px; }
+.placeholder-guide-wrap { margin-bottom: 10px; }
+.placeholder-guide-caption { font-size: 11px; color: var(--text2); line-height: 1.45; margin-bottom: 6px; }
+.placeholder-guide-caption strong { color: var(--text); font-weight: 600; }
+.placeholder-guide-list { list-style: none; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); overflow: hidden; }
+.placeholder-guide-item { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.placeholder-guide-item:last-child { border-bottom: none; }
+.placeholder-guide-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 3px; }
+.placeholder-guide-row code { flex-shrink: 0; font-family: var(--font-mono); font-size: 10px; color: var(--accent); background: var(--accent-dim); padding: 1px 5px; border-radius: 3px; }
+.placeholder-guide-value { text-align: right; font-family: var(--font-mono); font-size: 10px; color: var(--text); line-height: 1.45; word-break: break-word; }
+.placeholder-guide-value.is-empty { color: var(--text3); font-style: italic; font-family: var(--font-sans); }
+.placeholder-guide-desc { font-size: 10px; color: var(--text3); line-height: 1.4; }
+.placeholder-guide-aliases { font-size: 9px; color: var(--text3); margin-top: 2px; }
+.placeholder-guide-aliases code { font-size: 9px; padding: 0 3px; }
 .prompt-template-input { width: 100%; min-height: 140px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: var(--text); font-size: 11px; font-family: var(--font-mono); line-height: 1.55; resize: vertical; outline: none; margin-bottom: 8px; }
 .prompt-template-input:focus { border-color: var(--accent); }
 .prompt-reset-btn { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text2); font-size: 11px; cursor: pointer; font-family: var(--font-sans); }
@@ -498,7 +532,7 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
           <option value="">Loading regions…</option>
         </select>
       </div>
-      <button type="button" class="first-uncontacted-btn" onclick="goToFirstUncontacted()" title="Jump to the first org with pending outreach">First Uncontacted →</button>
+      <button type="button" class="first-uncontacted-btn" onclick="goToFirstUncontacted()" title="Jump to the first org with unsent email and FB message">First Uncontacted →</button>
     </div>
     <div class="topbar-stats">
       <div class="tstat"><div class="tstat-val" id="s-total">—</div><div class="tstat-lbl">Total</div></div>
@@ -541,7 +575,7 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
       <div class="auth-panel-body">
         <p class="auth-msg">Import a CSV of swap-meet contacts (one row per organization). Use <strong>↑ Import CSV</strong> in the top bar or place <code>contacts.csv</code> next to this page.</p>
         <p class="auth-msg" style="margin-top:8px"><strong>Required:</strong> <code>orgName</code> — organization or event name.</p>
-        <p class="auth-msg" style="margin-top:6px"><strong>Recommended:</strong> <code>location</code>, <code>type</code> (bike, ski, gear, sports, or other), <code>email</code>, <code>phone</code>, <code>facebook</code>, <code>linkedinPeople</code>, <code>website</code>, <code>notes</code>.</p>
+        <p class="auth-msg" style="margin-top:6px"><strong>Recommended:</strong> <code>location</code>, <code>type</code> (bike, ski, gear, sports, or other), <code>email</code>, <code>phone</code>, <code>facebook</code>, <code>linkedinPeople</code>, <code>website</code>, <code>eventSpecificLine</code>, <code>notes</code>.</p>
         <p class="auth-msg" style="margin-top:6px"><strong>Optional:</strong> <code>sourceId</code> — unique ID per row (auto-generated if omitted).</p>
       </div>
     </details>
@@ -559,9 +593,10 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
 
     <details class="prompt-editor-wrap" id="prompt-editor-wrap">
       <summary>✎ Email template</summary>
-      <p class="prompt-hint">Filled in for each draft. Placeholders:
-        <code>{name}</code> <code>{Event Title Goes Here}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code>
-      </p>
+      <div class="placeholder-guide-wrap">
+        <p class="prompt-hint">Placeholders fill in per contact. Preview updates for whoever you're viewing:</p>
+        <div class="placeholder-guide" data-placeholder-guide></div>
+      </div>
       <div class="template-toolbar">
         <div class="template-toolbar-row">
           <select class="template-select" id="email-template-select" onchange="onEmailTemplateSelect(this)" aria-label="Saved templates"></select>
@@ -580,9 +615,10 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
 
     <details class="prompt-editor-wrap" id="facebook-prompt-editor-wrap">
       <summary>✎ Facebook contact template</summary>
-      <p class="prompt-hint">Filled in for each Facebook message draft. Placeholders:
-        <code>{name}</code> <code>{Event Title Goes Here}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code>
-      </p>
+      <div class="placeholder-guide-wrap">
+        <p class="prompt-hint">Same placeholders as email — preview for the current contact:</p>
+        <div class="placeholder-guide" data-placeholder-guide></div>
+      </div>
       <div class="template-toolbar">
         <div class="template-toolbar-row">
           <select class="template-select" id="facebook-template-select" onchange="onFacebookTemplateSelect(this)" aria-label="Saved Facebook templates"></select>
@@ -597,6 +633,11 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
       </div>
       <textarea class="prompt-template-input" id="facebook-prompt-template" placeholder="Loading template…"></textarea>
       <button type="button" class="prompt-reset-btn" onclick="resetFacebookPromptTemplate()">Reset default template</button>
+    </details>
+
+    <details class="auth-panel" id="fb-send-log-panel">
+      <summary>📊 FB send log</summary>
+      <div class="auth-panel-body" id="fb-send-log-body"></div>
     </details>
 
     <div class="sidebar-section">
@@ -648,11 +689,12 @@ npm run outreach:sync   # copy contacts.csv into this app</div>
             <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">facebook</span><span class="csv-col-desc">Facebook page URL</span></li>
             <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">linkedinPeople</span><span class="csv-col-desc">JSON array of directors, organizers, or volunteers — e.g. <code>[{"name":"Jane Doe","location":"Seattle, WA","role":"Director"}]</code></span></li>
             <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">website</span><span class="csv-col-desc">Organization website</span></li>
+            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">eventSpecificLine</span><span class="csv-col-desc">Short event-timing opener for email drafts (e.g. “Looks like the Seattle Bike Swap is coming up this spring — hope planning's going well.”)</span></li>
             <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">notes</span><span class="csv-col-desc">Background info (shown in email drafts)</span></li>
             <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">sourceId</span><span class="csv-col-desc">Unique row ID — generated automatically if left blank</span></li>
           </ul>
           <p>Example header row:</p>
-          <div class="csv-example">orgName,location,type,email,phone,facebook,linkedinPeople,website,notes</div>
+          <div class="csv-example">orgName,location,type,email,phone,facebook,linkedinPeople,website,eventSpecificLine,notes</div>
         </div>
 
         <div class="empty-sub" id="empty-sub">Checking for <code style="color:var(--accent)">contacts.csv</code>…</div>
@@ -682,7 +724,7 @@ npm run outreach:sync   # copy contacts.csv into this app</div>
       <select class="superjob-select" id="mobile-superjob-select" onchange="onSuperjobSelectChange(this)" aria-label="Select superjob region">
         <option value="">Loading regions…</option>
       </select>
-      <button type="button" class="first-uncontacted-btn" onclick="goToFirstUncontacted()" title="Jump to the first org with pending outreach">First Uncontacted →</button>
+      <button type="button" class="first-uncontacted-btn" onclick="goToFirstUncontacted()" title="Jump to the first org with unsent email and FB message">First Uncontacted →</button>
       <button type="button" class="run-superjobs-btn" onclick="navigateDiscover()">Run superjobs</button>
     </div>
     <div class="mh-sub" id="mobile-header-sub">Swipe through orgs · phone, email & messenger</div>
@@ -722,7 +764,8 @@ let mobileContactChannel = 'phone'; // 'phone' | 'email' | 'facebook'
 const STORAGE_KEY = 'swap_outreach_v1';
 const EMAIL_TEMPLATES_KEY = 'swap_email_templates_v1';
 const FACEBOOK_TEMPLATES_KEY = 'swap_facebook_templates_v1';
-const LEGACY_PROMPT_TEMPLATE_KEY = 'swap_email_prompt_template_v2';
+const FB_SEND_LOG_KEY = 'swap_fb_send_log_v1';
+const LEGACY_PROMPT_TEMPLATE_KEYS = ['swap_email_prompt_template_v2', 'swap_email_prompt_template_v1'];
 const CONTACTS_URL = 'contacts.csv';
 let activeSuperjobId = null;
 let superjobCatalog = [];
@@ -740,7 +783,7 @@ function outreachStorageKey() {
   return activeSuperjobId ? `${STORAGE_KEY}_sj_${activeSuperjobId}` : STORAGE_KEY;
 }
 
-const DEFAULT_OUTREACH_PROMPT = `Hi {name} team,
+const DEFAULT_EMAIL_PROMPT = `Hi {name} team,
 
 I'm a volunteer for the Bellingham Bike Swap in Bellingham, WA, and a graduate of the Web Development program at the University of Washington.
 
@@ -755,50 +798,101 @@ A couple quick questions, if you have a moment:
 
 If you'd like to see how Consignly works, I'm happy to walk you through a quick demo — just reply to this email or call/text me at 907-209-8448.
 
+{event_specific_line}
+
 Sincerely,
 Rhys Smoker
 Consignly — Smart Tags for your Swap Swag`;
 
-const DEFAULT_EMAIL_PROMPT = DEFAULT_OUTREACH_PROMPT;
-const DEFAULT_FACEBOOK_PROMPT = DEFAULT_OUTREACH_PROMPT;
+const DEFAULT_FACEBOOK_PROMPT = DEFAULT_EMAIL_PROMPT;
 
 const DEFAULT_EMAIL_TEMPLATE_ID = 'builtin-default';
 const DEFAULT_FACEBOOK_TEMPLATE_ID = 'builtin-default';
-const DRAFT_TEMPLATE_VERSION = 2;
+const BUILTIN_EMAIL_TEMPLATE_VERSION = 3;
+const DRAFT_TEMPLATE_VERSION = 7;
 const LEGACY_EMAIL_PROMPT_MARK = "Hi There!   I'm a volunteer organizer";
+const CURRENT_EMAIL_TEMPLATE_MARK = 'University of Washington';
+
+function purgeLegacyTemplateStorage() {
+  for (const key of LEGACY_PROMPT_TEMPLATE_KEYS) {
+    try { localStorage.removeItem(key); } catch (e) {}
+  }
+}
+
+function isLegacyTemplateBody(body) {
+  const text = String(body || '');
+  return text.includes(LEGACY_EMAIL_PROMPT_MARK) || /^Hi There!/i.test(text.trim());
+}
+
+function normalizeEmailTemplatesState(state) {
+  let migrated = false;
+  purgeLegacyTemplateStorage();
+
+  const freshBuiltin = {
+    id: DEFAULT_EMAIL_TEMPLATE_ID,
+    name: 'Default',
+    body: DEFAULT_EMAIL_PROMPT,
+    builtin: true,
+    templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION,
+  };
+
+  if (!state?.templates?.length) {
+    return { migrated: true, state: { activeId: DEFAULT_EMAIL_TEMPLATE_ID, templates: [freshBuiltin] } };
+  }
+
+  const beforeCount = state.templates.length;
+  state.templates = state.templates.filter(
+    (t) => t.id !== 'migrated-custom' && !isLegacyTemplateBody(t.body)
+  );
+  if (state.templates.length < beforeCount) migrated = true;
+
+  let builtin = state.templates.find((t) => t.id === DEFAULT_EMAIL_TEMPLATE_ID);
+  if (!builtin) {
+    state.templates.unshift(freshBuiltin);
+    migrated = true;
+  } else {
+    builtin.builtin = true;
+    if (
+      builtin.body !== DEFAULT_EMAIL_PROMPT
+      || isLegacyTemplateBody(builtin.body)
+      || (builtin.templateVersion || 0) < BUILTIN_EMAIL_TEMPLATE_VERSION
+    ) {
+      builtin.body = DEFAULT_EMAIL_PROMPT;
+      builtin.templateVersion = BUILTIN_EMAIL_TEMPLATE_VERSION;
+      migrated = true;
+    }
+  }
+
+  const active = state.templates.find((t) => t.id === state.activeId);
+  if (!active || isLegacyTemplateBody(active.body)) {
+    state.activeId = DEFAULT_EMAIL_TEMPLATE_ID;
+    migrated = true;
+  }
+
+  return { migrated, state };
+}
 
 function loadEmailTemplatesState() {
   try {
     const raw = localStorage.getItem(EMAIL_TEMPLATES_KEY);
     if (raw) {
-      const state = JSON.parse(raw);
-      if (state?.templates?.length) {
-        let migrated = false;
-        const builtin = state.templates.find((t) => t.id === DEFAULT_EMAIL_TEMPLATE_ID);
-        if (builtin?.builtin && builtin.body.includes(LEGACY_EMAIL_PROMPT_MARK)) {
-          builtin.body = DEFAULT_EMAIL_PROMPT;
-          migrated = true;
-        }
-        const active = state.templates.find((t) => t.id === state.activeId);
-        if (active?.body?.includes(LEGACY_EMAIL_PROMPT_MARK)) {
-          state.activeId = DEFAULT_EMAIL_TEMPLATE_ID;
-          migrated = true;
-        }
-        if (migrated) persistEmailTemplatesState(state);
-        return state;
-      }
+      const { migrated, state } = normalizeEmailTemplatesState(JSON.parse(raw));
+      if (migrated) persistEmailTemplatesState(state);
+      if (migrated) queueRefreshAllDraftsFromTemplates();
+      return state;
     }
   } catch (e) {}
-  const legacy = localStorage.getItem(LEGACY_PROMPT_TEMPLATE_KEY);
-  const templates = [
-    { id: DEFAULT_EMAIL_TEMPLATE_ID, name: 'Default', body: DEFAULT_EMAIL_PROMPT, builtin: true },
-  ];
-  let activeId = DEFAULT_EMAIL_TEMPLATE_ID;
-  if (legacy && legacy.trim() && legacy !== DEFAULT_EMAIL_PROMPT) {
-    templates.push({ id: 'migrated-custom', name: 'Custom', body: legacy });
-    activeId = 'migrated-custom';
-  }
-  return { activeId, templates };
+  purgeLegacyTemplateStorage();
+  return {
+    activeId: DEFAULT_EMAIL_TEMPLATE_ID,
+    templates: [{
+      id: DEFAULT_EMAIL_TEMPLATE_ID,
+      name: 'Default',
+      body: DEFAULT_EMAIL_PROMPT,
+      builtin: true,
+      templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION,
+    }],
+  };
 }
 
 function persistEmailTemplatesState(state) {
@@ -907,6 +1001,7 @@ function saveEmailTemplate() {
   }
   persistEmailTemplatesState(state);
   refreshEmailTemplateUI(state);
+  queueRefreshAllDraftsFromTemplates();
 }
 
 function deleteEmailTemplate() {
@@ -917,18 +1012,17 @@ function deleteEmailTemplate() {
   if (!confirm(`Delete template "${active.name}"?`)) return;
   state.templates = state.templates.filter((t) => t.id !== activeId);
   if (!state.templates.length) {
-    state.templates = [{ id: DEFAULT_EMAIL_TEMPLATE_ID, name: 'Default', body: DEFAULT_EMAIL_PROMPT, builtin: true }];
+    state.templates = [{ id: DEFAULT_EMAIL_TEMPLATE_ID, name: 'Default', body: DEFAULT_EMAIL_PROMPT, builtin: true, templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION }];
   }
   if (!state.templates.some((t) => t.id === state.activeId)) {
     state.activeId = state.templates[0].id;
   }
   persistEmailTemplatesState(state);
   refreshEmailTemplateUI(state);
+  queueRefreshAllDraftsFromTemplates();
 }
 
 function getEmailPromptTemplate() {
-  const el = getEmailTemplateField('textarea');
-  if (el && el.value.trim()) return el.value;
   return getActiveEmailTemplate()?.body || DEFAULT_EMAIL_PROMPT;
 }
 
@@ -936,15 +1030,21 @@ function resetEmailPromptTemplate() {
   if (!confirm('Reset the default template to the built-in text?')) return;
   const state = loadEmailTemplatesState();
   const builtin = state.templates.find((t) => t.id === DEFAULT_EMAIL_TEMPLATE_ID);
-  if (builtin) builtin.body = DEFAULT_EMAIL_PROMPT;
+  if (builtin) {
+    builtin.body = DEFAULT_EMAIL_PROMPT;
+    builtin.templateVersion = BUILTIN_EMAIL_TEMPLATE_VERSION;
+  }
   state.activeId = DEFAULT_EMAIL_TEMPLATE_ID;
   persistEmailTemplatesState(state);
   refreshEmailTemplateUI(state);
+  queueRefreshAllDraftsFromTemplates();
 }
 
 function initPromptEditor() {
   refreshEmailTemplateUI();
   refreshFacebookTemplateUI();
+  refreshPlaceholderGuides();
+  queueRefreshAllDraftsFromTemplates();
 }
 
 function loadFacebookTemplatesState() {
@@ -1087,8 +1187,6 @@ function deleteFacebookTemplate() {
 }
 
 function getFacebookPromptTemplate() {
-  const el = getFacebookTemplateField('textarea');
-  if (el && el.value.trim()) return el.value;
   return getActiveFacebookTemplate()?.body || DEFAULT_FACEBOOK_PROMPT;
 }
 
@@ -1103,15 +1201,99 @@ function resetFacebookPromptTemplate() {
 }
 
 function applyPromptTemplate(c, template) {
-  const eventTitle = c.name || '';
-  return template
-    .replace(/\{Event Title Goes Here\}/gi, eventTitle)
-    .replace(/\{name of swap\}/gi, eventTitle)
-    .replace(/\{name\}/gi, eventTitle)
-    .replace(/\{location\}/gi, c.loc || '')
-    .replace(/\{type\}/gi, c.type || 'other')
-    .replace(/\{notes\}/gi, c.sourceNotes || '(not available)')
-    .replace(/\{email\}/gi, c.email || '');
+  let out = template;
+  for (const p of TEMPLATE_PLACEHOLDERS) {
+    const value = formatPlaceholderValue(p, p.resolve(c || {}));
+    const tokens = [p.token, ...(p.aliases || [])];
+    for (const token of tokens) {
+      out = out.replace(new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), value);
+    }
+  }
+  return cleanupDraftWhitespace(out);
+}
+
+function cleanupDraftWhitespace(text) {
+  return String(text || '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+const TEMPLATE_PLACEHOLDERS = [
+  {
+    token: '{name}',
+    aliases: ['{Event Title Goes Here}', '{name of swap}', '{org_name}', '{orgName}', '{event_name}'],
+    description: 'Organization or event name (orgName in CSV)',
+    resolve(c) { return c.name || ''; },
+  },
+  {
+    token: '{location}',
+    description: 'City and state',
+    resolve(c) { return c.loc || ''; },
+  },
+  {
+    token: '{type}',
+    description: 'Swap category: bike, ski, gear, sports, or other',
+    resolve(c) { return c.type || 'other'; },
+  },
+  {
+    token: '{event_specific_line}',
+    description: 'Short opener about upcoming swap timing (eventSpecificLine in CSV)',
+    resolve(c) { return c.eventSpecificLine || ''; },
+    emptyLabel: '(empty — timing unknown)',
+  },
+  {
+    token: '{notes}',
+    description: 'Background blurb about the org (notes in CSV)',
+    resolve(c) { return c.sourceNotes || ''; },
+    emptyLabel: '(not available)',
+  },
+  {
+    token: '{email}',
+    description: 'Contact email address',
+    resolve(c) { return c.email || ''; },
+  },
+];
+
+function formatPlaceholderValue(_placeholder, raw) {
+  return String(raw ?? '').trim();
+}
+
+function formatPlaceholderGuideValue(placeholder, raw) {
+  const text = String(raw ?? '').trim();
+  if (text) return { text, empty: false };
+  if (placeholder.emptyLabel) return { text: placeholder.emptyLabel, empty: true };
+  return { text: '—', empty: true };
+}
+
+function renderPlaceholderGuideHtml(c) {
+  const contact = c || (currentId ? contacts.find((x) => x.id === currentId) : null);
+  const caption = contact
+    ? `Preview for <strong>${escHtml(contact.name)}</strong>`
+    : 'Select a contact to preview placeholder values';
+  const items = TEMPLATE_PLACEHOLDERS.map((p) => {
+    const { text, empty } = formatPlaceholderGuideValue(p, p.resolve(contact || {}));
+    const aliases = (p.aliases || []).length
+      ? `<div class="placeholder-guide-aliases">Also: ${p.aliases.map((a) => `<code>${escHtml(a)}</code>`).join(' ')}</div>`
+      : '';
+    return `<li class="placeholder-guide-item">
+      <div class="placeholder-guide-row">
+        <code>${escHtml(p.token)}</code>
+        <span class="placeholder-guide-value${empty ? ' is-empty' : ''}">${escHtml(text)}</span>
+      </div>
+      <div class="placeholder-guide-desc">${escHtml(p.description)}</div>
+      ${aliases}
+    </li>`;
+  }).join('');
+  return `<div class="placeholder-guide-caption">${caption}</div><ul class="placeholder-guide-list">${items}</ul>`;
+}
+
+function refreshPlaceholderGuides() {
+  const contact = currentId ? contacts.find((x) => x.id === currentId) : null;
+  const html = renderPlaceholderGuideHtml(contact);
+  document.querySelectorAll('[data-placeholder-guide]').forEach((el) => {
+    el.innerHTML = html;
+  });
 }
 
 function isMobileView() {
@@ -1226,6 +1408,26 @@ function isWrittenContactDone(c) {
   const o = getO(c.id);
   return !!(o.contacted?.email && o.contacted?.facebook);
 }
+/** Both Send Email and Send FB Message buttons are still green (neither marked sent). */
+function isUncontactedBySendButtons(c) {
+  if (!hasWrittenContactChannels(c)) return false;
+  const o = getO(c.id);
+  return !o.contacted?.email && !o.contacted?.facebook;
+}
+function findAdjacentContact(currentId, direction) {
+  const list = filteredContacts();
+  if (!list.length) return null;
+  if (list.length === 1) return null;
+  const idx = list.findIndex(c => c.id === currentId);
+  const start = idx >= 0 ? idx + direction : (direction > 0 ? 0 : list.length - 1);
+  return list[(start + list.length) % list.length];
+}
+function findNextContact(currentId) {
+  return findAdjacentContact(currentId, 1);
+}
+function findPreviousContact(currentId) {
+  return findAdjacentContact(currentId, -1);
+}
 function findNextUncontacted(currentId) {
   const list = filteredContacts();
   if (!list.length) return null;
@@ -1234,13 +1436,24 @@ function findNextUncontacted(currentId) {
   for (let i = 0; i < list.length; i++) {
     const c = list[(start + i) % list.length];
     if (c.id === currentId) continue;
-    if (isUncontactedForMode(c)) return c;
+    if (isUncontactedBySendButtons(c)) return c;
   }
   return null;
 }
 
 function findFirstUncontacted() {
-  return filteredContacts().find(c => isUncontactedForMode(c)) || null;
+  return filteredContacts().find(c => isUncontactedBySendButtons(c)) || null;
+}
+
+function carouselNavButtonsHtml(id) {
+  const list = filteredContacts();
+  const canStep = list.length > 1;
+  const nextUncontacted = findNextUncontacted(id);
+  return `<div class="carousel-nav-btns">
+    <button type="button" class="nav-btn" onclick="goPrevious()" ${canStep ? '' : 'disabled'} title="Previous org">← Previous</button>
+    <button type="button" class="nav-btn" onclick="goNext()" ${canStep ? '' : 'disabled'} title="Next org">Next →</button>
+    ${nextUncontacted ? `<button type="button" class="next-btn" onclick="goNextUncontacted()" title="Next org with unsent email and FB message">Next uncontacted →</button>` : ''}
+  </div>`;
 }
 
 function goToFirstUncontacted() {
@@ -1721,6 +1934,43 @@ function resetFacebookForOrg(id, event, btnEl) {
   setTimeout(() => refreshContactedUI(id), 0);
 }
 
+function isPendingSendChannel(id, channel) {
+  const c = contacts.find(x => x.id === id);
+  if (!c) return false;
+  const o = getO(id);
+  if (channel === 'email') return hasEmail(c) && !o.contacted?.email;
+  if (channel === 'facebook') return hasFacebook(c) && !o.contacted?.facebook;
+  return false;
+}
+
+function findSendChannelButton(id, fnName, scopeEl) {
+  const sel = `button[onclick*="${fnName}('${id}'"]`;
+  return scopeEl?.querySelector(sel) || document.querySelector(sel);
+}
+
+function openBothForOrg(id, event, btnEl) {
+  if (event) event.preventDefault();
+  const c = contacts.find(x => x.id === id);
+  outreachLog('openBothForOrg: click', { id, name: c?.name });
+  if (!c) return;
+
+  const scope = btnEl?.closest('.contact-actions-wrap, .mobile-call-actions');
+  const pending = ['email', 'facebook'].filter(ch => isPendingSendChannel(id, ch));
+  if (!pending.length) {
+    outreachLog('openBothForOrg: aborted — no pending send channels');
+    return;
+  }
+
+  // Open every green send tab synchronously inside this click handler.
+  if (pending.includes('email')) {
+    openEmailForOrg(id, null, findSendChannelButton(id, 'openEmailForOrg', scope));
+  }
+  if (pending.includes('facebook')) {
+    openFacebookForOrg(id, null, findSendChannelButton(id, 'openFacebookForOrg', scope));
+  }
+  outreachLog('openBothForOrg: done', { id, channels: pending });
+}
+
 function openFacebookForOrg(id, event, btnEl) {
   if (event) event.preventDefault();
   const c = contacts.find(x => x.id === id);
@@ -1754,6 +2004,8 @@ function openFacebookForOrg(id, event, btnEl) {
     return;
   }
 
+  logFbSendPush(id, c.name);
+
   // Open while still inside the click handler — popup blockers reject tabs opened after re-render/copy.
   let opened = openExternalHref(messenger.href, { tag: 'openFacebookForOrg:primary', newTab: true });
   if (!opened) {
@@ -1776,13 +2028,16 @@ function contactHintText(c) {
   if (!canContactViaEmailOrMessenger(c)) {
     return 'Needs both a valid email and Facebook page to contact.';
   }
-  const o = getO(c.id);
   const hints = [];
-  if (hasEmail(c) && !o.contacted?.email) {
+  const pending = ['email', 'facebook'].filter(ch => isPendingSendChannel(c.id, ch));
+  if (pending.includes('email')) {
     hints.push('Send Email opens Gmail with your draft.');
   }
-  if (hasFacebook(c) && !o.contacted?.facebook) {
+  if (pending.includes('facebook')) {
     hints.push('Send FB Message opens Messenger with your draft.');
+  }
+  if (pending.length > 1) {
+    hints.push('Send Both opens every unsent channel at once.');
   }
   if (!hints.length) return 'Email and Messenger outreach complete.';
   return hints.join(' ');
@@ -1821,8 +2076,17 @@ function contactButtonsHtml(id, className = 'contact-btn', channels = ['email', 
   if (!c) return '';
   const buttons = channels.map(ch => channelContactButtonHtml(id, ch, className)).filter(Boolean);
   if (!buttons.length) return '';
-  if (buttons.length === 1) return buttons[0];
-  return `<div class="contact-actions-row">${buttons.join('')}</div>`;
+  const hasBothChannelTypes = channels.includes('email') && channels.includes('facebook');
+  const pending = channels.filter(ch => isPendingSendChannel(id, ch));
+  const sendBoth = hasBothChannelTypes && hasEmail(c) && hasFacebook(c) && pending.length
+    ? `<button type="button" class="${/\bcontact-btn\b/.test(className) ? className : `contact-btn ${className}`} send-both-btn" onclick="openBothForOrg('${id}', event, this)">Send Both</button>`
+    : '';
+  if (buttons.length === 1 && !sendBoth) return buttons[0];
+  const row = buttons.length > 1
+    ? `<div class="contact-actions-row">${buttons.join('')}</div>`
+    : buttons[0];
+  if (!sendBoth) return row;
+  return `<div class="contact-actions-wrap">${sendBoth}${row}</div>`;
 }
 
 // ── PERSISTENCE ────────────────────────────────────────────
@@ -1963,9 +2227,21 @@ function mergeOneOutreach(a, b) {
     return true;
   });
   const notes = (a.notes || '').length >= (b.notes || '').length ? (a.notes || '') : (b.notes || '');
-  const emailDraft = (a.emailDraft || '').length >= (b.emailDraft || '').length ? (a.emailDraft || '') : (b.emailDraft || '');
-  const facebookDraft = (a.facebookDraft || '').length >= (b.facebookDraft || '').length ? (a.facebookDraft || '') : (b.facebookDraft || '');
-  return { contacted, notes, log, emailDraft, facebookDraft };
+  const useAEmail = (a.emailDraftVersion || 0) >= (b.emailDraftVersion || 0);
+  const useAFacebook = (a.facebookDraftVersion || 0) >= (b.facebookDraftVersion || 0);
+  return {
+    contacted,
+    notes,
+    log,
+    emailDraft: useAEmail ? (a.emailDraft || '') : (b.emailDraft || ''),
+    emailDraftVersion: Math.max(a.emailDraftVersion || 0, b.emailDraftVersion || 0),
+    emailDraftTemplateFp: useAEmail ? a.emailDraftTemplateFp : b.emailDraftTemplateFp,
+    emailDraftCustom: useAEmail ? !!a.emailDraftCustom : !!b.emailDraftCustom,
+    facebookDraft: useAFacebook ? (a.facebookDraft || '') : (b.facebookDraft || ''),
+    facebookDraftVersion: Math.max(a.facebookDraftVersion || 0, b.facebookDraftVersion || 0),
+    facebookDraftTemplateFp: useAFacebook ? a.facebookDraftTemplateFp : b.facebookDraftTemplateFp,
+    facebookDraftCustom: useAFacebook ? !!a.facebookDraftCustom : !!b.facebookDraftCustom,
+  };
 }
 
 function mergeOutreachRecords(local, remote) {
@@ -1980,6 +2256,7 @@ function applyOutreachData(next, opts = {}) {
   outreach = next || {};
   Object.keys(outreach).forEach((id) => migrateOutreach(outreach[id]));
   saveOutreachLocalOnly();
+  ensureAllDrafts();
   if (!opts.silent) {
     renderAll();
     if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
@@ -2240,9 +2517,10 @@ function normalizeContact(row) {
   const linkedinPeopleRaw = g('linkedinpeople','linkedin_people','linkedinPeople');
   const website = g('website','website_url','url','web');
   const notes = g('notes','description','note');
+  const eventSpecificLine = g('eventspecificline','event_specific_line','eventSpecificLine');
   const sourceId = g('sourceid','source_id','id');
   const id = sourceId || btoa(unescape(encodeURIComponent((name+loc).toLowerCase()))).replace(/[^a-z0-9]/gi,'').slice(0,16) || ('id'+Math.random().toString(36).slice(2,10));
-  return { id, name, loc, type: type.toLowerCase(), email, phone, facebook, linkedinPeople: parseLinkedinPeople(linkedinPeopleRaw), website, sourceNotes: notes };
+  return { id, name, loc, type: type.toLowerCase(), email, phone, facebook, linkedinPeople: parseLinkedinPeople(linkedinPeopleRaw), website, sourceNotes: notes, eventSpecificLine };
 }
 
 function onContactsLoaded(sourceLabel) {
@@ -2250,13 +2528,14 @@ function onContactsLoaded(sourceLabel) {
   document.getElementById('contact-detail').style.display = 'none';
   const carouselWrap = document.getElementById('desktop-carousel-wrap');
   if (carouselWrap) carouselWrap.style.display = contacts.length ? 'flex' : 'none';
+  ensureAllDrafts();
+  refreshPlaceholderGuides();
   renderAll();
   if (contacts.length) {
     goToFirstUncontacted();
   } else {
     renderMobileAll();
   }
-  ensureAllDrafts();
   if(sourceLabel) {
     const sub = document.getElementById('empty-sub');
     if(sub) sub.textContent = `Loaded ${contacts.length} contacts. ${authUser ? 'Progress syncs to your account.' : 'Progress saved in this browser.'}`;
@@ -2453,8 +2732,6 @@ function contactDetailBodyHtml(c) {
   const logHTML = (o.log || []).map(e =>
     `<div class="log-entry"><span class="log-ts">${e.ts}</span><span class="log-text">${escHtml(e.text)}</span></div>`
   ).join('') || '<div style="color:var(--text3);font-size:12px;padding:4px 0">No activity logged yet</div>';
-  const nextContact = findNextUncontacted(id);
-
   return `
     <div class="contact-detail">
       <div class="cd-header">
@@ -2466,7 +2743,7 @@ function contactDetailBodyHtml(c) {
             <span class="type-pill ${typeClass}">${c.type} swap</span>
           </div>
         </div>
-        ${nextContact ? `<button class="next-btn" onclick="goToCarouselContact('${nextContact.id}')">Next uncontacted →</button>` : ''}
+        ${carouselNavButtonsHtml(id)}
       </div>
 
       <div class="contact-cards">
@@ -2497,6 +2774,7 @@ function contactDetailBodyHtml(c) {
             : '<div class="cc-empty">Not found</div>', o)}
       </div>
 
+      ${c.eventSpecificLine ? `<div class="contact-card" style="margin-bottom:16px"><div class="cc-label">Event timing line</div><div class="cc-value" style="line-height:1.6;color:var(--text2)">${escHtml(c.eventSpecificLine)}</div></div>` : ''}
       ${c.sourceNotes ? `<div class="contact-card" style="margin-bottom:16px"><div class="cc-label">About this org</div><div class="cc-value" style="line-height:1.6;color:var(--text2)">${escHtml(c.sourceNotes)}</div></div>` : ''}
 
       <div class="ai-section">
@@ -2557,6 +2835,7 @@ function selectContact(id) {
       scrollCarouselToIndex('desktop', idx, true);
       updateCarouselBanner('desktop');
     }
+    refreshPlaceholderGuides();
     return;
   }
   const c = contacts.find(x => x.id === id);
@@ -2566,6 +2845,7 @@ function selectContact(id) {
   panel.style.display = '';
   document.getElementById('empty-state').style.display = 'none';
   panel.innerHTML = contactDetailBodyHtml(c);
+  refreshPlaceholderGuides();
 }
 
 function escHtml(s) {
@@ -2672,6 +2952,11 @@ function addLog(id) {
 
 function copyDraft(id) {
   id = id || currentId;
+  const c = contacts.find((x) => x.id === id);
+  if (c) {
+    ensureContactDrafts(c);
+    syncEmailDraftTextarea(id);
+  }
   const ta = document.getElementById('email-draft-' + id) || document.getElementById('email-draft');
   if (!ta) return;
   navigator.clipboard.writeText(ta.value).then(() => {
@@ -2682,6 +2967,11 @@ function copyDraft(id) {
 
 function copyFacebookDraft(id) {
   id = id || currentId;
+  const c = contacts.find((x) => x.id === id);
+  if (c) {
+    ensureContactDrafts(c);
+    syncFacebookDraftTextarea(id);
+  }
   const ta = document.getElementById('facebook-draft-' + id) || document.getElementById('facebook-draft');
   if (!ta) return;
   navigator.clipboard.writeText(ta.value).then(() => {
@@ -2693,6 +2983,184 @@ function copyFacebookDraft(id) {
 function fmtTs() {
   const d = new Date();
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+}
+
+function fmtFbSendTs(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso || '—';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+
+function formatDurationMs(ms) {
+  if (ms == null || ms < 0 || !Number.isFinite(ms)) return '—';
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) return sec + ' sec';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return min + ' min';
+  const hr = Math.floor(min / 60);
+  const remMin = min % 60;
+  if (hr < 24) return remMin ? hr + 'h ' + remMin + 'm' : hr + 'h';
+  const days = Math.floor(hr / 24);
+  const remHr = hr % 24;
+  return remHr ? days + 'd ' + remHr + 'h' : days + 'd';
+}
+
+function loadFbSendLog() {
+  try {
+    const raw = localStorage.getItem(FB_SEND_LOG_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((e) => e && e.ts) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function persistFbSendLog(log) {
+  try { localStorage.setItem(FB_SEND_LOG_KEY, JSON.stringify(log)); } catch (e) {}
+}
+
+function summarizeFbSendPeriod(sends) {
+  if (!sends.length) {
+    return { count: 0, spanMs: 0, avgIntervalMs: null, minIntervalMs: null, maxIntervalMs: null, firstTs: null, lastTs: null };
+  }
+  const count = sends.length;
+  const firstTs = sends[0].ts;
+  const lastTs = sends[count - 1].ts;
+  const spanMs = Math.max(0, new Date(lastTs) - new Date(firstTs));
+  const intervals = [];
+  for (let i = 1; i < count; i++) {
+    intervals.push(new Date(sends[i].ts) - new Date(sends[i - 1].ts));
+  }
+  const avgIntervalMs = intervals.length
+    ? intervals.reduce((a, b) => a + b, 0) / intervals.length
+    : null;
+  return {
+    count,
+    spanMs,
+    avgIntervalMs,
+    minIntervalMs: intervals.length ? Math.min(...intervals) : null,
+    maxIntervalMs: intervals.length ? Math.max(...intervals) : null,
+    firstTs,
+    lastTs,
+  };
+}
+
+function computeFbSendPeriods(log) {
+  const sorted = [...log].sort((a, b) => new Date(a.ts) - new Date(b.ts));
+  const periods = [];
+  let sliceStart = 0;
+  for (let i = 0; i < sorted.length; i++) {
+    if (sorted[i].unsuccessful) {
+      periods.push({
+        ...summarizeFbSendPeriod(sorted.slice(sliceStart, i + 1)),
+        active: false,
+        endedAt: sorted[i].ts,
+      });
+      sliceStart = i + 1;
+    }
+  }
+  if (sliceStart < sorted.length) {
+    periods.push({
+      ...summarizeFbSendPeriod(sorted.slice(sliceStart)),
+      active: true,
+      endedAt: null,
+    });
+  }
+  return periods;
+}
+
+function formatFbSendPeriodStats(period) {
+  if (!period.count) return 'No sends yet';
+  const parts = [`<strong>${period.count}</strong> send${period.count === 1 ? '' : 's'}`];
+  if (period.count > 1 && period.avgIntervalMs != null) {
+    parts.push(`avg <strong>${formatDurationMs(period.avgIntervalMs)}</strong> apart`);
+    if (period.minIntervalMs != null && period.maxIntervalMs != null && period.minIntervalMs !== period.maxIntervalMs) {
+      parts.push(`(${formatDurationMs(period.minIntervalMs)}–${formatDurationMs(period.maxIntervalMs)})`);
+    }
+  }
+  if (period.count > 1 && period.spanMs > 0) {
+    parts.push(`over <strong>${formatDurationMs(period.spanMs)}</strong>`);
+    const perDay = period.count / (period.spanMs / 86400000);
+    if (perDay >= 0.05) parts.push(`≈ <strong>${perDay.toFixed(1)}</strong>/day`);
+  } else if (period.count === 1 && period.lastTs) {
+    parts.push(`at ${fmtFbSendTs(period.lastTs)}`);
+  }
+  return parts.join(' · ');
+}
+
+function logFbSendPush(orgId, orgName) {
+  const log = loadFbSendLog();
+  log.push({
+    id: 'fbpush_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    ts: new Date().toISOString(),
+    orgId: orgId || '',
+    orgName: orgName || '',
+    unsuccessful: false,
+  });
+  persistFbSendLog(log);
+  renderFbSendLogPanels();
+}
+
+function toggleFbSendUnsuccessful(logId) {
+  const log = loadFbSendLog();
+  const entry = log.find((e) => e.id === logId);
+  if (!entry) return;
+  entry.unsuccessful = !entry.unsuccessful;
+  persistFbSendLog(log);
+  renderFbSendLogPanels();
+}
+
+function renderFbSendLogPanel(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const log = loadFbSendLog();
+  const periods = computeFbSendPeriods(log);
+  const recent = [...log].sort((a, b) => new Date(b.ts) - new Date(a.ts)).slice(0, 40);
+
+  let summaryHtml = '';
+  if (!log.length) {
+    summaryHtml = '<p class="auth-msg">No FB sends logged yet. Each <strong>Send FB Message</strong> click is recorded here.</p>';
+  } else {
+    const blocks = [];
+    const active = periods.filter((p) => p.active).pop();
+    if (active) {
+      blocks.push(`<div class="fb-send-period">
+        <div class="fb-send-period-label">${periods.some((p) => !p.active) ? 'Current period (since last unsuccessful)' : 'All sends'}</div>
+        <div class="fb-send-summary">${formatFbSendPeriodStats(active)}</div>
+      </div>`);
+    }
+    const closed = periods.filter((p) => !p.active).reverse();
+    closed.slice(0, 5).forEach((p) => {
+      blocks.push(`<div class="fb-send-period">
+        <div class="fb-send-period-label">Ended ${fmtFbSendTs(p.endedAt)} (marked unsuccessful)</div>
+        <div class="fb-send-summary">${formatFbSendPeriodStats(p)}</div>
+      </div>`);
+    });
+    summaryHtml = blocks.join('');
+  }
+
+  const listHtml = recent.length
+    ? `<div class="fb-send-log-list">${recent.map((entry) => {
+        const flagged = !!entry.unsuccessful;
+        return `<div class="fb-send-log-item${flagged ? ' is-unsuccessful' : ''}">
+          <span class="fb-send-log-ts">${escHtml(fmtFbSendTs(entry.ts))}</span>
+          <span class="fb-send-log-org" title="${escHtml(entry.orgName || '')}">${escHtml(entry.orgName || 'Unknown org')}</span>
+          <button type="button" class="fb-send-flag-btn${flagged ? ' is-flagged' : ''}" onclick="toggleFbSendUnsuccessful('${escHtml(entry.id)}')" aria-pressed="${flagged}">${flagged ? 'Unsuccessful ✓' : 'Mark unsuccessful'}</button>
+        </div>`;
+      }).join('')}</div>`
+    : '';
+
+  el.innerHTML = `
+    <p class="auth-msg">Track send pace to avoid Messenger spam flags. Mark a send <strong>unsuccessful</strong> if blocked or flagged — stats summarize sends between those marks.</p>
+    ${summaryHtml}
+    ${listHtml}`;
+}
+
+function renderFbSendLogPanels() {
+  renderFbSendLogPanel('fb-send-log-body');
+  renderFbSendLogPanel('mobile-fb-send-log-body');
 }
 
 // ── MOBILE UI ──────────────────────────────────────────────
@@ -2807,8 +3275,11 @@ function updateCarouselBanner(prefix) {
   const pending = list.filter(isUncontactedWritten).length;
   const contacted = list.filter(c => hasWrittenContactChannels(c) && isWrittenContactDone(c)).length;
   const scrollHint = prefix === 'desktop' ? 'scroll ← →' : 'swipe ← →';
+  const cur = list[mobileCallIndex];
+  const navHtml = prefix === 'mobile' && cur ? carouselNavButtonsHtml(cur.id) : '';
   banner.innerHTML = `<div>${mobileCallIndex + 1} of ${list.length}</div>
-    <div class="mobile-carousel-hint">${contacted} contacted · ${pending} uncontacted · ${scrollHint}</div>`;
+    <div class="mobile-carousel-hint">${contacted} contacted · ${pending} uncontacted · ${scrollHint}</div>
+    ${navHtml}`;
 }
 
 function syncCarouselIndexFromScroll(prefix) {
@@ -2834,6 +3305,7 @@ function syncCarouselIndexFromScroll(prefix) {
       if (c) {
         currentId = c.id;
         document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-' + c.id));
+        refreshPlaceholderGuides();
       }
     }
   }
@@ -2994,8 +3466,12 @@ function renderMobileSettings() {
       <button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signInWithMagicLink()">Send magic link</button>
       ${authUser ? `<button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signOutUser()">Sign out</button>` : ''}
     ` : ''}
+    <label style="margin-top:16px">Template placeholders</label>
+    <div class="placeholder-guide-wrap">
+      <p class="prompt-hint">Preview for the contact you're viewing:</p>
+      <div class="placeholder-guide" data-placeholder-guide></div>
+    </div>
     <label style="margin-top:16px">Email templates</label>
-    <p class="prompt-hint">Placeholders: <code>{name}</code> <code>{Event Title Goes Here}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code></p>
     <div class="template-toolbar">
       <div class="template-toolbar-row">
         <select class="template-select" id="mobile-email-template-select" onchange="onEmailTemplateSelect(this)" aria-label="Saved templates"></select>
@@ -3011,7 +3487,6 @@ function renderMobileSettings() {
     <textarea class="prompt-template-input" id="mobile-email-prompt-template" style="min-height:160px"></textarea>
     <button type="button" class="prompt-reset-btn" style="margin-bottom:16px" onclick="resetEmailPromptTemplate()">Reset default template</button>
     <label style="margin-top:16px">Facebook contact templates</label>
-    <p class="prompt-hint">Placeholders: <code>{name}</code> <code>{Event Title Goes Here}</code> <code>{location}</code> <code>{type}</code> <code>{notes}</code> <code>{email}</code></p>
     <div class="template-toolbar">
       <div class="template-toolbar-row">
         <select class="template-select" id="mobile-facebook-template-select" onchange="onFacebookTemplateSelect(this)" aria-label="Saved Facebook templates"></select>
@@ -3026,7 +3501,9 @@ function renderMobileSettings() {
     </div>
     <textarea class="prompt-template-input" id="mobile-facebook-prompt-template" style="min-height:160px"></textarea>
     <button type="button" class="prompt-reset-btn" style="margin-bottom:16px" onclick="resetFacebookPromptTemplate()">Reset default template</button>
-    <button type="button" class="import-btn" style="width:100%;margin:0 0 12px" onclick="navigateDiscover()">Run superjobs</button>
+    <label style="margin-top:16px">FB send log</label>
+    <div id="mobile-fb-send-log-body"></div>
+    <button type="button" class="import-btn" style="width:100%;margin:16px 0 12px" onclick="navigateDiscover()">Run superjobs</button>
     <div class="mobile-banner">${phoneCount} with phone (call queue) · ${emailCount} with email · ${contacts.length - phoneCount} phone-less skipped on Calls tab</div>
     <button type="button" class="mobile-skip-btn" onclick="exportOutreach()">↓ Export progress JSON</button>
     <label style="margin-top:16px;display:block">
@@ -3034,6 +3511,7 @@ function renderMobileSettings() {
       <span class="import-btn" style="display:block;text-align:center;margin-top:8px" onclick="document.getElementById('mobile-csv-upload').click()">↑ Import contacts.csv</span>
     </label>`;
   initPromptEditor();
+  renderFbSendLogPanel('mobile-fb-send-log-body');
 }
 
 window.addEventListener('resize', () => {
@@ -3073,32 +3551,141 @@ function buildFacebookPrompt(c) {
   return applyPromptTemplate(c, getFacebookPromptTemplate());
 }
 
+function templateFingerprint(text) {
+  let h = 2166136261;
+  const s = String(text || '');
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+
+function getEmailTemplateFingerprint() {
+  return templateFingerprint(getEmailPromptTemplate());
+}
+
+function getFacebookTemplateFingerprint() {
+  return templateFingerprint(getFacebookPromptTemplate());
+}
+
+function draftHasUnsubstitutedPlaceholders(draft) {
+  if (!draft) return false;
+  return TEMPLATE_PLACEHOLDERS.some((p) => {
+    const tokens = [p.token, ...(p.aliases || [])];
+    return tokens.some((t) => draft.includes(t));
+  });
+}
+
+function emailDraftIsStale(draft) {
+  if (!draft) return false;
+  if (draft.includes(LEGACY_EMAIL_PROMPT_MARK)) return true;
+  if (/^Hi There!/im.test(draft.trim())) return true;
+  if (!draft.includes(CURRENT_EMAIL_TEMPLATE_MARK)) return true;
+  if (draft.includes('(empty — timing unknown)')) return true;
+  if (draftHasUnsubstitutedPlaceholders(draft)) return true;
+  return false;
+}
+
+function facebookDraftIsStale(draft) {
+  return emailDraftIsStale(draft);
+}
+
+function draftTemplateFingerprint(channel) {
+  return channel === 'email' ? getEmailTemplateFingerprint() : getFacebookTemplateFingerprint();
+}
+
+function syncEmailDraftTextarea(id) {
+  const text = getO(id).emailDraft || '';
+  document.querySelectorAll(`#email-draft-${id}, #email-draft`).forEach((ta) => {
+    if (ta) ta.value = text;
+  });
+}
+
+function syncFacebookDraftTextarea(id) {
+  const text = getO(id).facebookDraft || '';
+  document.querySelectorAll(`#facebook-draft-${id}, #facebook-draft`).forEach((ta) => {
+    if (ta) ta.value = text;
+  });
+}
+
+let refreshDraftsQueued = false;
+function queueRefreshAllDraftsFromTemplates() {
+  if (refreshDraftsQueued) return;
+  refreshDraftsQueued = true;
+  requestAnimationFrame(() => {
+    refreshDraftsQueued = false;
+    refreshAllDraftsFromTemplates();
+  });
+}
+
+function refreshAllDraftsFromTemplates() {
+  if (!contacts.length) return;
+  let changed = false;
+  for (const c of contacts) {
+    const o = getO(c.id);
+    if (needsDraftRefresh(o, 'email')) {
+      o.emailDraft = buildEmailPrompt(c);
+      o.emailDraftVersion = DRAFT_TEMPLATE_VERSION;
+      o.emailDraftTemplateFp = getEmailTemplateFingerprint();
+      o.emailDraftCustom = false;
+      changed = true;
+    }
+    if (hasFacebook(c) && needsDraftRefresh(o, 'facebook')) {
+      o.facebookDraft = buildFacebookPrompt(c);
+      o.facebookDraftVersion = DRAFT_TEMPLATE_VERSION;
+      o.facebookDraftTemplateFp = getFacebookTemplateFingerprint();
+      o.facebookDraftCustom = false;
+      changed = true;
+    }
+  }
+  if (!changed) return;
+  saveOutreach();
+  renderAll();
+  if (currentId) {
+    syncEmailDraftTextarea(currentId);
+    syncFacebookDraftTextarea(currentId);
+  }
+}
+
 function ensureContactDrafts(c) {
   const o = getO(c.id);
   let changed = false;
   if (needsDraftRefresh(o, 'email')) {
     o.emailDraft = buildEmailPrompt(c);
     o.emailDraftVersion = DRAFT_TEMPLATE_VERSION;
+    o.emailDraftTemplateFp = getEmailTemplateFingerprint();
     o.emailDraftCustom = false;
     changed = true;
   }
   if (hasFacebook(c) && needsDraftRefresh(o, 'facebook')) {
     o.facebookDraft = buildFacebookPrompt(c);
     o.facebookDraftVersion = DRAFT_TEMPLATE_VERSION;
+    o.facebookDraftTemplateFp = getFacebookTemplateFingerprint();
     o.facebookDraftCustom = false;
     changed = true;
   }
-  if (changed) saveOutreachLocalOnly();
+  if (changed) {
+    saveOutreachLocalOnly();
+    syncEmailDraftTextarea(c.id);
+    syncFacebookDraftTextarea(c.id);
+  }
 }
 
 function needsDraftRefresh(o, channel) {
   const draftKey = channel + 'Draft';
   const versionKey = channel + 'DraftVersion';
+  const fpKey = channel + 'DraftTemplateFp';
   const customKey = channel + 'DraftCustom';
-  if (o[customKey]) return false;
-  if (!o[draftKey]) return true;
+  const fp = draftTemplateFingerprint(channel);
+  const draft = o[draftKey] || '';
+  const isStale = channel === 'email' ? emailDraftIsStale(draft) : facebookDraftIsStale(draft);
+
+  if (isStale) return true;
+  if (!draft) return true;
+  if (o[fpKey] !== fp) return true;
   if (o[versionKey] !== DRAFT_TEMPLATE_VERSION) return true;
-  if (channel === 'email' && o.emailDraft.includes(LEGACY_EMAIL_PROMPT_MARK)) return true;
+  if (o[customKey]) return false;
   return false;
 }
 
@@ -3109,23 +3696,46 @@ function ensureAllDrafts() {
     if (needsDraftRefresh(o, 'email')) {
       o.emailDraft = buildEmailPrompt(c);
       o.emailDraftVersion = DRAFT_TEMPLATE_VERSION;
+      o.emailDraftTemplateFp = getEmailTemplateFingerprint();
       o.emailDraftCustom = false;
       changed = true;
     }
     if (hasFacebook(c) && needsDraftRefresh(o, 'facebook')) {
       o.facebookDraft = buildFacebookPrompt(c);
       o.facebookDraftVersion = DRAFT_TEMPLATE_VERSION;
+      o.facebookDraftTemplateFp = getFacebookTemplateFingerprint();
       o.facebookDraftCustom = false;
       changed = true;
     }
   }
-  if (changed) saveOutreach();
+  if (changed) {
+    saveOutreach();
+    renderAll();
+    if (currentId) {
+      syncEmailDraftTextarea(currentId);
+      syncFacebookDraftTextarea(currentId);
+    }
+  }
 }
 
-// ── NEXT UNCONTACTED ───────────────────────────────────────
+// ── CAROUSEL NAV ───────────────────────────────────────────
+function activeCarouselContactId() {
+  return currentId || mobileCurrentContact()?.id || null;
+}
+
+function goPrevious() {
+  const prev = findPreviousContact(activeCarouselContactId());
+  if (prev) goToCarouselContact(prev.id);
+}
+
 function goNext() {
-  const next = findNextUncontacted(currentId);
-  if (next) selectContact(next.id);
+  const next = findNextContact(activeCarouselContactId());
+  if (next) goToCarouselContact(next.id);
+}
+
+function goNextUncontacted() {
+  const next = findNextUncontacted(activeCarouselContactId());
+  if (next) goToCarouselContact(next.id);
 }
 
 function exportOutreach() {
@@ -3618,6 +4228,7 @@ async function initSuperjobUI() {
 // ── INIT ───────────────────────────────────────────────────
 async function bootApp() {
   initPromptEditor();
+  renderFbSendLogPanels();
   await initLocalApi();
   // Auth can load in parallel with first paint path; await before route so cloud merge applies.
   const authReady = initAuth();
