@@ -1,0 +1,11 @@
+{
+  "superjobId": "mss-curated",
+  "label": "myskiswap clients",
+  "queryPlace": "Curated list of MySkiSwap and related platform swap organizers across North America",
+  "completedAt": "2026-07-08T23:00:00.000Z",
+  "eventCount": 13,
+  "contactCount": 13,
+  "withContact": 12,
+  "discoveryModel": "manual",
+  "enrichmentModel": "manual"
+}

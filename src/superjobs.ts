@@ -27,6 +27,14 @@ export const PLATFORM_PASS_MIN_POP_M = 8;
  */
 export const SUPERJOBS: Superjob[] = [
   {
+    id: 'mss-curated',
+    label: 'myskiswap clients',
+    queryPlace:
+      'Curated list of MySkiSwap and related platform swap organizers across North America',
+    approxPopM: 0,
+    stateCodes: ['WA', 'OR', 'ID', 'CO', 'AK', 'MN', 'ME'],
+  },
+  {
     id: 'wa-ak',
     label: 'Washington & Alaska',
     queryPlace: 'Washington state and Alaska',

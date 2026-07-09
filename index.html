@@ -220,12 +220,8 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .mailto-btn { background: var(--surface3); color: var(--text); border: 1px solid var(--border2); border-radius: 6px; padding: 7px 14px; font-size: 12px; cursor: pointer; font-family: var(--font-sans); transition: all .15s; text-decoration: none; display: inline-flex; align-items: center; }
 .mailto-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-/* Notes */
-.notes-section { margin-bottom: 20px; }
+/* Notes label (activity log) */
 .notes-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); font-family: var(--font-mono); margin-bottom: 8px; }
-.notes-textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; color: var(--text); font-size: 13px; font-family: var(--font-sans); line-height: 1.6; resize: vertical; min-height: 80px; outline: none; }
-.notes-textarea:focus { border-color: var(--border2); }
-.notes-textarea::placeholder { color: var(--text3); }
 
 /* Call log */
 .log-section { margin-bottom: 24px; }
@@ -298,7 +294,6 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .desktop-swap-card-body { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 24px 24px; }
 .desktop-swap-card-body .contact-detail { padding: 0; }
 .desktop-swap-card-body .email-textarea { min-height: 140px; }
-.desktop-swap-card-body .notes-textarea { min-height: 72px; }
 .desktop-carousel-slide.is-contacted .desktop-swap-card { border-color: rgba(197,48,48,.35); box-shadow: 0 0 0 1px rgba(197,48,48,.08); }
 .desktop-carousel-slide.is-uncontacted .desktop-swap-card { border-color: rgba(47,107,58,.35); }
 .mobile-carousel-slide.is-contacted .mobile-call-card { border-color: rgba(197,48,48,.35); box-shadow: 0 0 0 1px rgba(197,48,48,.08); }
@@ -467,6 +462,7 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
 .discover-back-btn:hover { border-color: var(--border2); color: var(--text); }
 .first-uncontacted-btn { background: var(--surface2); color: var(--accent); border: 1px solid rgba(47,107,58,.35); border-radius: var(--radius); padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); white-space: nowrap; transition: all .15s; }
 .first-uncontacted-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+.first-uncontacted-sidebar { display: block; width: 100%; margin-top: 8px; text-align: center; }
 .mobile-superjob-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
 .mobile-superjob-row .superjob-select { flex: 1; min-width: 0; max-width: none; }
 .mobile-superjob-row .run-superjobs-btn { padding: 6px 10px; font-size: 11px; flex-shrink: 0; }
@@ -508,11 +504,10 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
                 <th>Enrichment model</th>
                 <th>Completed jobs</th>
                 <th>Status</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="superjob-table-body">
-              <tr><td colspan="7" style="color:var(--text3)">Loading superjobs…</td></tr>
+              <tr><td colspan="6" style="color:var(--text3)">Loading superjobs…</td></tr>
             </tbody>
           </table>
         </div>
@@ -532,28 +527,17 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
           <option value="">Loading regions…</option>
         </select>
       </div>
-      <button type="button" class="first-uncontacted-btn" onclick="goToFirstUncontacted()" title="Jump to the first org with unsent email and FB message">First Uncontacted →</button>
     </div>
     <div class="topbar-stats">
       <div class="tstat"><div class="tstat-val" id="s-total">—</div><div class="tstat-lbl">Total</div></div>
-      <div class="tstat"><div class="tstat-val orange" id="s-uncontacted-phone">—</div><div class="tstat-lbl">Uncontacted phone</div></div>
-      <div class="tstat"><div class="tstat-val blue" id="s-uncontacted-email">—</div><div class="tstat-lbl">Uncontacted email</div></div>
-      <div class="tstat"><div class="tstat-val green" id="s-uncontacted-fb">—</div><div class="tstat-lbl">Uncontacted facebook</div></div>
     </div>
     <div class="topbar-right">
       <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Hard refresh page">↻ Refresh</button>
-      <div class="sync-wrap" id="desktop-sync-wrap">
+      <div class="sync-wrap" id="desktop-sync-wrap" style="display:none">
         <span class="sync-dot" id="sync-dot"></span>
-        <span id="sync-label">Local only</span>
+        <span id="sync-label"></span>
         <span class="sync-email" id="sync-email"></span>
-        <button type="button" class="auth-btn" id="auth-btn" onclick="handleAuthClick()">Sign in</button>
       </div>
-      <button class="import-btn" style="background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="exportOutreach()">↓ Export progress</button>
-      <label class="import-btn" style="background:var(--surface);color:var(--text);border:1px solid var(--border);margin-left:0" for="progress-upload">↑ Import progress</label>
-      <input type="file" id="progress-upload" accept=".json" style="display:none">
-      <label class="import-btn" for="csv-upload">↑ Import CSV</label>
-      <input type="file" id="csv-upload" accept=".csv" style="display:none">
-      <button type="button" class="run-superjobs-btn" onclick="navigateDiscover()" title="Run discovery and enrichment jobs by region">Run superjobs</button>
     </div>
   </header>
 
@@ -566,14 +550,14 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
     <details class="auth-panel" id="csv-help-panel">
       <summary>🔍 Find contacts by region</summary>
       <div class="auth-panel-body">
-        <p class="auth-msg">Pick a region from the <strong>Region</strong> dropdown in the top bar. To generate new contacts, use <strong>Run superjobs</strong> in the upper right.</p>
+        <p class="auth-msg">Pick a region from the <strong>Region</strong> dropdown in the top bar. New contacts are generated via the swap-finder CLI in this repo.</p>
       </div>
     </details>
 
     <details class="auth-panel" id="csv-format-panel">
       <summary>ℹ CSV format &amp; help</summary>
       <div class="auth-panel-body">
-        <p class="auth-msg">Import a CSV of swap-meet contacts (one row per organization). Use <strong>↑ Import CSV</strong> in the top bar or place <code>contacts.csv</code> next to this page.</p>
+        <p class="auth-msg">Contacts load from <code>contacts.csv</code> next to this page (sync with <code>npm run outreach:sync</code>). One row per organization.</p>
         <p class="auth-msg" style="margin-top:8px"><strong>Required:</strong> <code>orgName</code> — organization or event name.</p>
         <p class="auth-msg" style="margin-top:6px"><strong>Recommended:</strong> <code>location</code>, <code>type</code> (bike, ski, gear, sports, or other), <code>email</code>, <code>phone</code>, <code>facebook</code>, <code>linkedinPeople</code>, <code>website</code>, <code>eventSpecificLine</code>, <code>notes</code>.</p>
         <p class="auth-msg" style="margin-top:6px"><strong>Optional:</strong> <code>sourceId</code> — unique ID per row (auto-generated if omitted).</p>
@@ -593,6 +577,7 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
 
     <details class="prompt-editor-wrap" id="prompt-editor-wrap">
       <summary>✎ Email template</summary>
+      <p class="prompt-hint" id="email-template-scope-hint">Templates are saved per region.</p>
       <div class="placeholder-guide-wrap">
         <p class="prompt-hint">Placeholders fill in per contact. Preview updates for whoever you're viewing:</p>
         <div class="placeholder-guide" data-placeholder-guide></div>
@@ -654,6 +639,7 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
       <button class="sort-btn" data-sort="no-email" onclick="setSortMode('no-email',this)">
         <span>Has no email</span><span class="fcount" id="sc-no-email">0</span>
       </button>
+      <button type="button" class="first-uncontacted-btn first-uncontacted-sidebar" onclick="goToFirstUncontacted()" title="Jump to the first org with unsent email and FB message">First Uncontacted →</button>
     </div>
 
     <div class="contact-list" id="contact-list"></div>
@@ -677,30 +663,7 @@ npm run outreach:sync   # copy contacts.csv into this app</div>
           <p>Then reload this page (or run <code>npm run outreach:serve</code> for local preview). Check progress anytime with <code>npm run start -- status</code>.</p>
         </div>
 
-        <div class="welcome-instructions">
-          <h3>Or import a CSV</h3>
-          <p>Upload a <strong>CSV file</strong> with one row per swap meet or organizing nonprofit. The app loads <code style="color:var(--accent)">contacts.csv</code> automatically if it sits next to this page, or you can upload a file below.</p>
-          <ul class="csv-columns">
-            <li><span class="csv-col-req">Required</span><span class="csv-col-name">orgName</span><span class="csv-col-desc">Organization or event name (e.g. “Twin Cities Bike Swap”)</span></li>
-            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">location</span><span class="csv-col-desc">City and state (e.g. “Richfield, MN”)</span></li>
-            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">type</span><span class="csv-col-desc">Swap category: <code>bike</code>, <code>ski</code>, <code>gear</code>, <code>sports</code>, or <code>other</code></span></li>
-            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">email</span><span class="csv-col-desc">Contact email for outreach</span></li>
-            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">phone</span><span class="csv-col-desc">Phone number for the call queue</span></li>
-            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">facebook</span><span class="csv-col-desc">Facebook page URL</span></li>
-            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">linkedinPeople</span><span class="csv-col-desc">JSON array of directors, organizers, or volunteers — e.g. <code>[{"name":"Jane Doe","location":"Seattle, WA","role":"Director"}]</code></span></li>
-            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">website</span><span class="csv-col-desc">Organization website</span></li>
-            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">eventSpecificLine</span><span class="csv-col-desc">Short event-timing opener for email drafts (e.g. “Looks like the Seattle Bike Swap is coming up this spring — hope planning's going well.”)</span></li>
-            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">notes</span><span class="csv-col-desc">Background info (shown in email drafts)</span></li>
-            <li><span class="csv-col-opt">Optional</span><span class="csv-col-name">sourceId</span><span class="csv-col-desc">Unique row ID — generated automatically if left blank</span></li>
-          </ul>
-          <p>Example header row:</p>
-          <div class="csv-example">orgName,location,type,email,phone,facebook,linkedinPeople,website,eventSpecificLine,notes</div>
-        </div>
-
         <div class="empty-sub" id="empty-sub">Checking for <code style="color:var(--accent)">contacts.csv</code>…</div>
-        <div class="upload-zone" onclick="document.getElementById('csv-upload').click()">
-          <div class="upload-label"><strong>Choose a CSV file</strong> or drag and drop</div>
-        </div>
       </div>
     </div>
     <div class="desktop-carousel-wrap" id="desktop-carousel-wrap">
@@ -724,8 +687,6 @@ npm run outreach:sync   # copy contacts.csv into this app</div>
       <select class="superjob-select" id="mobile-superjob-select" onchange="onSuperjobSelectChange(this)" aria-label="Select superjob region">
         <option value="">Loading regions…</option>
       </select>
-      <button type="button" class="first-uncontacted-btn" onclick="goToFirstUncontacted()" title="Jump to the first org with unsent email and FB message">First Uncontacted →</button>
-      <button type="button" class="run-superjobs-btn" onclick="navigateDiscover()">Run superjobs</button>
     </div>
     <div class="mh-sub" id="mobile-header-sub">Swipe through orgs · phone, email & messenger</div>
     <div class="mobile-progress"><div class="mobile-progress-fill" id="mobile-progress-fill" style="width:0%"></div></div>
@@ -783,35 +744,88 @@ function outreachStorageKey() {
   return activeSuperjobId ? `${STORAGE_KEY}_sj_${activeSuperjobId}` : STORAGE_KEY;
 }
 
-const DEFAULT_EMAIL_PROMPT = `Hi {name} team,
+function emailTemplatesStorageKey() {
+  return activeSuperjobId ? `${EMAIL_TEMPLATES_KEY}_sj_${activeSuperjobId}` : EMAIL_TEMPLATES_KEY;
+}
 
+function facebookTemplatesStorageKey() {
+  return activeSuperjobId ? `${FACEBOOK_TEMPLATES_KEY}_sj_${activeSuperjobId}` : FACEBOOK_TEMPLATES_KEY;
+}
+
+const DEFAULT_EMAIL_PROMPT = `Hi {org_name} team,
+{event_specific_line}
 I'm a volunteer for the Bellingham Bike Swap in Bellingham, WA, and a graduate of the Web Development program at the University of Washington.
-
 I recently built browser-based software that lets swap events (bike swaps, ski swaps, etc.) easily handle seller registration, item tracking, and tag printing. It was used successfully this spring at the Bellingham Bike Swap — you can see a testimonial here:
 https://consignly.org/bellingham-bike-swap.html
-
-I don't have an advertising budget, so I'm reaching out directly to nonprofit swap organizations across the country. Right now I'm offering the software free to early adopters, with the goal of eventually pricing it low enough to be a no-brainer for subscribers. I'm also very responsive to feature requests — for example, I recently added the ability for sellers to automatically generate a Venmo request when their items sell.
-
+I'm offering the software free to early adopters right now, with the goal of eventually keeping pricing low enough to be an easy yes for subscribers long-term. I'm also very responsive to feature requests — for example, I recently added the ability for sellers to automatically generate a Venmo request when their items sell.
 A couple quick questions, if you have a moment:
-- Do you currently use software to generate item/price tags from seller registration?
-- If so, what do you like about it, and what do you wish it did differently?
+
+Do you currently use software to generate item/price tags from seller registration?
+If so, what do you like about it, and what do you wish it did differently?
 
 If you'd like to see how Consignly works, I'm happy to walk you through a quick demo — just reply to this email or call/text me at 907-209-8448.
-
-{event_specific_line}
-
 Sincerely,
 Rhys Smoker
 Consignly — Smart Tags for your Swap Swag`;
+
+const MSS_CURATED_EMAIL_PROMPT = `Hi {org_name} team,
+
+{event_specific_line}
+I'm a volunteer for the Bellingham Bike Swap in Bellingham, WA, and a graduate of the Web Development program at the University of Washington.
+I recently built browser-based software that lets swap events (bike swaps, ski swaps, etc.) easily handle seller registration, item tracking, and tag printing. It was used successfully this spring at the Bellingham Bike Swap — you can see a testimonial here: https://consignly.org/bellingham-bike-swap.html
+I'm offering the software free to early adopters right now, with the goal of eventually keeping pricing low enough to be an easy yes for subscribers long-term. I'm also very responsive to feature requests — for example, I recently added the ability for sellers to automatically generate a Venmo request when their items sell.
+A couple quick questions, if you have a moment:
+
+* Does your org use MySkiSwap or some other consignment app? Are you liking it?
+If you'd like to see how Consignly works, I'm happy to walk you through a quick demo — just reply to this email or call/text me at 907-209-8448.
+Sincerely, Rhys Smoker
+
+Consignly — Smart Tags for your Swap Swag`;
+
+/** Per-superjob built-in email templates (regions not listed use DEFAULT_EMAIL_PROMPT). */
+const SUPERJOB_EMAIL_TEMPLATES = {
+  'mss-curated': MSS_CURATED_EMAIL_PROMPT,
+};
 
 const DEFAULT_FACEBOOK_PROMPT = DEFAULT_EMAIL_PROMPT;
 
 const DEFAULT_EMAIL_TEMPLATE_ID = 'builtin-default';
 const DEFAULT_FACEBOOK_TEMPLATE_ID = 'builtin-default';
-const BUILTIN_EMAIL_TEMPLATE_VERSION = 3;
-const DRAFT_TEMPLATE_VERSION = 7;
+const BUILTIN_EMAIL_TEMPLATE_VERSION = 9;
+const DRAFT_TEMPLATE_VERSION = 14;
+const TEMPLATE_DEFAULT_ACTIVE_VERSION = 4;
 const LEGACY_EMAIL_PROMPT_MARK = "Hi There!   I'm a volunteer organizer";
+const LEGACY_SHORT_PROMPT_MARK = 'Is there any chance I could talk to you';
+const LEGACY_ADVERTISING_BUDGET_MARK = "I don't have an advertising budget";
+const LEGACY_OUTREACH_LINE_MARK = "I'm reaching out directly to nonprofit swap organizations";
 const CURRENT_EMAIL_TEMPLATE_MARK = 'University of Washington';
+const CURRENT_EMAIL_TEMPLATE_PLACEHOLDER = '{event_specific_line}';
+
+function superjobIdFromTemplateStorageKey(key) {
+  const prefix = `${EMAIL_TEMPLATES_KEY}_sj_`;
+  if (key.startsWith(prefix)) return key.slice(prefix.length);
+  return null;
+}
+
+function superjobIdFromFacebookTemplateStorageKey(key) {
+  const prefix = `${FACEBOOK_TEMPLATES_KEY}_sj_`;
+  if (key.startsWith(prefix)) return key.slice(prefix.length);
+  return null;
+}
+
+function builtinEmailPromptForSuperjob(superjobId) {
+  if (superjobId && SUPERJOB_EMAIL_TEMPLATES[superjobId]) {
+    return SUPERJOB_EMAIL_TEMPLATES[superjobId];
+  }
+  return DEFAULT_EMAIL_PROMPT;
+}
+
+function builtinFacebookPromptForSuperjob(superjobId) {
+  if (superjobId && SUPERJOB_EMAIL_TEMPLATES[superjobId]) {
+    return SUPERJOB_EMAIL_TEMPLATES[superjobId];
+  }
+  return DEFAULT_FACEBOOK_PROMPT;
+}
 
 function purgeLegacyTemplateStorage() {
   for (const key of LEGACY_PROMPT_TEMPLATE_KEYS) {
@@ -819,19 +833,151 @@ function purgeLegacyTemplateStorage() {
   }
 }
 
-function isLegacyTemplateBody(body) {
-  const text = String(body || '');
-  return text.includes(LEGACY_EMAIL_PROMPT_MARK) || /^Hi There!/i.test(text.trim());
+function allEmailTemplateStorageKeys() {
+  const keys = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key === EMAIL_TEMPLATES_KEY || key.startsWith(`${EMAIL_TEMPLATES_KEY}_sj_`))) {
+        keys.push(key);
+      }
+    }
+  } catch (e) {}
+  return keys;
 }
 
-function normalizeEmailTemplatesState(state) {
+function allFacebookTemplateStorageKeys() {
+  const keys = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key === FACEBOOK_TEMPLATES_KEY || key.startsWith(`${FACEBOOK_TEMPLATES_KEY}_sj_`))) {
+        keys.push(key);
+      }
+    }
+  } catch (e) {}
+  return keys;
+}
+
+function purgeAllEmailTemplateStorage() {
+  purgeLegacyTemplateStorage();
+  let anyMigrated = false;
+  for (const key of allEmailTemplateStorageKeys()) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const superjobId = superjobIdFromTemplateStorageKey(key);
+      const { migrated, state } = normalizeEmailTemplatesState(JSON.parse(raw), superjobId);
+      if (migrated) {
+        localStorage.setItem(key, JSON.stringify(state));
+        anyMigrated = true;
+      }
+    } catch {
+      try { localStorage.removeItem(key); } catch (e) {}
+      anyMigrated = true;
+    }
+  }
+  return anyMigrated;
+}
+
+function normalizeFacebookTemplatesState(state, superjobId = activeSuperjobId) {
+  let migrated = false;
+  const builtinBody = builtinFacebookPromptForSuperjob(superjobId);
+  const freshBuiltin = {
+    id: DEFAULT_FACEBOOK_TEMPLATE_ID,
+    name: 'Default',
+    body: builtinBody,
+    builtin: true,
+  };
+
+  if (!state?.templates?.length) {
+    return {
+      migrated: true,
+      state: {
+        activeId: DEFAULT_FACEBOOK_TEMPLATE_ID,
+        templates: [freshBuiltin],
+        defaultActiveVersion: TEMPLATE_DEFAULT_ACTIVE_VERSION,
+      },
+    };
+  }
+
+  const before = state.templates.length;
+  state.templates = state.templates.filter((t) => !isLegacyTemplateBody(t.body));
+  if (state.templates.length < before) migrated = true;
+
+  let builtin = state.templates.find((t) => t.id === DEFAULT_FACEBOOK_TEMPLATE_ID);
+  if (!builtin) {
+    state.templates.unshift(freshBuiltin);
+    migrated = true;
+  } else {
+    builtin.builtin = true;
+    if (builtin.body !== builtinBody || isLegacyTemplateBody(builtin.body)) {
+      builtin.body = builtinBody;
+      migrated = true;
+    }
+  }
+
+  const active = state.templates.find((t) => t.id === state.activeId);
+  if (!active || isLegacyTemplateBody(active.body)) {
+    state.activeId = DEFAULT_FACEBOOK_TEMPLATE_ID;
+    migrated = true;
+  }
+
+  if ((state.defaultActiveVersion || 0) < TEMPLATE_DEFAULT_ACTIVE_VERSION) {
+    state.activeId = DEFAULT_FACEBOOK_TEMPLATE_ID;
+    state.defaultActiveVersion = TEMPLATE_DEFAULT_ACTIVE_VERSION;
+    migrated = true;
+  }
+
+  return { migrated, state };
+}
+
+function purgeAllFacebookTemplateStorage() {
+  let anyMigrated = false;
+  for (const key of allFacebookTemplateStorageKeys()) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const superjobId = superjobIdFromFacebookTemplateStorageKey(key);
+      const { migrated, state } = normalizeFacebookTemplatesState(JSON.parse(raw), superjobId);
+      if (migrated) {
+        localStorage.setItem(key, JSON.stringify(state));
+        anyMigrated = true;
+      }
+    } catch {
+      try { localStorage.removeItem(key); } catch (e) {}
+      anyMigrated = true;
+    }
+  }
+  return anyMigrated;
+}
+
+function purgeAllLegacyTemplateStorage() {
+  const emailMigrated = purgeAllEmailTemplateStorage();
+  const facebookMigrated = purgeAllFacebookTemplateStorage();
+  return emailMigrated || facebookMigrated;
+}
+
+function isLegacyTemplateBody(body) {
+  const text = String(body || '');
+  if (text.includes(LEGACY_EMAIL_PROMPT_MARK)) return true;
+  if (text.includes(LEGACY_SHORT_PROMPT_MARK)) return true;
+  if (text.includes(LEGACY_ADVERTISING_BUDGET_MARK)) return true;
+  if (text.includes(LEGACY_OUTREACH_LINE_MARK)) return true;
+  if (/^Hi There!/i.test(text.trim())) return true;
+  if (text.includes(CURRENT_EMAIL_TEMPLATE_MARK) && !text.includes(CURRENT_EMAIL_TEMPLATE_PLACEHOLDER)) return true;
+  return false;
+}
+
+function normalizeEmailTemplatesState(state, superjobId = activeSuperjobId) {
   let migrated = false;
   purgeLegacyTemplateStorage();
 
+  const builtinBody = builtinEmailPromptForSuperjob(superjobId);
   const freshBuiltin = {
     id: DEFAULT_EMAIL_TEMPLATE_ID,
     name: 'Default',
-    body: DEFAULT_EMAIL_PROMPT,
+    body: builtinBody,
     builtin: true,
     templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION,
   };
@@ -853,11 +999,11 @@ function normalizeEmailTemplatesState(state) {
   } else {
     builtin.builtin = true;
     if (
-      builtin.body !== DEFAULT_EMAIL_PROMPT
+      builtin.body !== builtinBody
       || isLegacyTemplateBody(builtin.body)
       || (builtin.templateVersion || 0) < BUILTIN_EMAIL_TEMPLATE_VERSION
     ) {
-      builtin.body = DEFAULT_EMAIL_PROMPT;
+      builtin.body = builtinBody;
       builtin.templateVersion = BUILTIN_EMAIL_TEMPLATE_VERSION;
       migrated = true;
     }
@@ -869,12 +1015,19 @@ function normalizeEmailTemplatesState(state) {
     migrated = true;
   }
 
+  if ((state.defaultActiveVersion || 0) < TEMPLATE_DEFAULT_ACTIVE_VERSION) {
+    state.activeId = DEFAULT_EMAIL_TEMPLATE_ID;
+    state.defaultActiveVersion = TEMPLATE_DEFAULT_ACTIVE_VERSION;
+    migrated = true;
+  }
+
   return { migrated, state };
 }
 
 function loadEmailTemplatesState() {
+  purgeAllEmailTemplateStorage();
   try {
-    const raw = localStorage.getItem(EMAIL_TEMPLATES_KEY);
+    const raw = localStorage.getItem(emailTemplatesStorageKey());
     if (raw) {
       const { migrated, state } = normalizeEmailTemplatesState(JSON.parse(raw));
       if (migrated) persistEmailTemplatesState(state);
@@ -883,20 +1036,22 @@ function loadEmailTemplatesState() {
     }
   } catch (e) {}
   purgeLegacyTemplateStorage();
+  const builtinBody = builtinEmailPromptForSuperjob(activeSuperjobId);
   return {
     activeId: DEFAULT_EMAIL_TEMPLATE_ID,
     templates: [{
       id: DEFAULT_EMAIL_TEMPLATE_ID,
       name: 'Default',
-      body: DEFAULT_EMAIL_PROMPT,
+      body: builtinBody,
       builtin: true,
       templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION,
     }],
+    defaultActiveVersion: TEMPLATE_DEFAULT_ACTIVE_VERSION,
   };
 }
 
 function persistEmailTemplatesState(state) {
-  try { localStorage.setItem(EMAIL_TEMPLATES_KEY, JSON.stringify(state)); } catch (e) {}
+  try { localStorage.setItem(emailTemplatesStorageKey(), JSON.stringify(state)); } catch (e) {}
 }
 
 function getActiveEmailTemplate() {
@@ -915,7 +1070,8 @@ function emailTemplateFieldIds() {
 
 function getEmailTemplateField(kind) {
   const ids = emailTemplateFieldIds()[kind] || [];
-  for (const id of ids) {
+  const ordered = isMobileView() ? [...ids].reverse() : ids;
+  for (const id of ordered) {
     const el = document.getElementById(id);
     if (el) return el;
   }
@@ -955,6 +1111,13 @@ function syncEmailTemplateEditor(state = loadEmailTemplatesState()) {
 
 function refreshEmailTemplateUI(state = loadEmailTemplatesState()) {
   syncEmailTemplateEditor(state);
+  const hint = document.getElementById('email-template-scope-hint');
+  if (hint) {
+    const region = superjobCatalog.find((sj) => sj.id === activeSuperjobId)?.label;
+    hint.textContent = region
+      ? `Templates are saved for ${region} only.`
+      : 'Templates are saved per region.';
+  }
 }
 
 function onEmailTemplateSelect(el) {
@@ -986,12 +1149,13 @@ function saveEmailTemplate() {
     if (!confirm(`Overwrite template "${name}"?`)) return;
     nameTaken.body = body;
     state.activeId = nameTaken.id;
-  } else if (active?.builtin && name.toLowerCase() !== active.name.toLowerCase()) {
+  } else if (active?.builtin) {
+    // Built-in default is read-only — fork edits into a new saved template.
     const id = 'tpl_' + Date.now();
     state.templates.push({ id, name, body });
     state.activeId = id;
   } else if (active) {
-    if (!active.builtin) active.name = name;
+    active.name = name;
     active.body = body;
     state.activeId = active.id;
   } else {
@@ -1012,7 +1176,7 @@ function deleteEmailTemplate() {
   if (!confirm(`Delete template "${active.name}"?`)) return;
   state.templates = state.templates.filter((t) => t.id !== activeId);
   if (!state.templates.length) {
-    state.templates = [{ id: DEFAULT_EMAIL_TEMPLATE_ID, name: 'Default', body: DEFAULT_EMAIL_PROMPT, builtin: true, templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION }];
+    state.templates = [{ id: DEFAULT_EMAIL_TEMPLATE_ID, name: 'Default', body: builtinEmailPromptForSuperjob(activeSuperjobId), builtin: true, templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION }];
   }
   if (!state.templates.some((t) => t.id === state.activeId)) {
     state.activeId = state.templates[0].id;
@@ -1023,7 +1187,7 @@ function deleteEmailTemplate() {
 }
 
 function getEmailPromptTemplate() {
-  return getActiveEmailTemplate()?.body || DEFAULT_EMAIL_PROMPT;
+  return getActiveEmailTemplate()?.body || builtinEmailPromptForSuperjob(activeSuperjobId);
 }
 
 function resetEmailPromptTemplate() {
@@ -1031,7 +1195,7 @@ function resetEmailPromptTemplate() {
   const state = loadEmailTemplatesState();
   const builtin = state.templates.find((t) => t.id === DEFAULT_EMAIL_TEMPLATE_ID);
   if (builtin) {
-    builtin.body = DEFAULT_EMAIL_PROMPT;
+    builtin.body = builtinEmailPromptForSuperjob(activeSuperjobId);
     builtin.templateVersion = BUILTIN_EMAIL_TEMPLATE_VERSION;
   }
   state.activeId = DEFAULT_EMAIL_TEMPLATE_ID;
@@ -1048,21 +1212,24 @@ function initPromptEditor() {
 }
 
 function loadFacebookTemplatesState() {
+  purgeAllFacebookTemplateStorage();
   try {
-    const raw = localStorage.getItem(FACEBOOK_TEMPLATES_KEY);
+    const raw = localStorage.getItem(facebookTemplatesStorageKey());
     if (raw) {
-      const state = JSON.parse(raw);
-      if (state?.templates?.length) return state;
+      const { migrated, state } = normalizeFacebookTemplatesState(JSON.parse(raw));
+      if (migrated) persistFacebookTemplatesState(state);
+      return state;
     }
   } catch (e) {}
   return {
     activeId: DEFAULT_FACEBOOK_TEMPLATE_ID,
-    templates: [{ id: DEFAULT_FACEBOOK_TEMPLATE_ID, name: 'Default', body: DEFAULT_FACEBOOK_PROMPT, builtin: true }],
+    templates: [{ id: DEFAULT_FACEBOOK_TEMPLATE_ID, name: 'Default', body: builtinFacebookPromptForSuperjob(activeSuperjobId), builtin: true }],
+    defaultActiveVersion: TEMPLATE_DEFAULT_ACTIVE_VERSION,
   };
 }
 
 function persistFacebookTemplatesState(state) {
-  try { localStorage.setItem(FACEBOOK_TEMPLATES_KEY, JSON.stringify(state)); } catch (e) {}
+  try { localStorage.setItem(facebookTemplatesStorageKey(), JSON.stringify(state)); } catch (e) {}
 }
 
 function getActiveFacebookTemplate() {
@@ -1081,7 +1248,8 @@ function facebookTemplateFieldIds() {
 
 function getFacebookTemplateField(kind) {
   const ids = facebookTemplateFieldIds()[kind] || [];
-  for (const id of ids) {
+  const ordered = isMobileView() ? [...ids].reverse() : ids;
+  for (const id of ordered) {
     const el = document.getElementById(id);
     if (el) return el;
   }
@@ -1152,12 +1320,12 @@ function saveFacebookTemplate() {
     if (!confirm(`Overwrite template "${name}"?`)) return;
     nameTaken.body = body;
     state.activeId = nameTaken.id;
-  } else if (active?.builtin && name.toLowerCase() !== active.name.toLowerCase()) {
+  } else if (active?.builtin) {
     const id = 'fb_tpl_' + Date.now();
     state.templates.push({ id, name, body });
     state.activeId = id;
   } else if (active) {
-    if (!active.builtin) active.name = name;
+    active.name = name;
     active.body = body;
     state.activeId = active.id;
   } else {
@@ -1445,15 +1613,18 @@ function findFirstUncontacted() {
   return filteredContacts().find(c => isUncontactedBySendButtons(c)) || null;
 }
 
-function carouselNavButtonsHtml(id) {
+function carouselNavButtonsHtml(id, opts = {}) {
+  const { wrap = true, includeFirst = false } = opts;
   const list = filteredContacts();
   const canStep = list.length > 1;
   const nextUncontacted = findNextUncontacted(id);
-  return `<div class="carousel-nav-btns">
-    <button type="button" class="nav-btn" onclick="goPrevious()" ${canStep ? '' : 'disabled'} title="Previous org">← Previous</button>
-    <button type="button" class="nav-btn" onclick="goNext()" ${canStep ? '' : 'disabled'} title="Next org">Next →</button>
-    ${nextUncontacted ? `<button type="button" class="next-btn" onclick="goNextUncontacted()" title="Next org with unsent email and FB message">Next uncontacted →</button>` : ''}
-  </div>`;
+  const buttons = [
+    includeFirst ? `<button type="button" class="nav-btn" onclick="goToFirstUncontacted()" title="Jump to the first org with unsent email and FB message">First uncontacted →</button>` : '',
+    `<button type="button" class="nav-btn" onclick="goPrevious()" ${canStep ? '' : 'disabled'} title="Previous org">← Previous</button>`,
+    `<button type="button" class="nav-btn" onclick="goNext()" ${canStep ? '' : 'disabled'} title="Next org">Next →</button>`,
+    nextUncontacted ? `<button type="button" class="next-btn" onclick="goNextUncontacted()" title="Next org with unsent email and FB message">Next uncontacted →</button>` : '',
+  ].filter(Boolean).join('');
+  return wrap ? `<div class="carousel-nav-btns">${buttons}</div>` : buttons;
 }
 
 function goToFirstUncontacted() {
@@ -2163,6 +2334,8 @@ function applyCloudSnapshotToLocal(snapshot) {
   });
   if (activeSuperjobId) outreach = snapshot.superjobs?.[activeSuperjobId] || {};
   else outreach = snapshot.default || {};
+  Object.keys(outreach).forEach((id) => migrateOutreach(outreach[id]));
+  ensureAllDrafts();
 }
 
 function loadScript(src) {
@@ -2264,47 +2437,34 @@ function applyOutreachData(next, opts = {}) {
 }
 
 function updateSyncUI(state, detail) {
+  const wrap = document.getElementById('desktop-sync-wrap');
   const dot = document.getElementById('sync-dot');
   const label = document.getElementById('sync-label');
   const emailEl = document.getElementById('sync-email');
-  const authBtn = document.getElementById('auth-btn');
   const summary = document.getElementById('cloud-sync-summary');
-  const msg = document.getElementById('cloud-sync-msg');
   const signOutBtn = document.getElementById('sidebar-signout-btn');
 
-  if (dot) dot.className = 'sync-dot' + (state === 'live' || state === 'synced' ? ' live' : state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
+  if (wrap) wrap.style.display = authUser ? '' : 'none';
 
-  const labels = {
-    local: cloudSyncEnabled ? 'Sign in to sync' : 'Local only',
-    signedOut: 'Signed out',
-    syncing: 'Syncing…',
-    synced: 'Synced',
-    live: 'Live sync',
-    error: detail || 'Sync error',
-  };
-  if (label) label.textContent = labels[state] || labels.local;
-
-  if (emailEl) emailEl.textContent = authUser?.email || '';
-  if (authBtn) {
-    if (!cloudSyncEnabled) {
-      authBtn.style.display = 'none';
-    } else if (authUser) {
-      authBtn.style.display = '';
-      authBtn.textContent = 'Sign out';
-    } else {
-      authBtn.style.display = '';
-      authBtn.textContent = 'Sign in';
-    }
-  }
   if (summary) {
     summary.textContent = authUser
       ? `☁ Synced as ${authUser.email || 'user'}`
       : cloudSyncEnabled ? '☁ Cloud sync' : '☁ Cloud sync (not configured)';
   }
-  if (msg && cloudSyncEnabled && !authUser) {
-    msg.textContent = 'Sign in with Google or a magic link. Checkmarks merge with data already on this device.';
-  }
   if (signOutBtn) signOutBtn.style.display = authUser ? '' : 'none';
+  if (!authUser) return;
+
+  if (dot) dot.className = 'sync-dot' + (state === 'live' || state === 'synced' ? ' live' : state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
+
+  const labels = {
+    syncing: 'Syncing…',
+    synced: 'Synced',
+    live: 'Live sync',
+    error: detail || 'Sync error',
+  };
+  if (label) label.textContent = labels[state] || labels.live;
+
+  if (emailEl) emailEl.textContent = authUser?.email || '';
 }
 
 async function pushOutreachToCloud() {
@@ -2357,9 +2517,12 @@ async function pullAndMergeOutreach() {
   const merged = mergeCloudSnapshots(localSnapshot, data.outreach);
   applyCloudSnapshotToLocal(merged);
   saveOutreachLocalOnly();
-  renderAll();
-  if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
-  if (isMobileView()) renderMobileAll();
+  if (contacts.length) {
+    ensureAllDrafts();
+    renderAll();
+    if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
+    if (isMobileView()) renderMobileAll();
+  }
   updateSyncUI('live');
 }
 
@@ -2384,9 +2547,12 @@ function subscribeOutreachRealtime() {
       const merged = mergeCloudSnapshots(buildCloudOutreachSnapshot(), remote);
       applyCloudSnapshotToLocal(merged);
       saveOutreachLocalOnly();
-      renderAll();
-      if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
-      if (isMobileView()) renderMobileAll();
+      if (contacts.length) {
+        ensureAllDrafts();
+        renderAll();
+        if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
+        if (isMobileView()) renderMobileAll();
+      }
       updateSyncUI('live');
       isApplyingRemote = false;
     })
@@ -2557,48 +2723,12 @@ async function loadContactsFromUrl(url) {
   } catch {
     const title = document.getElementById('empty-title');
     const sub = document.getElementById('empty-sub');
-    if(title) title.textContent = 'Import a contacts CSV to begin';
-    if(sub) sub.textContent = 'No contacts.csv found on this server. Upload your file below, or use ↑ Import CSV in the top bar.';
+    if(title) title.textContent = 'No contacts for this region yet';
+    if(sub) sub.textContent = 'Run npm run outreach:sync from the project root, then reload this page.';
     return false;
   }
 }
 
-// ── IMPORT ─────────────────────────────────────────────────
-document.getElementById('csv-upload').addEventListener('change', function(e) {
-  const file = e.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => loadContactsFromText(ev.target.result);
-  reader.readAsText(file);
-  e.target.value = '';
-});
-
-document.getElementById('progress-upload').addEventListener('change', function(e) {
-  const file = e.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if(data.outreach) outreach = { ...outreach, ...data.outreach };
-      saveOutreach();
-      renderAll();
-      if(currentId) selectContact(currentId);
-      alert('Outreach progress imported.');
-    } catch(err) { alert('Invalid progress file: ' + err.message); }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-});
-
-// Drag and drop on main
-document.getElementById('main-panel').addEventListener('dragover', e => e.preventDefault());
-document.getElementById('main-panel').addEventListener('drop', e => {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => loadContactsFromText(ev.target.result);
-  reader.readAsText(file);
-});
 
 // ── SORT & SEARCH ──────────────────────────────────────────
 function setSortMode(mode, el) {
@@ -2674,9 +2804,6 @@ function renderStats() {
   const unFb = contacts.filter(isUncontactedFacebook).length;
   const noEmail = contacts.filter(hasNoEmail).length;
   document.getElementById('s-total').textContent = contacts.length;
-  document.getElementById('s-uncontacted-phone').textContent = unPhone;
-  document.getElementById('s-uncontacted-email').textContent = unEmail;
-  document.getElementById('s-uncontacted-fb').textContent = unFb;
   const scPhone = document.getElementById('sc-phone'); if (scPhone) scPhone.textContent = unPhone;
   const scEmail = document.getElementById('sc-email'); if (scEmail) scEmail.textContent = unEmail;
   const scFb = document.getElementById('sc-facebook'); if (scFb) scFb.textContent = unFb;
@@ -2800,11 +2927,6 @@ function contactDetailBodyHtml(c) {
         </div>
       </div>` : ''}
 
-      <div class="notes-section">
-        <div class="notes-label">Notes</div>
-        <textarea class="notes-textarea" placeholder="Call notes, follow-up reminders, anything…" oninput="saveNotes('${id}',this.value)">${escHtml(o.notes || '')}</textarea>
-      </div>
-
       <div class="log-section">
         <div class="notes-label" style="margin-bottom:8px">Activity log</div>
         <div id="log-entries-${id}">${logHTML}</div>
@@ -2904,11 +3026,6 @@ function setMobileContactChannel(ch) {
   if (ch === 'facebook' && !hasFacebook(c)) return;
   mobileContactChannel = ch;
   renderMobileCall();
-}
-
-function saveNotes(id, val) {
-  getO(id).notes = val;
-  saveOutreach();
 }
 
 function saveEmailDraft(id, val) {
@@ -3276,7 +3393,7 @@ function updateCarouselBanner(prefix) {
   const contacted = list.filter(c => hasWrittenContactChannels(c) && isWrittenContactDone(c)).length;
   const scrollHint = prefix === 'desktop' ? 'scroll ← →' : 'swipe ← →';
   const cur = list[mobileCallIndex];
-  const navHtml = prefix === 'mobile' && cur ? carouselNavButtonsHtml(cur.id) : '';
+  const navHtml = cur && prefix === 'mobile' ? carouselNavButtonsHtml(cur.id, { includeFirst: true }) : '';
   banner.innerHTML = `<div>${mobileCallIndex + 1} of ${list.length}</div>
     <div class="mobile-carousel-hint">${contacted} contacted · ${pending} uncontacted · ${scrollHint}</div>
     ${navHtml}`;
@@ -3346,8 +3463,7 @@ function renderMobileCall() {
     panel.innerHTML = `
       <div class="mobile-empty">
         <h2>No contacts loaded</h2>
-        <p>Select a region from the dropdown above, or run superjobs to generate contacts.</p>
-        <button type="button" class="import-btn" style="width:100%;margin-top:16px" onclick="navigateDiscover()">Run superjobs</button>
+        <p>Select a region from the dropdown above. Generate contacts with the swap-finder CLI, then run <code>npm run outreach:sync</code>.</p>
       </div>`;
     updateMobileProgress();
     return;
@@ -3503,13 +3619,7 @@ function renderMobileSettings() {
     <button type="button" class="prompt-reset-btn" style="margin-bottom:16px" onclick="resetFacebookPromptTemplate()">Reset default template</button>
     <label style="margin-top:16px">FB send log</label>
     <div id="mobile-fb-send-log-body"></div>
-    <button type="button" class="import-btn" style="width:100%;margin:16px 0 12px" onclick="navigateDiscover()">Run superjobs</button>
-    <div class="mobile-banner">${phoneCount} with phone (call queue) · ${emailCount} with email · ${contacts.length - phoneCount} phone-less skipped on Calls tab</div>
-    <button type="button" class="mobile-skip-btn" onclick="exportOutreach()">↓ Export progress JSON</button>
-    <label style="margin-top:16px;display:block">
-      <input type="file" id="mobile-csv-upload" accept=".csv" style="display:none" onchange="document.getElementById('csv-upload').files=this.files;document.getElementById('csv-upload').dispatchEvent(new Event('change'))">
-      <span class="import-btn" style="display:block;text-align:center;margin-top:8px" onclick="document.getElementById('mobile-csv-upload').click()">↑ Import contacts.csv</span>
-    </label>`;
+    <div class="mobile-banner">${phoneCount} with phone (call queue) · ${emailCount} with email · ${contacts.length - phoneCount} phone-less skipped on Calls tab</div>`;
   initPromptEditor();
   renderFbSendLogPanel('mobile-fb-send-log-body');
 }
@@ -3580,8 +3690,12 @@ function draftHasUnsubstitutedPlaceholders(draft) {
 function emailDraftIsStale(draft) {
   if (!draft) return false;
   if (draft.includes(LEGACY_EMAIL_PROMPT_MARK)) return true;
+  if (draft.includes(LEGACY_SHORT_PROMPT_MARK)) return true;
+  if (draft.includes(LEGACY_ADVERTISING_BUDGET_MARK)) return true;
+  if (draft.includes(LEGACY_OUTREACH_LINE_MARK)) return true;
   if (/^Hi There!/im.test(draft.trim())) return true;
   if (!draft.includes(CURRENT_EMAIL_TEMPLATE_MARK)) return true;
+  if (!draft.includes('A couple quick questions')) return true;
   if (draft.includes('(empty — timing unknown)')) return true;
   if (draftHasUnsubstitutedPlaceholders(draft)) return true;
   return false;
@@ -3858,7 +3972,7 @@ function showOutreachNoContactsMessage() {
   const title = document.getElementById('empty-title');
   const sub = document.getElementById('empty-sub');
   if (title) title.textContent = 'No contacts for this region yet';
-  if (sub) sub.innerHTML = 'Use <strong>Run superjobs</strong> in the upper right to generate contacts, or pick another region from the dropdown.';
+  if (sub) sub.textContent = 'Generate contacts with the swap-finder CLI and npm run outreach:sync, or pick another region from the dropdown.';
   document.getElementById('empty-state').style.display = '';
   document.getElementById('contact-detail').style.display = 'none';
   const carouselWrap = document.getElementById('desktop-carousel-wrap');
@@ -3998,7 +4112,7 @@ function renderSuperjobTable() {
   if (warn) warn.style.display = apiAvailable ? 'none' : 'block';
 
   if (!superjobCatalog.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text3)">No superjobs loaded</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text3)">No superjobs loaded</td></tr>';
     return;
   }
 
@@ -4037,11 +4151,6 @@ function renderSuperjobTable() {
         </select>
       </td>
       <td><span class="superjob-status ${statusClass}" id="superjob-status-${escHtml(sj.id)}">${statusText}</span></td>
-      <td>
-        <div class="superjob-actions">
-          <button type="button" class="superjob-run-link" data-run-superjob="${escHtml(sj.id)}"${!apiAvailable || isRunning ? ' disabled' : ''}>Run job</button>
-        </div>
-      </td>
     </tr>`;
   }).join('');
 }
@@ -4184,6 +4293,8 @@ async function applyRoute() {
     activeSuperjobId = superjobId;
     saveLastSuperjob(superjobId);
     loadOutreach();
+    refreshEmailTemplateUI();
+    refreshFacebookTemplateUI();
     renderSuperjobSelects();
     const ok = await loadSuperjobContacts(superjobId);
     if (!ok) {
@@ -4195,6 +4306,8 @@ async function applyRoute() {
   } else {
     activeSuperjobId = null;
     loadOutreach();
+    refreshEmailTemplateUI();
+    refreshFacebookTemplateUI();
     renderSuperjobSelects();
     await loadContactsFromUrl(CONTACTS_URL);
   }
@@ -4227,9 +4340,14 @@ async function initSuperjobUI() {
 
 // ── INIT ───────────────────────────────────────────────────
 async function bootApp() {
-  initPromptEditor();
   renderFbSendLogPanels();
   await initLocalApi();
+  await fetchSuperjobCatalog();
+  const initialRoute = parseRoute();
+  if (initialRoute.superjobId) activeSuperjobId = initialRoute.superjobId;
+  renderSuperjobSelects();
+  if (purgeAllLegacyTemplateStorage()) queueRefreshAllDraftsFromTemplates();
+  initPromptEditor();
   // Auth can load in parallel with first paint path; await before route so cloud merge applies.
   const authReady = initAuth();
   await initSuperjobUI();

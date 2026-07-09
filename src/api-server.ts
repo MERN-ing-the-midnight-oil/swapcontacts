@@ -147,7 +147,13 @@ async function serveStatic(urlPath: string, res: http.ServerResponse): Promise<b
       '.webmanifest': 'application/manifest+json',
     };
     const body = await fs.readFile(filePath);
-    res.writeHead(200, { 'Content-Type': types[ext] || 'application/octet-stream' });
+    const headers: Record<string, string> = {
+      'Content-Type': types[ext] || 'application/octet-stream',
+    };
+    if (ext === '.html') {
+      headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+    }
+    res.writeHead(200, headers);
     res.end(body);
     return true;
   } catch {
