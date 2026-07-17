@@ -284,6 +284,11 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .hard-refresh-btn { flex-shrink: 0; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600; line-height: 1; cursor: pointer; font-family: var(--font-sans); white-space: nowrap; }
 .hard-refresh-btn:hover { border-color: var(--border2); color: var(--text); }
 .hard-refresh-btn:active { background: var(--surface3); }
+.hard-refresh-btn:disabled { opacity: .65; cursor: wait; }
+.mobile-header .hard-refresh-btn { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); padding: 8px 12px; }
+.mobile-hard-refresh-card { margin: 0 0 16px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface2); }
+.mobile-hard-refresh-card p { margin: 0 0 10px; font-size: 13px; line-height: 1.45; color: var(--text2); }
+.mobile-hard-refresh-card .hard-refresh-btn { width: 100%; padding: 12px 14px; font-size: 14px; border-color: var(--accent); color: #fff; background: var(--accent); }
 .mobile-header .mh-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
 .mobile-progress { height: 4px; background: var(--surface3); margin-top: 10px; border-radius: 2px; overflow: hidden; }
 .mobile-progress-fill { height: 100%; background: var(--accent); transition: width .25s; }
@@ -644,7 +649,7 @@ npm run outreach:sync   # copy contacts.csv into this app</div>
   <header class="mobile-header">
     <div class="mobile-header-top">
       <h1>swap/outreach</h1>
-      <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Hard refresh page" aria-label="Hard refresh page">↻ Refresh</button>
+      <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Reload the latest site version without reinstalling your home screen shortcut" aria-label="Hard refresh">Hard refresh</button>
     </div>
     <div class="mobile-superjob-row">
       <select class="superjob-select" id="mobile-superjob-select" onchange="onSuperjobSelectChange(this)" aria-label="Select superjob region">
@@ -1587,6 +1592,13 @@ function isMobileUserAgent() {
 }
 
 async function hardRefreshPage() {
+  const buttons = document.querySelectorAll('.hard-refresh-btn');
+  buttons.forEach(btn => {
+    btn.disabled = true;
+    if (btn.dataset.refreshLabel == null) btn.dataset.refreshLabel = btn.textContent;
+    btn.textContent = 'Updating…';
+  });
+  const bust = Date.now().toString();
   try {
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
@@ -1596,9 +1608,17 @@ async function hardRefreshPage() {
       const keys = await caches.keys();
       await Promise.all(keys.map(k => caches.delete(k)));
     }
+    // Warm a bypass-cache fetch so iOS home-screen shortcuts pick up the new HTML.
+    const warmUrl = new URL(window.location.href);
+    warmUrl.searchParams.set('_', bust);
+    await fetch(warmUrl.pathname + warmUrl.search, {
+      cache: 'reload',
+      credentials: 'same-origin',
+      headers: { 'Cache-Control': 'no-cache' },
+    }).catch(() => {});
   } catch (e) {}
   const url = new URL(window.location.href);
-  url.searchParams.set('_', Date.now().toString());
+  url.searchParams.set('_', bust);
   window.location.replace(url.toString());
 }
 function hasPhone(c) {
@@ -4031,6 +4051,11 @@ function renderMobileSettings() {
   const phoneCount = contacts.filter(hasPhone).length;
   const emailCount = contacts.filter(hasEmail).length;
   panel.innerHTML = `
+    <label>App update</label>
+    <div class="mobile-hard-refresh-card">
+      <p>Pull the latest site version into this home screen shortcut — no need to delete and re-add it.</p>
+      <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Hard refresh page">Hard refresh</button>
+    </div>
     <label>Cloud sync</label>
     <p class="auth-msg">${authUser?.email
       ? `Signed in as ${escHtml(authUser.email)} — progress syncs across devices.`
