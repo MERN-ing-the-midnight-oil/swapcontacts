@@ -11,6 +11,12 @@
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <title>Swap Outreach</title>
+<script>
+window.SUPABASE_CONFIG = {
+  url: "https://hgvakpnuhikdqianltia.supabase.co",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhndmFrcG51aGlrZHFpYW5sdGlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MTg1NzMsImV4cCI6MjA5NjA5NDU3M30.H9Z-XfpkK1rcYAPfJW3NBZmc0UlFZjAcm-MSVrUBiWU",
+};
+</script>
 <!-- build: light-v3 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -215,6 +221,11 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .email-textarea { width: 100%; background: var(--surface3); border: 1px solid var(--border); border-radius: 6px; padding: 12px; color: var(--text); font-size: 13px; font-family: var(--font-mono); font-weight: 300; line-height: 1.7; resize: vertical; min-height: 200px; outline: none; }
 .email-textarea:focus { border-color: var(--border2); }
 .email-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.email-format-badge { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--hero-teal, #2f6b3a); background: rgba(112,193,179,.12); border: 1px solid rgba(112,193,179,.25); border-radius: 4px; padding: 2px 7px; }
+.email-html-preview-wrap { margin-bottom: 12px; }
+.email-html-preview-label { font-size: 11px; color: var(--text3); margin-bottom: 8px; line-height: 1.45; }
+.email-html-preview { background: #120e0a; border: 1px solid var(--border); border-radius: 8px; padding: 12px; max-height: 420px; overflow: auto; }
+.email-html-preview .email-html-preview-inner { transform-origin: top center; }
 .copy-btn { background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); transition: background .15s; }
 .copy-btn:hover { background: var(--accent2); }
 .mailto-btn { background: var(--surface3); color: var(--text); border: 1px solid var(--border2); border-radius: 6px; padding: 7px 14px; font-size: 12px; cursor: pointer; font-family: var(--font-sans); transition: all .15s; text-decoration: none; display: inline-flex; align-items: center; }
@@ -281,6 +292,12 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--text) 
 .mobile-panel.active { display: block; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 #mobile-panel-call.active { display: flex; flex-direction: column; overflow: hidden; padding-bottom: 0; }
 .mobile-carousel-banner { flex-shrink: 0; background: var(--accent-dim); border: 1px solid rgba(47,107,58,.25); border-radius: 8px; padding: 8px 10px; font-size: 12px; color: var(--text2); margin-bottom: 8px; text-align: center; }
+.carousel-banner-row { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.carousel-jump-label { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text3); white-space: nowrap; }
+.carousel-jump-input { width: 3.5em; padding: 2px 6px; font-size: 12px; font-family: var(--font-mono); text-align: center; border: 1px solid var(--border2); border-radius: 4px; background: var(--surface); color: var(--text); -moz-appearance: textfield; }
+.carousel-jump-input::-webkit-outer-spin-button,
+.carousel-jump-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.carousel-jump-input:focus { outline: none; border-color: var(--accent); }
 .mobile-carousel-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
 .mobile-carousel-viewport { flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; scrollbar-width: none; margin: 0 -16px; padding: 0 8px 16px; }
 .mobile-carousel-viewport::-webkit-scrollbar { display: none; }
@@ -533,7 +550,7 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
     </div>
     <div class="topbar-right">
       <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Hard refresh page">↻ Refresh</button>
-      <div class="sync-wrap" id="desktop-sync-wrap" style="display:none">
+      <div class="sync-wrap" id="desktop-sync-wrap">
         <span class="sync-dot" id="sync-dot"></span>
         <span id="sync-label"></span>
         <span class="sync-email" id="sync-email"></span>
@@ -543,38 +560,6 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="search-wrap">
-      <input class="search-input" id="search-input" placeholder="Search contacts…" autocomplete="off">
-    </div>
-
-    <details class="auth-panel" id="csv-help-panel">
-      <summary>🔍 Find contacts by region</summary>
-      <div class="auth-panel-body">
-        <p class="auth-msg">Pick a region from the <strong>Region</strong> dropdown in the top bar. New contacts are generated via the swap-finder CLI in this repo.</p>
-      </div>
-    </details>
-
-    <details class="auth-panel" id="csv-format-panel">
-      <summary>ℹ CSV format &amp; help</summary>
-      <div class="auth-panel-body">
-        <p class="auth-msg">Contacts load from <code>contacts.csv</code> next to this page (sync with <code>npm run outreach:sync</code>). One row per organization.</p>
-        <p class="auth-msg" style="margin-top:8px"><strong>Required:</strong> <code>orgName</code> — organization or event name.</p>
-        <p class="auth-msg" style="margin-top:6px"><strong>Recommended:</strong> <code>location</code>, <code>type</code> (bike, ski, gear, sports, or other), <code>email</code>, <code>phone</code>, <code>facebook</code>, <code>linkedinPeople</code>, <code>website</code>, <code>eventSpecificLine</code>, <code>notes</code>.</p>
-        <p class="auth-msg" style="margin-top:6px"><strong>Optional:</strong> <code>sourceId</code> — unique ID per row (auto-generated if omitted).</p>
-      </div>
-    </details>
-
-    <details class="auth-panel" id="cloud-sync-panel">
-      <summary id="cloud-sync-summary">☁ Cloud sync (local only)</summary>
-      <div class="auth-panel-body">
-        <p class="auth-msg" id="cloud-sync-msg">Sign in to sync checkmarks across devices. Without config, data stays in this browser only.</p>
-        <button type="button" class="auth-btn primary" onclick="signInWithGoogle()">Sign in with Google</button>
-        <input type="email" id="magic-email" placeholder="Or email for magic link">
-        <button type="button" class="auth-btn" onclick="signInWithMagicLink()">Send magic link</button>
-        <button type="button" class="auth-btn" id="sidebar-signout-btn" style="display:none" onclick="signOutUser()">Sign out</button>
-      </div>
-    </details>
-
     <details class="prompt-editor-wrap" id="prompt-editor-wrap">
       <summary>✎ Email template</summary>
       <p class="prompt-hint" id="email-template-scope-hint">Templates are saved per region.</p>
@@ -619,28 +604,6 @@ button.mobile-send-btn.contacted { background: var(--red); cursor: default; }
       <textarea class="prompt-template-input" id="facebook-prompt-template" placeholder="Loading template…"></textarea>
       <button type="button" class="prompt-reset-btn" onclick="resetFacebookPromptTemplate()">Reset default template</button>
     </details>
-
-    <details class="auth-panel" id="fb-send-log-panel">
-      <summary>📊 FB send log</summary>
-      <div class="auth-panel-body" id="fb-send-log-body"></div>
-    </details>
-
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Sort list</div>
-      <button class="sort-btn" data-sort="phone" onclick="setSortMode('phone',this)">
-        <span>Has uncontacted phone number</span><span class="fcount" id="sc-phone">0</span>
-      </button>
-      <button class="sort-btn" data-sort="facebook" onclick="setSortMode('facebook',this)">
-        <span>Has uncontacted facebook</span><span class="fcount" id="sc-facebook">0</span>
-      </button>
-      <button class="sort-btn" data-sort="email" onclick="setSortMode('email',this)">
-        <span>Has uncontacted email</span><span class="fcount" id="sc-email">0</span>
-      </button>
-      <button class="sort-btn" data-sort="no-email" onclick="setSortMode('no-email',this)">
-        <span>Has no email</span><span class="fcount" id="sc-no-email">0</span>
-      </button>
-      <button type="button" class="first-uncontacted-btn first-uncontacted-sidebar" onclick="goToFirstUncontacted()" title="Jump to the first org with unsent email and FB message">First Uncontacted →</button>
-    </div>
 
     <div class="contact-list" id="contact-list"></div>
   </aside>
@@ -764,7 +727,7 @@ Do you currently use software to generate item/price tags from seller registrati
 If so, what do you like about it, and what do you wish it did differently?
 
 If you'd like to see how Consignly works, I'm happy to walk you through a quick demo — just reply to this email or call/text me at 907-209-8448.
-Sincerely,
+{valediction},
 Rhys Smoker
 Consignly — Smart Tags for your Swap Swag`;
 
@@ -778,9 +741,79 @@ A couple quick questions, if you have a moment:
 
 * Does your org use MySkiSwap or some other consignment app? Are you liking it?
 If you'd like to see how Consignly works, I'm happy to walk you through a quick demo — just reply to this email or call/text me at 907-209-8448.
-Sincerely, Rhys Smoker
+{valediction}, Rhys Smoker
 
 Consignly — Smart Tags for your Swap Swag`;
+
+const BRANDED_HTML_EMAIL_TEMPLATE_ID = 'builtin-branded-html';
+const BUILTIN_BRANDED_HTML_TEMPLATE_VERSION = 3;
+const CONSIGNLY_SITE = 'https://consignly.org';
+
+function brandedHtmlEmailPrompt() {
+  return `<div style="max-width:600px;margin:0 auto;font-family:'DM Sans',Arial,Helvetica,sans-serif;color:#2a2520;">
+  <div style="background:#0b1622;padding:28px 24px 22px;text-align:center;border-radius:10px 10px 0 0;">
+    <p style="margin:0 0 10px;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#70c1b3;">Consignly</p>
+    <h1 style="margin:0;font-size:26px;line-height:1.2;color:#ffffff;font-weight:700;">
+      Smart tags for your <span style="color:#f2e852;">swap swag</span>
+    </h1>
+    <p style="margin:12px 0 0;font-size:14px;line-height:1.5;color:#8fa3b8;">Keep lines moving. Keep sellers happy. Don&rsquo;t stop the swap.</p>
+  </div>
+
+  <div style="background:#f0ead8;padding:28px 24px;border-left:1px solid #d4c4a0;border-right:1px solid #d4c4a0;">
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.75;margin:0 0 14px;">Hi {org_name} team,</p>
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.75;margin:0 0 14px;">{event_specific_line}</p>
+
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.75;margin:0 0 14px;">
+      I&rsquo;ve spent 30 years working in education and nonprofits, so I know how much your volunteers put into a swap like this- registration, tagging, and payouts probably eat up more of the event than anyone outside of it realizes. I built an app called Consignly to make that part easier, since most consignment software is built for retail shops that are open every day, not events that run once or twice a year.
+    </p>
+
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.75;margin:0 0 14px;">
+      I&rsquo;m not a company, I&rsquo;m one volunteer from the Bellingham Bike Swap who built this myself, so if something doesn&rsquo;t work the way you&rsquo;d expect, I actually want to hear about it.
+    </p>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:20px 0;border-collapse:separate;border-spacing:0;">
+      <tr>
+        <td style="background:#0b1622;border-radius:10px;padding:18px 20px;">
+          <p style="margin:0 0 6px;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#70c1b3;">From our own swap</p>
+          <p style="margin:0;font-size:14px;line-height:1.65;color:#d8e2ec;">
+            Seller payout wait dropped from about an hour to a few minutes, across roughly 150 sellers and 1,000 items.
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.75;margin:0 0 20px;">
+      There&rsquo;s more on how swap day actually runs, and what it costs (free for early adopters right now), at consignly.org- probably a quicker look than I can give you in an email.
+    </p>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px;border-collapse:separate;border-spacing:0;">
+      <tr>
+        <td>
+          <a href="https://consignly.org/how-swap-day-works.html" style="display:inline-block;background:#f2e852;color:#0b1622;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;margin-right:10px;">See how swap day works</a>
+          <a href="https://consignly.org/" style="display:inline-block;background:transparent;color:#1a4f48;padding:12px 16px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid #1a4f48;">Visit consignly.org</a>
+        </td>
+      </tr>
+    </table>
+
+    <div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(42,37,32,0.12);">
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.6;margin:0 0 4px;color:#5c564c;">{valediction},</p>
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.4;margin:0 0 10px;font-weight:600;color:#2a2520;">Rhys</p>
+      <img src="https://consignly.org/images/rhys-signature.png" alt="Rhys Smoker signature" width="180" style="display:block;max-width:180px;width:180px;height:auto;margin:0 0 12px;" />
+      <p style="margin:0;font-size:14px;line-height:1.6;color:#5c564c;">
+        <a href="tel:9072098448" style="color:#1a4f48;text-decoration:none;">907-209-8448</a><br />
+        <a href="mailto:r.smoker@gmail.com" style="color:#1a4f48;text-decoration:none;">r.smoker@gmail.com</a>
+      </p>
+    </div>
+  </div>
+
+  <div style="background:#1a1410;padding:16px 24px;text-align:center;border-radius:0 0 10px 10px;">
+    <p style="margin:0 0 6px;font-size:12px;line-height:1.5;color:#b8a090;">Consignly &mdash; volunteer software for nonprofit gear swaps</p>
+    <p style="margin:0;font-size:11px;line-height:1.5;">
+      <a href="https://consignly.org/" style="color:#e08e45;text-decoration:none;">consignly.org</a>
+    </p>
+  </div>
+</div>`;
+}
 
 /** Per-superjob built-in email templates (regions not listed use DEFAULT_EMAIL_PROMPT). */
 const SUPERJOB_EMAIL_TEMPLATES = {
@@ -791,9 +824,8 @@ const DEFAULT_FACEBOOK_PROMPT = DEFAULT_EMAIL_PROMPT;
 
 const DEFAULT_EMAIL_TEMPLATE_ID = 'builtin-default';
 const DEFAULT_FACEBOOK_TEMPLATE_ID = 'builtin-default';
-const BUILTIN_EMAIL_TEMPLATE_VERSION = 9;
-const DRAFT_TEMPLATE_VERSION = 14;
-const TEMPLATE_DEFAULT_ACTIVE_VERSION = 4;
+const BUILTIN_EMAIL_TEMPLATE_VERSION = 10;
+const TEMPLATE_DEFAULT_ACTIVE_VERSION = 5;
 const LEGACY_EMAIL_PROMPT_MARK = "Hi There!   I'm a volunteer organizer";
 const LEGACY_SHORT_PROMPT_MARK = 'Is there any chance I could talk to you';
 const LEGACY_ADVERTISING_BUDGET_MARK = "I don't have an advertising budget";
@@ -818,6 +850,73 @@ function builtinEmailPromptForSuperjob(superjobId) {
     return SUPERJOB_EMAIL_TEMPLATES[superjobId];
   }
   return DEFAULT_EMAIL_PROMPT;
+}
+
+function brandedHtmlEmailTemplateRecord() {
+  return {
+    id: BRANDED_HTML_EMAIL_TEMPLATE_ID,
+    name: 'Consignly branded (HTML)',
+    body: brandedHtmlEmailPrompt(),
+    builtin: true,
+    format: 'html',
+    templateVersion: BUILTIN_BRANDED_HTML_TEMPLATE_VERSION,
+  };
+}
+
+function defaultEmailTemplateRecord(superjobId = activeSuperjobId) {
+  return {
+    id: DEFAULT_EMAIL_TEMPLATE_ID,
+    name: 'Default (plain text)',
+    body: builtinEmailPromptForSuperjob(superjobId),
+    builtin: true,
+    format: 'text',
+    templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION,
+  };
+}
+
+function ensureBuiltinEmailTemplates(state, superjobId = activeSuperjobId) {
+  let migrated = false;
+  const freshDefault = defaultEmailTemplateRecord(superjobId);
+  const freshBranded = brandedHtmlEmailTemplateRecord();
+
+  let builtinDefault = state.templates.find((t) => t.id === DEFAULT_EMAIL_TEMPLATE_ID);
+  if (!builtinDefault) {
+    state.templates.unshift(freshDefault);
+    migrated = true;
+  } else {
+    builtinDefault.builtin = true;
+    builtinDefault.format = 'text';
+    if (!builtinDefault.name) builtinDefault.name = freshDefault.name;
+    if (
+      builtinDefault.body !== freshDefault.body
+      || isLegacyTemplateBody(builtinDefault.body)
+      || (builtinDefault.templateVersion || 0) < BUILTIN_EMAIL_TEMPLATE_VERSION
+    ) {
+      builtinDefault.body = freshDefault.body;
+      builtinDefault.templateVersion = BUILTIN_EMAIL_TEMPLATE_VERSION;
+      migrated = true;
+    }
+  }
+
+  let branded = state.templates.find((t) => t.id === BRANDED_HTML_EMAIL_TEMPLATE_ID);
+  if (!branded) {
+    state.templates.push(freshBranded);
+    migrated = true;
+  } else {
+    branded.builtin = true;
+    branded.format = 'html';
+    if (!branded.name) branded.name = freshBranded.name;
+    if (
+      branded.body !== freshBranded.body
+      || (branded.templateVersion || 0) < BUILTIN_BRANDED_HTML_TEMPLATE_VERSION
+    ) {
+      branded.body = freshBranded.body;
+      branded.templateVersion = BUILTIN_BRANDED_HTML_TEMPLATE_VERSION;
+      migrated = true;
+    }
+  }
+
+  return migrated;
 }
 
 function builtinFacebookPromptForSuperjob(superjobId) {
@@ -973,17 +1072,15 @@ function normalizeEmailTemplatesState(state, superjobId = activeSuperjobId) {
   let migrated = false;
   purgeLegacyTemplateStorage();
 
-  const builtinBody = builtinEmailPromptForSuperjob(superjobId);
-  const freshBuiltin = {
-    id: DEFAULT_EMAIL_TEMPLATE_ID,
-    name: 'Default',
-    body: builtinBody,
-    builtin: true,
-    templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION,
-  };
-
   if (!state?.templates?.length) {
-    return { migrated: true, state: { activeId: DEFAULT_EMAIL_TEMPLATE_ID, templates: [freshBuiltin] } };
+    return {
+      migrated: true,
+      state: {
+        activeId: BRANDED_HTML_EMAIL_TEMPLATE_ID,
+        templates: [defaultEmailTemplateRecord(superjobId), brandedHtmlEmailTemplateRecord()],
+        defaultActiveVersion: TEMPLATE_DEFAULT_ACTIVE_VERSION,
+      },
+    };
   }
 
   const beforeCount = state.templates.length;
@@ -992,31 +1089,16 @@ function normalizeEmailTemplatesState(state, superjobId = activeSuperjobId) {
   );
   if (state.templates.length < beforeCount) migrated = true;
 
-  let builtin = state.templates.find((t) => t.id === DEFAULT_EMAIL_TEMPLATE_ID);
-  if (!builtin) {
-    state.templates.unshift(freshBuiltin);
-    migrated = true;
-  } else {
-    builtin.builtin = true;
-    if (
-      builtin.body !== builtinBody
-      || isLegacyTemplateBody(builtin.body)
-      || (builtin.templateVersion || 0) < BUILTIN_EMAIL_TEMPLATE_VERSION
-    ) {
-      builtin.body = builtinBody;
-      builtin.templateVersion = BUILTIN_EMAIL_TEMPLATE_VERSION;
-      migrated = true;
-    }
-  }
+  if (ensureBuiltinEmailTemplates(state, superjobId)) migrated = true;
 
   const active = state.templates.find((t) => t.id === state.activeId);
   if (!active || isLegacyTemplateBody(active.body)) {
-    state.activeId = DEFAULT_EMAIL_TEMPLATE_ID;
+    state.activeId = BRANDED_HTML_EMAIL_TEMPLATE_ID;
     migrated = true;
   }
 
   if ((state.defaultActiveVersion || 0) < TEMPLATE_DEFAULT_ACTIVE_VERSION) {
-    state.activeId = DEFAULT_EMAIL_TEMPLATE_ID;
+    state.activeId = BRANDED_HTML_EMAIL_TEMPLATE_ID;
     state.defaultActiveVersion = TEMPLATE_DEFAULT_ACTIVE_VERSION;
     migrated = true;
   }
@@ -1031,21 +1113,13 @@ function loadEmailTemplatesState() {
     if (raw) {
       const { migrated, state } = normalizeEmailTemplatesState(JSON.parse(raw));
       if (migrated) persistEmailTemplatesState(state);
-      if (migrated) queueRefreshAllDraftsFromTemplates();
       return state;
     }
   } catch (e) {}
   purgeLegacyTemplateStorage();
-  const builtinBody = builtinEmailPromptForSuperjob(activeSuperjobId);
   return {
-    activeId: DEFAULT_EMAIL_TEMPLATE_ID,
-    templates: [{
-      id: DEFAULT_EMAIL_TEMPLATE_ID,
-      name: 'Default',
-      body: builtinBody,
-      builtin: true,
-      templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION,
-    }],
+    activeId: BRANDED_HTML_EMAIL_TEMPLATE_ID,
+    templates: [defaultEmailTemplateRecord(activeSuperjobId), brandedHtmlEmailTemplateRecord()],
     defaultActiveVersion: TEMPLATE_DEFAULT_ACTIVE_VERSION,
   };
 }
@@ -1057,6 +1131,22 @@ function persistEmailTemplatesState(state) {
 function getActiveEmailTemplate() {
   const state = loadEmailTemplatesState();
   return state.templates.find((t) => t.id === state.activeId) || state.templates[0];
+}
+
+function draftLooksLikeHtml(text) {
+  return /<[a-z][\s\S]*>/i.test(String(text || '').trim());
+}
+
+function getActiveEmailTemplateFormat() {
+  const t = getActiveEmailTemplate();
+  if (!t) return 'text';
+  if (t.format === 'html') return 'html';
+  if (t.format === 'text') return 'text';
+  return draftLooksLikeHtml(t.body) ? 'html' : 'text';
+}
+
+function isActiveEmailTemplateHtml() {
+  return getActiveEmailTemplateFormat() === 'html';
 }
 
 function emailTemplateFieldIds() {
@@ -1114,9 +1204,13 @@ function refreshEmailTemplateUI(state = loadEmailTemplatesState()) {
   const hint = document.getElementById('email-template-scope-hint');
   if (hint) {
     const region = superjobCatalog.find((sj) => sj.id === activeSuperjobId)?.label;
-    hint.textContent = region
+    const scope = region
       ? `Templates are saved for ${region} only.`
       : 'Templates are saved per region.';
+    const formatHint = isActiveEmailTemplateHtml()
+      ? ' HTML templates copy a formatted message to your clipboard when you send — Gmail opens with a blank body so you can paste.'
+      : '';
+    hint.textContent = scope + formatHint;
   }
 }
 
@@ -1129,6 +1223,7 @@ function onEmailTemplateSelect(el) {
     const other = document.getElementById(id);
     if (other && other !== el) other.value = state.activeId;
   });
+  refreshEmailHtmlPreview(currentId);
 }
 
 function saveEmailTemplate() {
@@ -1152,7 +1247,9 @@ function saveEmailTemplate() {
   } else if (active?.builtin) {
     // Built-in default is read-only — fork edits into a new saved template.
     const id = 'tpl_' + Date.now();
-    state.templates.push({ id, name, body });
+    const fork = { id, name, body };
+    if (active.format) fork.format = active.format;
+    state.templates.push(fork);
     state.activeId = id;
   } else if (active) {
     active.name = name;
@@ -1165,7 +1262,6 @@ function saveEmailTemplate() {
   }
   persistEmailTemplatesState(state);
   refreshEmailTemplateUI(state);
-  queueRefreshAllDraftsFromTemplates();
 }
 
 function deleteEmailTemplate() {
@@ -1176,14 +1272,15 @@ function deleteEmailTemplate() {
   if (!confirm(`Delete template "${active.name}"?`)) return;
   state.templates = state.templates.filter((t) => t.id !== activeId);
   if (!state.templates.length) {
-    state.templates = [{ id: DEFAULT_EMAIL_TEMPLATE_ID, name: 'Default', body: builtinEmailPromptForSuperjob(activeSuperjobId), builtin: true, templateVersion: BUILTIN_EMAIL_TEMPLATE_VERSION }];
+    state.templates = [defaultEmailTemplateRecord(activeSuperjobId), brandedHtmlEmailTemplateRecord()];
+    state.activeId = BRANDED_HTML_EMAIL_TEMPLATE_ID;
   }
   if (!state.templates.some((t) => t.id === state.activeId)) {
-    state.activeId = state.templates[0].id;
+    state.activeId = state.templates.find((t) => t.id === BRANDED_HTML_EMAIL_TEMPLATE_ID)?.id
+      || state.templates[0].id;
   }
   persistEmailTemplatesState(state);
   refreshEmailTemplateUI(state);
-  queueRefreshAllDraftsFromTemplates();
 }
 
 function getEmailPromptTemplate() {
@@ -1201,14 +1298,12 @@ function resetEmailPromptTemplate() {
   state.activeId = DEFAULT_EMAIL_TEMPLATE_ID;
   persistEmailTemplatesState(state);
   refreshEmailTemplateUI(state);
-  queueRefreshAllDraftsFromTemplates();
 }
 
 function initPromptEditor() {
   refreshEmailTemplateUI();
   refreshFacebookTemplateUI();
   refreshPlaceholderGuides();
-  queueRefreshAllDraftsFromTemplates();
 }
 
 function loadFacebookTemplatesState() {
@@ -1368,16 +1463,16 @@ function resetFacebookPromptTemplate() {
   refreshFacebookTemplateUI(state);
 }
 
-function applyPromptTemplate(c, template) {
+function applyPromptTemplate(c, template, opts = {}) {
   let out = template;
   for (const p of TEMPLATE_PLACEHOLDERS) {
-    const value = formatPlaceholderValue(p, p.resolve(c || {}));
+    const value = formatPlaceholderValue(p, p.resolve(c || {}), { escapeHtml: !!opts.preserveHtml });
     const tokens = [p.token, ...(p.aliases || [])];
     for (const token of tokens) {
       out = out.replace(new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), value);
     }
   }
-  return cleanupDraftWhitespace(out);
+  return opts.preserveHtml ? String(out || '').trim() : cleanupDraftWhitespace(out);
 }
 
 function cleanupDraftWhitespace(text) {
@@ -1411,6 +1506,11 @@ const TEMPLATE_PLACEHOLDERS = [
     emptyLabel: '(empty — timing unknown)',
   },
   {
+    token: '{valediction}',
+    description: 'Tailored sign-off phrase (valediction in CSV; defaults to Sincerely)',
+    resolve(c) { return resolveContactValediction(c.valediction, c.type); },
+  },
+  {
     token: '{notes}',
     description: 'Background blurb about the org (notes in CSV)',
     resolve(c) { return c.sourceNotes || ''; },
@@ -1423,8 +1523,17 @@ const TEMPLATE_PLACEHOLDERS = [
   },
 ];
 
-function formatPlaceholderValue(_placeholder, raw) {
-  return String(raw ?? '').trim();
+function formatPlaceholderValue(_placeholder, raw, opts = {}) {
+  const text = String(raw ?? '').trim();
+  return opts.escapeHtml ? escapeHtmlForEmail(text) : text;
+}
+
+function escapeHtmlForEmail(text) {
+  return String(text ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function formatPlaceholderGuideValue(placeholder, raw) {
@@ -1769,13 +1878,13 @@ function gmailWebComposeHref(email, body, subject) {
   return buildGmailWebCompose(email, body, subject).href;
 }
 
-function gmailAppComposeHref(email, body, subject) {
-  const qs = composeQueryString({
-    to: email || '',
-    subject: subject || EMAIL_SUBJECT,
-    body: body || '',
-  });
-  return 'googlegmail:///co?' + qs;
+/**
+ * Route Gmail compose through AccountChooser so iOS/Android open it in the
+ * browser instead of handing off to the Gmail app (Universal/App Links).
+ */
+function gmailStayInBrowserHref(gmailHref) {
+  if (!gmailHref) return gmailHref;
+  return 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(gmailHref);
 }
 
 function mailtoComposeHref(email, body, subject) {
@@ -1790,20 +1899,31 @@ function gmailComposeHref(email, body, subject) {
   return gmailWebComposeHref(email, body, subject);
 }
 
-function openEmailCompose(email, body, subject, event) {
+function openEmailCompose(email, body, subject, event, opts = {}) {
   if (event) event.preventDefault();
   if (!email) return;
   const subj = subject || EMAIL_SUBJECT;
+  const composeBody = opts.composeBody ?? body ?? '';
+  const clipboardBody = opts.clipboardBody ?? null;
+  const clipboardHtml = !!opts.clipboardHtml;
+  if (clipboardBody) {
+    if (clipboardHtml) copyRichHtmlToClipboard(clipboardBody);
+    else copyPlainTextToClipboard(clipboardBody);
+  }
   if (isMobileUserAgent()) {
-    const result = buildMobileEmailCompose(email, body || '', subj);
-    if (result.copyBody) copyToClipboard(result.copyBody);
-    openExternalHref(result.href);
+    const result = buildGmailWebCompose(email, composeBody, subj);
+    const browserHref = gmailStayInBrowserHref(result.href);
+    if (!openExternalHref(browserHref, { tag: 'openEmailCompose:gmail-browser', sameTab: true })) {
+      openExternalHref(mailtoComposeHref(email, clipboardBody && !clipboardHtml ? '' : composeBody, subj), {
+        tag: 'openEmailCompose:mailto-fallback',
+        sameTab: true,
+      });
+    }
     return;
   }
-  const result = buildGmailWebCompose(email, body || '', subj);
-  if (result.copyBody) navigator.clipboard.writeText(result.copyBody).catch(() => {});
+  const result = buildGmailWebCompose(email, composeBody, subj);
   if (!openExternalHref(result.href)) {
-    openExternalHref(mailtoComposeHref(email, result.copyBody ? '' : (body || ''), subj));
+    openExternalHref(mailtoComposeHref(email, clipboardBody && !clipboardHtml ? '' : composeBody, subj));
   }
 }
 
@@ -1811,9 +1931,19 @@ function openEmailComposeForContact(id, event) {
   if (event) event.preventDefault();
   const c = contacts.find(x => x.id === id);
   if (!c?.email) return;
-  const draftEl = document.getElementById('email-draft-' + id) || document.getElementById('email-draft') || document.getElementById('mobile-email-draft-' + id);
-  const body = draftEl ? draftEl.value : (getO(id).emailDraft || '');
-  openEmailCompose(c.email, body);
+  const emailBody = getSendDraft(id, 'email', c);
+  const htmlFormat = isActiveEmailTemplateHtml();
+  openEmailCompose(
+    c.email,
+    htmlFormat ? '' : emailBody,
+    EMAIL_SUBJECT,
+    event,
+    {
+      composeBody: htmlFormat ? '' : emailBody,
+      clipboardBody: htmlFormat ? emailBody : null,
+      clipboardHtml: htmlFormat,
+    }
+  );
 }
 
 function openMobileEmailCompose(id) {
@@ -1863,23 +1993,49 @@ function messengerComposeHref(facebookUrl, body) {
   return result.href || facebookUrl || '#';
 }
 
-function getContactDrafts(id) {
+function buildDraftForSend(c, channel) {
+  return channel === 'email' ? buildEmailPrompt(c) : buildFacebookPrompt(c);
+}
+
+function displayedDraft(o, channel) {
+  const customKey = channel + 'DraftCustom';
+  const draftKey = channel + 'Draft';
+  return o[customKey] ? (o[draftKey] || '') : '';
+}
+
+function getSendDraft(id, channel, c) {
+  const contact = c || contacts.find((x) => x.id === id);
+  if (!contact) return '';
   const o = getO(id);
-  const emailEl = document.getElementById('email-draft-' + id) || document.getElementById('email-draft');
-  const fbEl = document.getElementById('facebook-draft-' + id) || document.getElementById('facebook-draft');
-  const mobileEmailEl = document.getElementById('mobile-email-draft-' + id);
-  const mobileFbEl = document.getElementById('mobile-fb-draft-' + id)
-    || (mobileCurrentContact()?.id === id
-      ? document.querySelector('#mobile-panel-call textarea[placeholder="Messenger draft…"]')
-      : null);
-  return {
-    email: (emailEl || mobileEmailEl)?.value ?? (o.emailDraft || ''),
-    facebook: (fbEl || mobileFbEl)?.value ?? (o.facebookDraft || ''),
-  };
+  const customKey = channel + 'DraftCustom';
+  const draftKey = channel + 'Draft';
+  if (o[customKey]) {
+    const draftEl = channel === 'email'
+      ? (document.getElementById('email-draft-' + id) || document.getElementById('email-draft') || document.getElementById('mobile-email-draft-' + id))
+      : (document.getElementById('facebook-draft-' + id) || document.getElementById('facebook-draft') || document.getElementById('mobile-fb-draft-' + id));
+    const fromDom = draftEl?.value;
+    let custom = null;
+    if (fromDom != null && fromDom !== '') custom = fromDom;
+    else if (o[draftKey]) custom = o[draftKey];
+    if (custom != null) {
+      // Ignore stale plain-text drafts when the active email template is HTML.
+      if (channel === 'email' && isActiveEmailTemplateHtml() && !draftLooksLikeHtml(custom)) {
+        return buildDraftForSend(contact, channel);
+      }
+      return custom;
+    }
+  }
+  return buildDraftForSend(contact, channel);
 }
 
 /** Sync copy so the clipboard is set before opening Gmail/Messenger tabs. */
-function copyToClipboard(text) {
+function htmlToPlainText(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return (div.textContent || div.innerText || '').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function copyPlainTextToClipboard(text) {
   if (!text) return false;
   const ta = document.createElement('textarea');
   ta.value = text;
@@ -1900,6 +2056,79 @@ function copyToClipboard(text) {
   return ok;
 }
 
+function copyHtmlViaClipboardEvent(html, plainText) {
+  const plain = plainText || htmlToPlainText(html);
+  const htmlPayload = `<!DOCTYPE html><html><body><!--StartFragment-->${html}<!--EndFragment--></body></html>`;
+  let ok = false;
+  function onCopy(e) {
+    e.preventDefault();
+    e.clipboardData.setData('text/html', htmlPayload);
+    e.clipboardData.setData('text/plain', plain);
+    ok = true;
+  }
+  document.addEventListener('copy', onCopy);
+  const ta = document.createElement('textarea');
+  ta.value = ' ';
+  ta.setAttribute('readonly', '');
+  ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:none;outline:none;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(ta);
+  document.removeEventListener('copy', onCopy);
+  return ok;
+}
+
+function copyHtmlViaContentEditable(html) {
+  const host = document.createElement('div');
+  host.setAttribute('contenteditable', 'true');
+  host.innerHTML = html;
+  // In-viewport copy target — off-screen elements fail on iOS Safari.
+  host.style.cssText = 'position:fixed;top:0;left:0;width:2px;height:2px;padding:0;border:none;outline:none;overflow:hidden;opacity:0;';
+  document.body.appendChild(host);
+  host.focus();
+
+  const range = document.createRange();
+  range.selectNodeContents(host);
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) {}
+
+  selection.removeAllRanges();
+  document.body.removeChild(host);
+  return ok;
+}
+
+function copyRichHtmlToClipboard(html, plainText) {
+  if (!html) return false;
+  const plain = plainText || htmlToPlainText(html);
+  // Clipboard-event path preserves the exact HTML string (best for Gmail paste).
+  if (copyHtmlViaClipboardEvent(html, plain)) return true;
+  if (copyHtmlViaContentEditable(html)) return true;
+  // Last resort: Clipboard API (async; may fail outside a secure context).
+  if (navigator.clipboard?.write && window.ClipboardItem) {
+    try {
+      const item = new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob([plain], { type: 'text/plain' }),
+      });
+      navigator.clipboard.write([item]).catch(() => {});
+      return true;
+    } catch (e) {}
+  }
+  // Never fall back to pasting raw HTML source — use readable plain text instead.
+  return copyPlainTextToClipboard(plain);
+}
+
+function copyToClipboard(text, opts = {}) {
+  if (opts.html) return copyRichHtmlToClipboard(text);
+  return copyPlainTextToClipboard(text);
+}
+
 function canContactViaEmailOrMessenger(c) {
   return hasWrittenContactChannels(c);
 }
@@ -1912,7 +2141,7 @@ function markEmailContact(id) {
   o.log = o.log || [];
   o.contacted.email = true;
   o.log.push({ ts: fmtTs(), text: 'Email sent ✓' });
-  saveOutreach();
+  saveOutreach({ immediate: true });
   return true;
 }
 
@@ -1924,7 +2153,7 @@ function resetEmailContact(id) {
   o.log = o.log || [];
   o.contacted.email = false;
   o.log.push({ ts: fmtTs(), text: 'Email send reset — ready to send again' });
-  saveOutreach();
+  saveOutreach({ immediate: true });
   return true;
 }
 
@@ -1936,7 +2165,7 @@ function markFacebookContact(id) {
   o.log = o.log || [];
   o.contacted.facebook = true;
   o.log.push({ ts: fmtTs(), text: 'FB message sent ✓' });
-  saveOutreach();
+  saveOutreach({ immediate: true });
   return true;
 }
 
@@ -1948,7 +2177,7 @@ function resetFacebookContact(id) {
   o.log = o.log || [];
   o.contacted.facebook = false;
   o.log.push({ ts: fmtTs(), text: 'FB message reset — ready to send again' });
-  saveOutreach();
+  saveOutreach({ immediate: true });
   return true;
 }
 
@@ -2039,41 +2268,54 @@ function openEmailForOrg(id, event, btnEl) {
     return;
   }
 
-  ensureContactDrafts(c);
-  const drafts = getContactDrafts(id);
-  const email = buildGmailWebCompose(c.email, drafts.email, EMAIL_SUBJECT);
+  const emailBody = getSendDraft(id, 'email', c);
+  const htmlFormat = isActiveEmailTemplateHtml();
+  // HTML emails are pasted from the clipboard — keep the Gmail body blank (no stub/placeholder).
+  const composeBody = htmlFormat ? '' : emailBody;
+  const email = buildGmailWebCompose(c.email, composeBody, EMAIL_SUBJECT);
+  const mobile = isMobileUserAgent();
+  const openHref = mobile ? gmailStayInBrowserHref(email.href) : email.href;
   outreachLog('openEmailForOrg: compose built', {
-    composeMode: 'gmail-web',
+    composeMode: mobile ? 'gmail-browser' : 'gmail-web',
     to: c.email,
-    hrefLen: email.href?.length || 0,
-    href: outreachHrefPreview(email.href),
+    hrefLen: openHref?.length || 0,
+    href: outreachHrefPreview(openHref),
     copyBody: !!email.copyBody,
-    draftLen: (drafts.email || '').length,
+    htmlFormat,
+    draftLen: (emailBody || '').length,
   });
-  if (!email.href) {
+  if (!openHref) {
     outreachLog('openEmailForOrg: aborted — empty compose href');
     return;
   }
 
-  // Open while still inside the click handler — popup blockers reject tabs opened after re-render/copy.
-  let opened = openExternalHref(email.href, { tag: 'openEmailForOrg:gmail-web', newTab: true });
-  if (!opened && isMobileUserAgent()) {
-    outreachLog('openEmailForOrg: gmail-web failed — trying Gmail app scheme');
-    opened = openExternalHref(
-      gmailAppComposeHref(c.email, email.copyBody ? '' : drafts.email, EMAIL_SUBJECT),
-      { tag: 'openEmailForOrg:gmail-app', sameTab: true }
-    );
+  // Copy before opening Gmail — clipboard needs the click gesture; HTML must be rich text, not source.
+  if (htmlFormat) {
+    const copied = copyRichHtmlToClipboard(emailBody);
+    outreachLog('openEmailForOrg: HTML copied to clipboard', {
+      copied,
+      bytes: emailBody.length,
+      looksLikeHtml: draftLooksLikeHtml(emailBody),
+    });
+  } else if (email.copyBody) {
+    const copied = copyPlainTextToClipboard(email.copyBody);
+    outreachLog('openEmailForOrg: copyBody to clipboard', { copied, bytes: email.copyBody.length });
   }
+
+  // Open while still inside the click handler — popup blockers reject tabs opened after re-render/copy.
+  // Mobile: same-tab via AccountChooser keeps Gmail in the browser (avoids app handoff / Untitled tabs).
+  // Desktop: new tab with a direct Gmail compose URL.
+  let opened = openExternalHref(openHref, {
+    tag: mobile ? 'openEmailForOrg:gmail-browser' : 'openEmailForOrg:gmail-web',
+    sameTab: mobile,
+    newTab: !mobile,
+  });
   if (!opened) {
     outreachLog('openEmailForOrg: trying mailto fallback');
     openExternalHref(
-      mailtoComposeHref(c.email, email.copyBody ? '' : drafts.email, EMAIL_SUBJECT),
+      mailtoComposeHref(c.email, htmlFormat ? '' : (email.copyBody ? '' : emailBody), EMAIL_SUBJECT),
       { tag: 'openEmailForOrg:mailto-fallback', sameTab: true }
     );
-  }
-  if (email.copyBody) {
-    const copied = copyToClipboard(email.copyBody);
-    outreachLog('openEmailForOrg: copyBody to clipboard', { copied, bytes: email.copyBody.length });
   }
 
   const btn = btnEl || event?.currentTarget || event?.target?.closest?.('button');
@@ -2158,15 +2400,14 @@ function openFacebookForOrg(id, event, btnEl) {
     return;
   }
 
-  ensureContactDrafts(c);
-  const drafts = getContactDrafts(id);
-  const messenger = buildMessengerCompose(c.facebook, drafts.facebook);
+  const fbBody = getSendDraft(id, 'facebook', c);
+  const messenger = buildMessengerCompose(c.facebook, fbBody);
   outreachLog('openFacebookForOrg: compose built', {
     facebook: c.facebook,
     hrefLen: messenger.href?.length || 0,
     href: outreachHrefPreview(messenger.href),
     copyBody: !!messenger.copyBody,
-    draftLen: (drafts.facebook || '').length,
+    draftLen: (fbBody || '').length,
     error: messenger.error || null,
   });
   if (!messenger.href) {
@@ -2184,7 +2425,7 @@ function openFacebookForOrg(id, event, btnEl) {
     opened = openExternalHref(c.facebook, { tag: 'openFacebookForOrg:fb-page', newTab: true });
   }
   if (messenger.copyBody) {
-    const copied = copyToClipboard(messenger.copyBody);
+    const copied = copyPlainTextToClipboard(messenger.copyBody);
     outreachLog('openFacebookForOrg: copyBody to clipboard', { copied, bytes: messenger.copyBody.length });
   }
 
@@ -2202,10 +2443,12 @@ function contactHintText(c) {
   const hints = [];
   const pending = ['email', 'facebook'].filter(ch => isPendingSendChannel(c.id, ch));
   if (pending.includes('email')) {
-    hints.push('Send Email opens Gmail with your draft.');
+    hints.push(isActiveEmailTemplateHtml()
+      ? 'Send Email opens Gmail with a blank body and copies the formatted HTML to your clipboard — paste with ⌘V / Ctrl+V.'
+      : 'Send Email opens Gmail with your current template.');
   }
   if (pending.includes('facebook')) {
-    hints.push('Send FB Message opens Messenger with your draft.');
+    hints.push('Send FB Message opens Messenger with your current template.');
   }
   if (pending.length > 1) {
     hints.push('Send Both opens every unsent channel at once.');
@@ -2264,13 +2507,26 @@ function contactButtonsHtml(id, className = 'contact-btn', channels = ['email', 
 let supabaseClient = null;
 let authUser = null;
 let cloudSyncTimer = null;
+let serverSyncTimer = null;
 let cloudSyncEnabled = false;
 let outreachChannel = null;
 let isApplyingRemote = false;
 let isPushingCloud = false;
+let isPushingServer = false;
 
 function saveOutreachLocalOnly() {
   try { localStorage.setItem(outreachStorageKey(), JSON.stringify(outreach)); } catch(e) {}
+}
+function outreachRecordsHasEntries(records) {
+  return records && typeof records === 'object' && Object.keys(records).length > 0;
+}
+function outreachSnapshotHasEntries(snapshot) {
+  if (!snapshot || typeof snapshot !== 'object') return false;
+  if (snapshot._format === 'scoped_v1') {
+    if (outreachRecordsHasEntries(snapshot.default)) return true;
+    return Object.values(snapshot.superjobs || {}).some(outreachRecordsHasEntries);
+  }
+  return Object.keys(snapshot).length > 0;
 }
 function loadOutreach() {
   try {
@@ -2278,10 +2534,32 @@ function loadOutreach() {
     if(d) outreach = JSON.parse(d);
     else outreach = {};
   } catch(e) { outreach = {}; }
+  Object.keys(outreach).forEach((id) => migrateOutreach(outreach[id]));
 }
-function saveOutreach() {
+function migrateLegacyOutreachForContacts() {
+  if (!activeSuperjobId || !contacts.length) return;
+  const legacy = readOutreachFromLocalKey(STORAGE_KEY);
+  if (!outreachRecordsHasEntries(legacy)) return;
+  const contactIds = new Set(contacts.map((c) => c.id));
+  let merged = false;
+  for (const [id, entry] of Object.entries(legacy)) {
+    if (!contactIds.has(id)) continue;
+    outreach[id] = outreach[id] ? mergeOneOutreach(entry, outreach[id]) : entry;
+    merged = true;
+  }
+  if (merged) {
+    Object.keys(outreach).forEach((id) => migrateOutreach(outreach[id]));
+    saveOutreachLocalOnly();
+  }
+}
+function saveOutreach(opts = {}) {
   saveOutreachLocalOnly();
-  scheduleCloudSync();
+  if (opts.immediate) {
+    flushOutreachPersistence();
+  } else {
+    scheduleCloudSync();
+    scheduleServerSync();
+  }
 }
 
 function readOutreachFromLocalKey(key) {
@@ -2301,8 +2579,14 @@ function buildCloudOutreachSnapshot() {
     const sjId = key.slice(`${STORAGE_KEY}_sj_`.length);
     snapshot.superjobs[sjId] = readOutreachFromLocalKey(key);
   }
-  if (activeSuperjobId) snapshot.superjobs[activeSuperjobId] = outreach;
-  else snapshot.default = outreach;
+  if (activeSuperjobId) {
+    snapshot.superjobs[activeSuperjobId] = mergeOutreachRecords(
+      snapshot.superjobs[activeSuperjobId] || {},
+      outreach
+    );
+  } else {
+    snapshot.default = mergeOutreachRecords(snapshot.default || {}, outreach);
+  }
   return snapshot;
 }
 
@@ -2335,7 +2619,6 @@ function applyCloudSnapshotToLocal(snapshot) {
   if (activeSuperjobId) outreach = snapshot.superjobs?.[activeSuperjobId] || {};
   else outreach = snapshot.default || {};
   Object.keys(outreach).forEach((id) => migrateOutreach(outreach[id]));
-  ensureAllDrafts();
 }
 
 function loadScript(src) {
@@ -2354,22 +2637,17 @@ function initSupabaseClient() {
   return window.supabase.createClient(cfg.url, cfg.anonKey);
 }
 
-/** Load config + SDK only when cloud sync is configured (skips ~50KB on static-only deploys). */
+/** Load Supabase SDK (config is always embedded in the page). */
 async function ensureSupabase() {
   if (supabaseClient) return supabaseClient;
-  if (window.SUPABASE_CONFIG === null) return null;
   if (!supabaseLoadPromise) {
     supabaseLoadPromise = (async () => {
       if (window.SUPABASE_CONFIG === undefined) {
-        const ok = await loadScript('supabase-config.js');
-        if (!ok) {
-          window.SUPABASE_CONFIG = null;
-          return null;
-        }
+        await loadScript('supabase-config.js');
       }
       const cfg = window.SUPABASE_CONFIG;
       if (!cfg?.url || !cfg?.anonKey || cfg.url.includes('YOUR_PROJECT')) {
-        window.SUPABASE_CONFIG = null;
+        console.error('Invalid Supabase config');
         return null;
       }
       if (!window.supabase) {
@@ -2429,7 +2707,6 @@ function applyOutreachData(next, opts = {}) {
   outreach = next || {};
   Object.keys(outreach).forEach((id) => migrateOutreach(outreach[id]));
   saveOutreachLocalOnly();
-  ensureAllDrafts();
   if (!opts.silent) {
     renderAll();
     if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
@@ -2441,30 +2718,33 @@ function updateSyncUI(state, detail) {
   const dot = document.getElementById('sync-dot');
   const label = document.getElementById('sync-label');
   const emailEl = document.getElementById('sync-email');
-  const summary = document.getElementById('cloud-sync-summary');
-  const signOutBtn = document.getElementById('sidebar-signout-btn');
 
-  if (wrap) wrap.style.display = authUser ? '' : 'none';
+  if (wrap) wrap.style.display = cloudSyncEnabled ? '' : 'none';
+  if (!cloudSyncEnabled) return;
 
-  if (summary) {
-    summary.textContent = authUser
-      ? `☁ Synced as ${authUser.email || 'user'}`
-      : cloudSyncEnabled ? '☁ Cloud sync' : '☁ Cloud sync (not configured)';
+  if (dot) {
+    dot.className = 'sync-dot' + (
+      state === 'live' || state === 'synced' ? ' live' :
+      state === 'syncing' ? ' syncing' :
+      state === 'error' ? ' error' : ''
+    );
   }
-  if (signOutBtn) signOutBtn.style.display = authUser ? '' : 'none';
-  if (!authUser) return;
-
-  if (dot) dot.className = 'sync-dot' + (state === 'live' || state === 'synced' ? ' live' : state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
 
   const labels = {
+    local: 'Connecting…',
+    signedOut: 'Connecting…',
     syncing: 'Syncing…',
     synced: 'Synced',
-    live: 'Live sync',
+    live: 'Synced',
     error: detail || 'Sync error',
   };
   if (label) label.textContent = labels[state] || labels.live;
 
-  if (emailEl) emailEl.textContent = authUser?.email || '';
+  if (emailEl) {
+    const email = authUser?.email || '';
+    emailEl.textContent = email;
+    emailEl.style.display = email ? '' : 'none';
+  }
 }
 
 async function pushOutreachToCloud() {
@@ -2485,11 +2765,66 @@ async function pushOutreachToCloud() {
   updateSyncUI('synced');
 }
 
+async function pushOutreachToServer() {
+  if (!apiAvailable) return;
+  isPushingServer = true;
+  try {
+    const res = await fetch('/api/outreach-state', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildCloudOutreachSnapshot()),
+      keepalive: true,
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  } catch (error) {
+    console.error('Server outreach save failed', error);
+  } finally {
+    isPushingServer = false;
+  }
+}
+
+function scheduleServerSync() {
+  if (!apiAvailable) return;
+  clearTimeout(serverSyncTimer);
+  serverSyncTimer = setTimeout(() => pushOutreachToServer(), 300);
+}
+
+async function pullAndMergeServerOutreach() {
+  if (!apiAvailable) return;
+  try {
+    const res = await fetch('/api/outreach-state');
+    if (!res.ok) return;
+    const remote = await res.json();
+    const localSnapshot = buildCloudOutreachSnapshot();
+    const hasLocal = outreachSnapshotHasEntries(localSnapshot);
+    const hasRemote = outreachSnapshotHasEntries(remote);
+    if (!hasRemote) {
+      if (hasLocal) await pushOutreachToServer();
+      return;
+    }
+    const merged = mergeCloudSnapshots(localSnapshot, remote);
+    applyCloudSnapshotToLocal(merged);
+    saveOutreachLocalOnly();
+  } catch (error) {
+    console.error('Server outreach load failed', error);
+  }
+}
+
+async function flushOutreachPersistence() {
+  saveOutreachLocalOnly();
+  clearTimeout(cloudSyncTimer);
+  clearTimeout(serverSyncTimer);
+  const pushes = [];
+  if (cloudSyncEnabled && authUser && supabaseClient) pushes.push(pushOutreachToCloud());
+  if (apiAvailable) pushes.push(pushOutreachToServer());
+  if (pushes.length) await Promise.allSettled(pushes);
+}
+
 function scheduleCloudSync() {
   if (!cloudSyncEnabled || !authUser) return;
   clearTimeout(cloudSyncTimer);
   updateSyncUI('syncing');
-  cloudSyncTimer = setTimeout(() => pushOutreachToCloud(), 800);
+  cloudSyncTimer = setTimeout(() => pushOutreachToCloud(), 300);
 }
 
 async function pullAndMergeOutreach() {
@@ -2506,9 +2841,10 @@ async function pullAndMergeOutreach() {
     return;
   }
   const localSnapshot = buildCloudOutreachSnapshot();
-  if (!data?.outreach || Object.keys(data.outreach).length === 0) {
-    if (Object.keys(localSnapshot.default || {}).length || Object.keys(localSnapshot.superjobs || {}).length) {
+  if (!data?.outreach || !outreachSnapshotHasEntries(data.outreach)) {
+    if (outreachSnapshotHasEntries(localSnapshot)) {
       await pushOutreachToCloud();
+      if (apiAvailable) await pushOutreachToServer();
     } else {
       updateSyncUI('live');
     }
@@ -2518,7 +2854,6 @@ async function pullAndMergeOutreach() {
   applyCloudSnapshotToLocal(merged);
   saveOutreachLocalOnly();
   if (contacts.length) {
-    ensureAllDrafts();
     renderAll();
     if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
     if (isMobileView()) renderMobileAll();
@@ -2540,7 +2875,7 @@ function subscribeOutreachRealtime() {
       table: 'outreach_state',
       filter: `user_id=eq.${authUser.id}`,
     }, (payload) => {
-      if (isPushingCloud || isApplyingRemote) return;
+      if (isPushingCloud || isPushingServer || isApplyingRemote) return;
       const remote = payload.new?.outreach;
       if (!remote) return;
       isApplyingRemote = true;
@@ -2548,7 +2883,6 @@ function subscribeOutreachRealtime() {
       applyCloudSnapshotToLocal(merged);
       saveOutreachLocalOnly();
       if (contacts.length) {
-        ensureAllDrafts();
         renderAll();
         if (currentId && contacts.find((c) => c.id === currentId)) selectContact(currentId);
         if (isMobileView()) renderMobileAll();
@@ -2559,35 +2893,58 @@ function subscribeOutreachRealtime() {
     .subscribe();
 }
 
+async function ensureAuthUser() {
+  if (!supabaseClient) return false;
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session?.user) {
+    authUser = session.user;
+    return true;
+  }
+  const { data, error } = await supabaseClient.auth.signInAnonymously();
+  if (error) {
+    console.error('Cloud sync sign-in failed', error);
+    updateSyncUI('error', error.message);
+    return false;
+  }
+  authUser = data.user;
+  return true;
+}
+
 async function initAuth() {
   supabaseClient = await ensureSupabase();
   cloudSyncEnabled = !!supabaseClient;
   updateSyncUI('local');
 
-  if (!supabaseClient) return;
+  if (!supabaseClient) {
+    console.error('Supabase client unavailable');
+    return;
+  }
 
   supabaseClient.auth.onAuthStateChange(async (event, session) => {
     authUser = session?.user ?? null;
-    if (event === 'SIGNED_IN' && authUser) {
+    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && authUser) {
       await pullAndMergeOutreach();
       subscribeOutreachRealtime();
+      updateSyncUI('live');
     }
     if (event === 'SIGNED_OUT') {
       if (outreachChannel) {
         supabaseClient.removeChannel(outreachChannel);
         outreachChannel = null;
       }
+      if (await ensureAuthUser()) {
+        await pullAndMergeOutreach();
+        subscribeOutreachRealtime();
+      }
+      updateSyncUI(authUser ? 'live' : 'error');
     }
-    updateSyncUI(authUser ? 'live' : 'signedOut');
   });
 
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  authUser = session?.user ?? null;
-  if (authUser) {
-    await pullAndMergeOutreach();
-    subscribeOutreachRealtime();
-    updateSyncUI('live');
-  }
+  if (!(await ensureAuthUser())) return;
+
+  await pullAndMergeOutreach();
+  subscribeOutreachRealtime();
+  updateSyncUI('live');
 }
 
 function handleAuthClick() {
@@ -2600,7 +2957,7 @@ function handleAuthClick() {
 }
 
 async function signInWithGoogle() {
-  if (!supabaseClient) return alert('Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY to .env, then run npm run outreach:config');
+  if (!supabaseClient) return alert('Cloud sync is unavailable right now. Try refreshing the page.');
   const { error } = await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: window.location.origin + window.location.pathname },
@@ -2609,7 +2966,7 @@ async function signInWithGoogle() {
 }
 
 async function signInWithMagicLink() {
-  if (!supabaseClient) return alert('Supabase is not configured.');
+  if (!supabaseClient) return alert('Cloud sync is unavailable right now. Try refreshing the page.');
   const email = (document.getElementById('magic-email')?.value
     || document.getElementById('mobile-magic-email')?.value || '').trim();
   if (!email) return alert('Enter your email address.');
@@ -2625,7 +2982,13 @@ async function signOutUser() {
   if (!supabaseClient) return;
   await supabaseClient.auth.signOut();
   authUser = null;
-  updateSyncUI('signedOut');
+  if (await ensureAuthUser()) {
+    await pullAndMergeOutreach();
+    subscribeOutreachRealtime();
+    updateSyncUI('live');
+  } else {
+    updateSyncUI('error');
+  }
 }
 const CHANNEL_LABELS = { phone: 'Phone', email: 'Email', facebook: 'Facebook', linkedin: 'LinkedIn leads', website: 'Website' };
 
@@ -2672,6 +3035,13 @@ function parseCSVRow(line) {
   cells.push(cur);
   return cells;
 }
+function resolveContactValediction(raw, type) {
+  const trimmed = String(raw || '').trim();
+  if (trimmed && trimmed.toLowerCase() !== 'Sincerely'.toLowerCase()) return trimmed;
+  const byType = { bike: 'Happy riding', ski: 'See you on the trails', gear: 'Happy adventuring', sports: 'See you out there' };
+  if (type && byType[(type || '').toLowerCase()]) return byType[type.toLowerCase()];
+  return trimmed || 'Sincerely';
+}
 function normalizeContact(row) {
   const g = (...keys) => { for(const k of keys){ if(row[k] && row[k]!=='') return row[k]; } return ''; };
   const name = g('orgname','org_name','name','organization','event_name','event');
@@ -2684,17 +3054,18 @@ function normalizeContact(row) {
   const website = g('website','website_url','url','web');
   const notes = g('notes','description','note');
   const eventSpecificLine = g('eventspecificline','event_specific_line','eventSpecificLine');
+  const valediction = resolveContactValediction(g('valediction'), type);
   const sourceId = g('sourceid','source_id','id');
   const id = sourceId || btoa(unescape(encodeURIComponent((name+loc).toLowerCase()))).replace(/[^a-z0-9]/gi,'').slice(0,16) || ('id'+Math.random().toString(36).slice(2,10));
-  return { id, name, loc, type: type.toLowerCase(), email, phone, facebook, linkedinPeople: parseLinkedinPeople(linkedinPeopleRaw), website, sourceNotes: notes, eventSpecificLine };
+  return { id, name, loc, type: type.toLowerCase(), email, phone, facebook, linkedinPeople: parseLinkedinPeople(linkedinPeopleRaw), website, sourceNotes: notes, eventSpecificLine, valediction };
 }
 
 function onContactsLoaded(sourceLabel) {
+  migrateLegacyOutreachForContacts();
   document.getElementById('empty-state').style.display = contacts.length ? 'none' : '';
   document.getElementById('contact-detail').style.display = 'none';
   const carouselWrap = document.getElementById('desktop-carousel-wrap');
   if (carouselWrap) carouselWrap.style.display = contacts.length ? 'flex' : 'none';
-  ensureAllDrafts();
   refreshPlaceholderGuides();
   renderAll();
   if (contacts.length) {
@@ -2704,7 +3075,7 @@ function onContactsLoaded(sourceLabel) {
   }
   if(sourceLabel) {
     const sub = document.getElementById('empty-sub');
-    if(sub) sub.textContent = `Loaded ${contacts.length} contacts. ${authUser ? 'Progress syncs to your account.' : 'Progress saved in this browser.'}`;
+    if(sub) sub.textContent = `Loaded ${contacts.length} contacts. ${authUser ? 'Progress syncs across devices when signed in.' : apiAvailable ? 'Progress syncs via the local server across browsers.' : 'Progress saved in this browser only — sign in (top bar) to sync across devices.'}`;
   }
 }
 
@@ -2737,13 +3108,17 @@ function setSortMode(mode, el) {
   if (sortMode !== 'none' && el) el.classList.add('active');
   renderList();
 }
-document.getElementById('search-input').addEventListener('input', function() {
+document.getElementById('search-input')?.addEventListener('input', function() {
   searchQ = this.value.toLowerCase();
   renderList();
 });
 
+function compareContactNames(a, b) {
+  return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+}
+
 function sortedContacts(list) {
-  if (sortMode === 'none') return list;
+  if (sortMode === 'none') return [...list].sort(compareContactNames);
   const score = (c) => {
     if (sortMode === 'phone') return isUncontactedPhone(c) ? 0 : 1;
     if (sortMode === 'email') return isUncontactedEmail(c) ? 0 : 1;
@@ -2753,7 +3128,7 @@ function sortedContacts(list) {
   };
   return [...list].sort((a, b) => {
     const diff = score(a) - score(b);
-    return diff !== 0 ? diff : a.name.localeCompare(b.name);
+    return diff !== 0 ? diff : compareContactNames(a, b);
   });
 }
 
@@ -2853,7 +3228,6 @@ function channelCardHtml(id, label, channel, has, contentHtml, o) {
 
 function contactDetailBodyHtml(c) {
   const id = c.id;
-  ensureContactDrafts(c);
   const o = getO(id);
   const typeClass = 'type-' + c.type;
   const logHTML = (o.log || []).map(e =>
@@ -2902,18 +3276,10 @@ function contactDetailBodyHtml(c) {
       </div>
 
       ${c.eventSpecificLine ? `<div class="contact-card" style="margin-bottom:16px"><div class="cc-label">Event timing line</div><div class="cc-value" style="line-height:1.6;color:var(--text2)">${escHtml(c.eventSpecificLine)}</div></div>` : ''}
+      ${c.valediction && c.valediction.toLowerCase() !== 'sincerely' ? `<div class="contact-card" style="margin-bottom:16px"><div class="cc-label">Sign-off</div><div class="cc-value" style="line-height:1.6;color:var(--text2)">${escHtml(c.valediction)}</div></div>` : ''}
       ${c.sourceNotes ? `<div class="contact-card" style="margin-bottom:16px"><div class="cc-label">About this org</div><div class="cc-value" style="line-height:1.6;color:var(--text2)">${escHtml(c.sourceNotes)}</div></div>` : ''}
 
-      <div class="ai-section">
-        <div class="ai-section-header">
-          <div class="ai-label">✉ Email draft</div>
-          <span style="font-size:11px;color:var(--text3)">Template: sidebar → <strong style="color:var(--text2)">Email template</strong></span>
-        </div>
-        <textarea class="email-textarea" id="email-draft-${id}" placeholder="Filled from your email template. Edit before sending…" oninput="saveEmailDraft('${id}',this.value)">${escHtml(o.emailDraft || '')}</textarea>
-        <div class="email-actions">
-          <button class="copy-btn" onclick="copyDraft('${id}')">Copy to clipboard</button>
-        </div>
-      </div>
+      ${emailDraftSectionHtml(id, o)}
 
       ${hasFacebook(c) ? `
       <div class="ai-section">
@@ -2921,7 +3287,7 @@ function contactDetailBodyHtml(c) {
           <div class="ai-label">Facebook message draft</div>
           <span style="font-size:11px;color:var(--text3)">Template: sidebar → <strong style="color:var(--text2)">Facebook contact template</strong></span>
         </div>
-        <textarea class="email-textarea" id="facebook-draft-${id}" placeholder="Filled from your Facebook template. Edit before sending…" oninput="saveFacebookDraft('${id}',this.value)">${escHtml(o.facebookDraft || '')}</textarea>
+        <textarea class="email-textarea" id="facebook-draft-${id}" placeholder="Generated from your template when you click Send FB Message. Edit here to customize before sending." oninput="saveFacebookDraft('${id}',this.value)">${escHtml(displayedDraft(o, 'facebook'))}</textarea>
         <div class="email-actions">
           <button class="copy-btn" onclick="copyFacebookDraft('${id}')">Copy to clipboard</button>
         </div>
@@ -2936,6 +3302,46 @@ function contactDetailBodyHtml(c) {
         </div>
       </div>
     </div>`;
+}
+
+function refreshAllEmailHtmlPreviews() {
+  if (!isActiveEmailTemplateHtml()) return;
+  document.querySelectorAll('[id^="email-html-preview-"]').forEach((el) => {
+    refreshEmailHtmlPreview(el.id.replace('email-html-preview-', ''));
+  });
+}
+
+function refreshEmailHtmlPreview(id) {
+  if (!id || !isActiveEmailTemplateHtml()) return;
+  const preview = document.getElementById('email-html-preview-' + id);
+  if (!preview) return;
+  const c = contacts.find((x) => x.id === id);
+  if (!c) return;
+  preview.innerHTML = '<div class="email-html-preview-inner">' + getSendDraft(id, 'email', c) + '</div>';
+}
+
+function emailDraftSectionHtml(id, o) {
+  const htmlTemplate = isActiveEmailTemplateHtml();
+  const draftPlaceholder = htmlTemplate
+    ? 'Optional: edit the HTML source here to customize before sending.'
+    : 'Generated from your template when you click Send Email. Edit here to customize before sending.';
+  return `
+      <div class="ai-section">
+        <div class="ai-section-header">
+          <div class="ai-label">✉ Email draft</div>
+          ${htmlTemplate ? '<span class="email-format-badge">HTML</span>' : ''}
+          <span style="font-size:11px;color:var(--text3)">Template: sidebar → <strong style="color:var(--text2)">Email template</strong></span>
+        </div>
+        ${htmlTemplate ? `
+        <div class="email-html-preview-wrap">
+          <div class="email-html-preview-label">Live preview for this contact. Send Email copies this formatted message to your clipboard and opens Gmail with a blank body — paste into the message (not the subject line).</div>
+          <div class="email-html-preview" id="email-html-preview-${id}"></div>
+        </div>` : ''}
+        <textarea class="email-textarea" id="email-draft-${id}" placeholder="${escHtml(draftPlaceholder)}" oninput="saveEmailDraft('${id}',this.value)"${htmlTemplate ? ' style="min-height:120px"' : ''}>${escHtml(displayedDraft(o, 'email'))}</textarea>
+        <div class="email-actions">
+          <button class="copy-btn" onclick="copyDraft('${id}')">${htmlTemplate ? 'Copy formatted email' : 'Copy to clipboard'}</button>
+        </div>
+      </div>`;
 }
 
 function goToCarouselContact(id) {
@@ -2958,15 +3364,16 @@ function selectContact(id) {
       updateCarouselBanner('desktop');
     }
     refreshPlaceholderGuides();
+    refreshEmailHtmlPreview(id);
     return;
   }
   const c = contacts.find(x => x.id === id);
   if (!c) return;
-  ensureContactDrafts(c);
   const panel = document.getElementById('contact-detail');
   panel.style.display = '';
   document.getElementById('empty-state').style.display = 'none';
   panel.innerHTML = contactDetailBodyHtml(c);
+  refreshEmailHtmlPreview(id);
   refreshPlaceholderGuides();
 }
 
@@ -3070,31 +3477,31 @@ function addLog(id) {
 function copyDraft(id) {
   id = id || currentId;
   const c = contacts.find((x) => x.id === id);
-  if (c) {
-    ensureContactDrafts(c);
-    syncEmailDraftTextarea(id);
-  }
+  if (!c) return;
+  const text = getSendDraft(id, 'email', c);
+  const htmlTemplate = isActiveEmailTemplateHtml();
+  const copied = htmlTemplate ? copyRichHtmlToClipboard(text) : copyPlainTextToClipboard(text);
   const ta = document.getElementById('email-draft-' + id) || document.getElementById('email-draft');
-  if (!ta) return;
-  navigator.clipboard.writeText(ta.value).then(() => {
-    const btn = ta.closest('.ai-section')?.querySelector('.copy-btn');
-    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy to clipboard', 1500); }
-  });
+  const btn = ta?.closest('.ai-section')?.querySelector('.copy-btn');
+  const defaultLabel = htmlTemplate ? 'Copy formatted email' : 'Copy to clipboard';
+  if (btn && copied) {
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = defaultLabel; }, 1500);
+  }
 }
 
 function copyFacebookDraft(id) {
   id = id || currentId;
   const c = contacts.find((x) => x.id === id);
-  if (c) {
-    ensureContactDrafts(c);
-    syncFacebookDraftTextarea(id);
-  }
+  if (!c) return;
+  const text = getSendDraft(id, 'facebook', c);
+  const copied = copyPlainTextToClipboard(text);
   const ta = document.getElementById('facebook-draft-' + id) || document.getElementById('facebook-draft');
-  if (!ta) return;
-  navigator.clipboard.writeText(ta.value).then(() => {
-    const btn = ta.closest('.ai-section')?.querySelector('.copy-btn');
-    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy to clipboard', 1500); }
-  });
+  const btn = ta?.closest('.ai-section')?.querySelector('.copy-btn');
+  if (btn && copied) {
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy to clipboard'; }, 1500);
+  }
 }
 
 function fmtTs() {
@@ -3276,7 +3683,6 @@ function renderFbSendLogPanel(containerId) {
 }
 
 function renderFbSendLogPanels() {
-  renderFbSendLogPanel('fb-send-log-body');
   renderFbSendLogPanel('mobile-fb-send-log-body');
 }
 
@@ -3347,7 +3753,6 @@ function mobileCarouselChannelsHtml(c) {
 }
 
 function desktopCarouselSlideHtml(c, idx) {
-  ensureContactDrafts(c);
   const slideClass = isWrittenContactDone(c) ? 'is-contacted' : 'is-uncontacted';
   return `
     <article class="mobile-carousel-slide desktop-carousel-slide ${slideClass}" data-carousel-index="${idx}" data-contact-id="${escHtml(c.id)}">
@@ -3360,7 +3765,6 @@ function desktopCarouselSlideHtml(c, idx) {
 }
 
 function mobileCarouselSlideHtml(c, idx) {
-  ensureContactDrafts(c);
   const contacted = isWrittenContactDone(c);
   const statusClass = contacted ? 'contacted' : 'pending';
   const statusLabel = contacted ? 'Contacted' : 'Uncontacted';
@@ -3385,18 +3789,68 @@ function mobileCarouselSlideHtml(c, idx) {
 const carouselScrollTimers = {};
 const carouselScrollHandlers = {};
 
-function updateCarouselBanner(prefix) {
+function ensureCarouselBannerStructure(prefix) {
   const banner = document.getElementById(`${prefix}-carousel-banner`);
-  if (!banner) return;
+  if (!banner) return null;
+  if (banner.dataset.initialized === prefix) return banner;
+  banner.dataset.initialized = prefix;
+  banner.innerHTML = `
+    <div class="carousel-banner-row">
+      <span id="${prefix}-carousel-position"></span>
+      <label class="carousel-jump-label" for="${prefix}-carousel-jump">
+        Jump to
+        <input type="number" class="carousel-jump-input" id="${prefix}-carousel-jump" min="1" inputmode="numeric" aria-label="Jump to card number">
+      </label>
+    </div>
+    <div class="mobile-carousel-hint" id="${prefix}-carousel-hint"></div>
+    <div id="${prefix}-carousel-nav"></div>`;
+  const input = document.getElementById(`${prefix}-carousel-jump`);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') jumpToCarouselCard(prefix);
+  });
+  input.addEventListener('change', () => jumpToCarouselCard(prefix));
+  return banner;
+}
+
+function jumpToCarouselCard(prefix) {
+  const input = document.getElementById(`${prefix}-carousel-jump`);
+  const list = mobileContactList();
+  if (!input || !list.length) return;
+  const n = parseInt(input.value, 10);
+  if (!Number.isFinite(n) || n < 1) return;
+  const idx = Math.min(n, list.length) - 1;
+  scrollCarouselToIndex(prefix, idx, true);
+  if (prefix === 'desktop') {
+    const c = list[idx];
+    if (c) {
+      currentId = c.id;
+      document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-' + c.id));
+      refreshPlaceholderGuides();
+      refreshEmailHtmlPreview(c.id);
+    }
+  }
+  input.value = String(idx + 1);
+}
+
+function updateCarouselBanner(prefix) {
+  ensureCarouselBannerStructure(prefix);
   const list = mobileContactList();
   const pending = list.filter(isUncontactedWritten).length;
   const contacted = list.filter(c => hasWrittenContactChannels(c) && isWrittenContactDone(c)).length;
   const scrollHint = prefix === 'desktop' ? 'scroll ← →' : 'swipe ← →';
   const cur = list[mobileCallIndex];
   const navHtml = cur && prefix === 'mobile' ? carouselNavButtonsHtml(cur.id, { includeFirst: true }) : '';
-  banner.innerHTML = `<div>${mobileCallIndex + 1} of ${list.length}</div>
-    <div class="mobile-carousel-hint">${contacted} contacted · ${pending} uncontacted · ${scrollHint}</div>
-    ${navHtml}`;
+  const posEl = document.getElementById(`${prefix}-carousel-position`);
+  const hintEl = document.getElementById(`${prefix}-carousel-hint`);
+  const navEl = document.getElementById(`${prefix}-carousel-nav`);
+  if (posEl) posEl.textContent = `${mobileCallIndex + 1} of ${list.length}`;
+  if (hintEl) hintEl.textContent = `${contacted} contacted · ${pending} uncontacted · ${scrollHint}`;
+  if (navEl) navEl.innerHTML = navHtml;
+  const jumpInput = document.getElementById(`${prefix}-carousel-jump`);
+  if (jumpInput) {
+    jumpInput.max = String(Math.max(list.length, 1));
+    if (document.activeElement !== jumpInput) jumpInput.value = String(mobileCallIndex + 1);
+  }
 }
 
 function syncCarouselIndexFromScroll(prefix) {
@@ -3423,6 +3877,7 @@ function syncCarouselIndexFromScroll(prefix) {
         currentId = c.id;
         document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-' + c.id));
         refreshPlaceholderGuides();
+        refreshEmailHtmlPreview(c.id);
       }
     }
   }
@@ -3503,6 +3958,7 @@ function renderDesktopCarousel() {
   if (mobileCallIndex >= list.length) mobileCallIndex = 0;
   track.innerHTML = list.map((c, i) => desktopCarouselSlideHtml(c, i)).join('');
   bindCarousel('desktop');
+  refreshAllEmailHtmlPreviews();
 }
 
 function mobileOpenContact(id) {
@@ -3532,13 +3988,14 @@ function renderMobileEmails() {
     panel.innerHTML = '<div class="mobile-empty"><h2>No emails</h2><p>No contacts have email addresses in the CSV.</p></div>';
     return;
   }
-  list.forEach((c) => ensureContactDrafts(c));
   panel.innerHTML = list.map(c => {
     const o = getO(c.id);
-    const draft = o.emailDraft || '';
+    const draft = o.emailDraftCustom ? (o.emailDraft || '') : '';
     const draftNote = draft
       ? escHtml(draft.slice(0, 120) + (draft.length > 120 ? '…' : ''))
-      : 'No draft yet';
+      : (isActiveEmailTemplateHtml()
+        ? 'Consignly branded HTML — generated when you send'
+        : 'Generated from your template when you send');
     const send = hasEmail(c)
       ? contactButtonsHtml(c.id, 'mobile-send-btn contact-btn', ['email'])
       : '';
@@ -3575,13 +4032,13 @@ function renderMobileSettings() {
   const emailCount = contacts.filter(hasEmail).length;
   panel.innerHTML = `
     <label>Cloud sync</label>
-    <p class="auth-msg">${cloudSyncEnabled ? (authUser ? `Signed in as ${escHtml(authUser.email || '')}` : 'Sign in to sync checkmarks across devices.') : 'Add Supabase config to enable cloud sync.'}</p>
-    ${cloudSyncEnabled ? `
-      <button type="button" class="import-btn" style="width:100%;margin:0 0 8px" onclick="signInWithGoogle()">Sign in with Google</button>
-      <input type="email" id="mobile-magic-email" placeholder="Email for magic link" style="width:100%;margin-bottom:8px;padding:10px;border:1px solid var(--border);border-radius:6px">
-      <button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signInWithMagicLink()">Send magic link</button>
-      ${authUser ? `<button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signOutUser()">Sign out</button>` : ''}
-    ` : ''}
+    <p class="auth-msg">${authUser?.email
+      ? `Signed in as ${escHtml(authUser.email)} — progress syncs across devices.`
+      : 'Your progress syncs automatically. Sign in with Google to sync across devices.'}</p>
+    <button type="button" class="import-btn" style="width:100%;margin:0 0 8px" onclick="signInWithGoogle()">Sign in with Google</button>
+    <input type="email" id="mobile-magic-email" placeholder="Email for magic link" style="width:100%;margin-bottom:8px;padding:10px;border:1px solid var(--border);border-radius:6px">
+    <button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signInWithMagicLink()">Send magic link</button>
+    ${authUser?.email ? `<button type="button" class="mobile-skip-btn" style="margin-bottom:12px" onclick="signOutUser()">Sign out</button>` : ''}
     <label style="margin-top:16px">Template placeholders</label>
     <div class="placeholder-guide-wrap">
       <p class="prompt-hint">Preview for the contact you're viewing:</p>
@@ -3654,182 +4111,12 @@ async function initLocalApi() {
 }
 
 function buildEmailPrompt(c) {
-  return applyPromptTemplate(c, getEmailPromptTemplate());
+  const format = getActiveEmailTemplateFormat();
+  return applyPromptTemplate(c, getEmailPromptTemplate(), { preserveHtml: format === 'html' });
 }
 
 function buildFacebookPrompt(c) {
   return applyPromptTemplate(c, getFacebookPromptTemplate());
-}
-
-function templateFingerprint(text) {
-  let h = 2166136261;
-  const s = String(text || '');
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0).toString(36);
-}
-
-function getEmailTemplateFingerprint() {
-  return templateFingerprint(getEmailPromptTemplate());
-}
-
-function getFacebookTemplateFingerprint() {
-  return templateFingerprint(getFacebookPromptTemplate());
-}
-
-function draftHasUnsubstitutedPlaceholders(draft) {
-  if (!draft) return false;
-  return TEMPLATE_PLACEHOLDERS.some((p) => {
-    const tokens = [p.token, ...(p.aliases || [])];
-    return tokens.some((t) => draft.includes(t));
-  });
-}
-
-function emailDraftIsStale(draft) {
-  if (!draft) return false;
-  if (draft.includes(LEGACY_EMAIL_PROMPT_MARK)) return true;
-  if (draft.includes(LEGACY_SHORT_PROMPT_MARK)) return true;
-  if (draft.includes(LEGACY_ADVERTISING_BUDGET_MARK)) return true;
-  if (draft.includes(LEGACY_OUTREACH_LINE_MARK)) return true;
-  if (/^Hi There!/im.test(draft.trim())) return true;
-  if (!draft.includes(CURRENT_EMAIL_TEMPLATE_MARK)) return true;
-  if (!draft.includes('A couple quick questions')) return true;
-  if (draft.includes('(empty — timing unknown)')) return true;
-  if (draftHasUnsubstitutedPlaceholders(draft)) return true;
-  return false;
-}
-
-function facebookDraftIsStale(draft) {
-  return emailDraftIsStale(draft);
-}
-
-function draftTemplateFingerprint(channel) {
-  return channel === 'email' ? getEmailTemplateFingerprint() : getFacebookTemplateFingerprint();
-}
-
-function syncEmailDraftTextarea(id) {
-  const text = getO(id).emailDraft || '';
-  document.querySelectorAll(`#email-draft-${id}, #email-draft`).forEach((ta) => {
-    if (ta) ta.value = text;
-  });
-}
-
-function syncFacebookDraftTextarea(id) {
-  const text = getO(id).facebookDraft || '';
-  document.querySelectorAll(`#facebook-draft-${id}, #facebook-draft`).forEach((ta) => {
-    if (ta) ta.value = text;
-  });
-}
-
-let refreshDraftsQueued = false;
-function queueRefreshAllDraftsFromTemplates() {
-  if (refreshDraftsQueued) return;
-  refreshDraftsQueued = true;
-  requestAnimationFrame(() => {
-    refreshDraftsQueued = false;
-    refreshAllDraftsFromTemplates();
-  });
-}
-
-function refreshAllDraftsFromTemplates() {
-  if (!contacts.length) return;
-  let changed = false;
-  for (const c of contacts) {
-    const o = getO(c.id);
-    if (needsDraftRefresh(o, 'email')) {
-      o.emailDraft = buildEmailPrompt(c);
-      o.emailDraftVersion = DRAFT_TEMPLATE_VERSION;
-      o.emailDraftTemplateFp = getEmailTemplateFingerprint();
-      o.emailDraftCustom = false;
-      changed = true;
-    }
-    if (hasFacebook(c) && needsDraftRefresh(o, 'facebook')) {
-      o.facebookDraft = buildFacebookPrompt(c);
-      o.facebookDraftVersion = DRAFT_TEMPLATE_VERSION;
-      o.facebookDraftTemplateFp = getFacebookTemplateFingerprint();
-      o.facebookDraftCustom = false;
-      changed = true;
-    }
-  }
-  if (!changed) return;
-  saveOutreach();
-  renderAll();
-  if (currentId) {
-    syncEmailDraftTextarea(currentId);
-    syncFacebookDraftTextarea(currentId);
-  }
-}
-
-function ensureContactDrafts(c) {
-  const o = getO(c.id);
-  let changed = false;
-  if (needsDraftRefresh(o, 'email')) {
-    o.emailDraft = buildEmailPrompt(c);
-    o.emailDraftVersion = DRAFT_TEMPLATE_VERSION;
-    o.emailDraftTemplateFp = getEmailTemplateFingerprint();
-    o.emailDraftCustom = false;
-    changed = true;
-  }
-  if (hasFacebook(c) && needsDraftRefresh(o, 'facebook')) {
-    o.facebookDraft = buildFacebookPrompt(c);
-    o.facebookDraftVersion = DRAFT_TEMPLATE_VERSION;
-    o.facebookDraftTemplateFp = getFacebookTemplateFingerprint();
-    o.facebookDraftCustom = false;
-    changed = true;
-  }
-  if (changed) {
-    saveOutreachLocalOnly();
-    syncEmailDraftTextarea(c.id);
-    syncFacebookDraftTextarea(c.id);
-  }
-}
-
-function needsDraftRefresh(o, channel) {
-  const draftKey = channel + 'Draft';
-  const versionKey = channel + 'DraftVersion';
-  const fpKey = channel + 'DraftTemplateFp';
-  const customKey = channel + 'DraftCustom';
-  const fp = draftTemplateFingerprint(channel);
-  const draft = o[draftKey] || '';
-  const isStale = channel === 'email' ? emailDraftIsStale(draft) : facebookDraftIsStale(draft);
-
-  if (isStale) return true;
-  if (!draft) return true;
-  if (o[fpKey] !== fp) return true;
-  if (o[versionKey] !== DRAFT_TEMPLATE_VERSION) return true;
-  if (o[customKey]) return false;
-  return false;
-}
-
-function ensureAllDrafts() {
-  let changed = false;
-  for (const c of contacts) {
-    const o = getO(c.id);
-    if (needsDraftRefresh(o, 'email')) {
-      o.emailDraft = buildEmailPrompt(c);
-      o.emailDraftVersion = DRAFT_TEMPLATE_VERSION;
-      o.emailDraftTemplateFp = getEmailTemplateFingerprint();
-      o.emailDraftCustom = false;
-      changed = true;
-    }
-    if (hasFacebook(c) && needsDraftRefresh(o, 'facebook')) {
-      o.facebookDraft = buildFacebookPrompt(c);
-      o.facebookDraftVersion = DRAFT_TEMPLATE_VERSION;
-      o.facebookDraftTemplateFp = getFacebookTemplateFingerprint();
-      o.facebookDraftCustom = false;
-      changed = true;
-    }
-  }
-  if (changed) {
-    saveOutreach();
-    renderAll();
-    if (currentId) {
-      syncEmailDraftTextarea(currentId);
-      syncFacebookDraftTextarea(currentId);
-    }
-  }
 }
 
 // ── CAROUSEL NAV ───────────────────────────────────────────
@@ -4293,19 +4580,20 @@ async function applyRoute() {
     activeSuperjobId = superjobId;
     saveLastSuperjob(superjobId);
     loadOutreach();
+    await pullAndMergeServerOutreach();
     refreshEmailTemplateUI();
     refreshFacebookTemplateUI();
     renderSuperjobSelects();
     const ok = await loadSuperjobContacts(superjobId);
     if (!ok) {
       contacts = [];
-      outreach = {};
       showOutreachNoContactsMessage();
       renderAll();
     }
   } else {
     activeSuperjobId = null;
     loadOutreach();
+    await pullAndMergeServerOutreach();
     refreshEmailTemplateUI();
     refreshFacebookTemplateUI();
     renderSuperjobSelects();
@@ -4346,14 +4634,24 @@ async function bootApp() {
   const initialRoute = parseRoute();
   if (initialRoute.superjobId) activeSuperjobId = initialRoute.superjobId;
   renderSuperjobSelects();
-  if (purgeAllLegacyTemplateStorage()) queueRefreshAllDraftsFromTemplates();
+  purgeAllLegacyTemplateStorage();
   initPromptEditor();
   // Auth can load in parallel with first paint path; await before route so cloud merge applies.
   const authReady = initAuth();
   await initSuperjobUI();
   if (!location.hash) history.replaceState(null, '', '#/outreach');
+  if (!activeSuperjobId) {
+    const defaultSj = resolveDefaultSuperjobId();
+    if (defaultSj) activeSuperjobId = defaultSj;
+  }
+  loadOutreach();
   await authReady;
+  await pullAndMergeServerOutreach();
   await applyRoute();
+  window.addEventListener('pagehide', () => { flushOutreachPersistence(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushOutreachPersistence();
+  });
 }
 
 bootApp();

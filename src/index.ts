@@ -8,6 +8,7 @@ import {
   runDiscover,
   runEnrich,
   runFullPipeline,
+  runBackfillValedictions,
   printStatus,
   printExport,
 } from './runner';
@@ -128,6 +129,20 @@ program
   .action(async () => {
     const outputDir = path.resolve(program.opts<{ outputDir: string }>().outputDir);
     await printExport(outputDir);
+  });
+
+program
+  .command('backfill-valedictions')
+  .description('Generate tailored sign-off phrases for contacts missing valedictions')
+  .option('--limit <n>', 'Backfill only the first N contacts', (v) => parseInt(v, 10))
+  .action(async (cmdOpts, cmd) => {
+    const options = buildOptions(cmd);
+    try {
+      await runBackfillValedictions(options);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
   });
 
 program.parse();

@@ -31,6 +31,7 @@ dotenv.config();
 const PORT = parseInt(process.env.PORT || '3333', 10);
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DOCS_ROOT = path.join(REPO_ROOT, 'docs');
+const OUTREACH_STATE_PATH = path.join(DOCS_ROOT, 'outreach-state.json');
 
 interface RunState {
   status: 'running' | 'done' | 'error';
@@ -109,6 +110,19 @@ async function listSuperjobsPayload() {
     })
   );
   return items;
+}
+
+async function readOutreachStateFile(): Promise<Record<string, unknown>> {
+  try {
+    const raw = await fs.readFile(OUTREACH_STATE_PATH, 'utf-8');
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return { _format: 'scoped_v1', default: {}, superjobs: {} };
+  }
+}
+
+async function writeOutreachStateFile(data: Record<string, unknown>): Promise<void> {
+  await fs.writeFile(OUTREACH_STATE_PATH, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 async function resolveContactsPath(superjobId: string): Promise<string | null> {
@@ -227,7 +241,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     });
     res.end();
@@ -239,6 +253,31 @@ const server = http.createServer(async (req, res) => {
       ok: true,
       anthropic: !!process.env.ANTHROPIC_API_KEY,
     });
+    return;
+  }
+
+  if (pathname === '/api/outreach-state') {
+    if (req.method === 'GET') {
+      sendJson(res, 200, await readOutreachStateFile());
+      return;
+    }
+    if (req.method === 'PUT') {
+      let body: Record<string, unknown>;
+      try {
+        body = await readJsonBody(req);
+      } catch {
+        sendJson(res, 400, { error: 'Invalid JSON body' });
+        return;
+      }
+      if (!body || typeof body !== 'object') {
+        sendJson(res, 400, { error: 'Expected outreach state object' });
+        return;
+      }
+      await writeOutreachStateFile(body);
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+    sendText(res, 405, 'Method not allowed');
     return;
   }
 

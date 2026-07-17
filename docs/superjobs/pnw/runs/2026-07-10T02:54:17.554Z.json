@@ -1,0 +1,27 @@
+{
+  "runId": "2026-07-10T02:54:17.554Z",
+  "superjobId": "pnw",
+  "label": "Pacific Northwest",
+  "queryPlace": "Oregon, Idaho, and Hawaii",
+  "approxPopM": 8,
+  "stateCodes": [
+    "OR",
+    "ID",
+    "HI"
+  ],
+  "startedAt": "2026-07-10T02:54:17.553Z",
+  "completedAt": "2026-07-10T03:06:14.933Z",
+  "discoveryModel": "claude-opus-4-5",
+  "enrichmentModel": "claude-sonnet-4-5",
+  "discoveryJobIds": [
+    "sj-gear-pnw",
+    "sj-bike-pnw",
+    "sj-ski-pnw",
+    "sj-kids-pnw",
+    "sj-fb-gear-pnw",
+    "sj-eb-gear-pnw"
+  ],
+  "eventCount": 52,
+  "contactCount": 21,
+  "withContact": 21
+}

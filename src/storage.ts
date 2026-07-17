@@ -35,6 +35,7 @@ const CONTACT_HEADERS = [
   { id: 'website', title: 'website' },
   { id: 'notes', title: 'notes' },
   { id: 'eventSpecificLine', title: 'eventSpecificLine' },
+  { id: 'valediction', title: 'valediction' },
   { id: 'enrichedAt', title: 'enrichedAt' },
   { id: 'contactFound', title: 'contactFound' },
 ];
@@ -104,6 +105,7 @@ function rowToContact(row: Record<string, string>): EnrichedContact {
     website: row.website,
     notes: row.notes,
     eventSpecificLine: row.eventspecificline || row.eventSpecificLine || '',
+    valediction: (row.valediction || '').trim(),
     enrichedAt: row.enrichedAt,
     contactFound: parseBool(row.contactFound),
   };
@@ -230,6 +232,39 @@ export async function loadContacts(
   return map;
 }
 
+function contactToRow(contact: EnrichedContact): Record<string, string | boolean> {
+  return {
+    sourceId: contact.sourceId,
+    orgName: contact.orgName,
+    location: contact.location,
+    type: contact.type,
+    email: contact.email,
+    phone: contact.phone,
+    facebook: contact.facebook,
+    linkedinPeople: JSON.stringify(contact.linkedinPeople ?? []),
+    website: contact.website,
+    notes: contact.notes,
+    eventSpecificLine: contact.eventSpecificLine,
+    valediction: contact.valediction,
+    enrichedAt: contact.enrichedAt,
+    contactFound: contact.contactFound,
+  };
+}
+
+export async function rewriteContacts(
+  contacts: Map<string, EnrichedContact>,
+  outputDir: string
+): Promise<void> {
+  await ensureOutputDir(outputDir);
+  const filePath = path.join(outputDir, CONTACTS_FILE);
+  const writer = createObjectCsvWriter({
+    path: filePath,
+    header: CONTACT_HEADERS,
+    append: false,
+  });
+  await writer.writeRecords(Array.from(contacts.values()).map(contactToRow));
+}
+
 export async function saveContact(
   contact: EnrichedContact,
   outputDir: string
@@ -244,23 +279,7 @@ export async function saveContact(
     append: exists,
   });
 
-  await writer.writeRecords([
-    {
-      sourceId: contact.sourceId,
-      orgName: contact.orgName,
-      location: contact.location,
-      type: contact.type,
-      email: contact.email,
-      phone: contact.phone,
-      facebook: contact.facebook,
-      linkedinPeople: JSON.stringify(contact.linkedinPeople ?? []),
-      website: contact.website,
-      notes: contact.notes,
-      eventSpecificLine: contact.eventSpecificLine,
-      enrichedAt: contact.enrichedAt,
-      contactFound: contact.contactFound,
-    },
-  ]);
+  await writer.writeRecords([contactToRow(contact)]);
 }
 
 export function getOutputPaths(outputDir: string): {

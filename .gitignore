@@ -2,6 +2,7 @@ node_modules/
 dist/
 .env
 docs/supabase-config.js
+docs/outreach-state.json
 output/
 *.log
 .DS_Store

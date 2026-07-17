@@ -4,7 +4,7 @@ import pLimit from 'p-limit';
 import { JOBS } from './jobs';
 import { Job, RunOptions, SwapEvent } from './types';
 import { runDiscoveryJob } from './search';
-import { enrichEvent } from './enrich';
+import { enrichEvent, backfillValedictions } from './enrich';
 import { shouldRunDiscoveryJob } from './season';
 import {
   loadEvents,
@@ -217,6 +217,14 @@ export async function runEnrich(options: RunOptions): Promise<void> {
 
   await Promise.all(tasks);
   logSuccess(`Enrichment complete.`);
+}
+
+export async function runBackfillValedictions(options: RunOptions): Promise<void> {
+  await backfillValedictions(
+    options.outputDir,
+    options.enrichmentModel,
+    options.enrichLimit
+  );
 }
 
 export async function runFullPipeline(options: RunOptions): Promise<void> {

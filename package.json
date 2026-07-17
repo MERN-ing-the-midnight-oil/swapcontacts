@@ -13,6 +13,7 @@
     "discover": "npm run build && node dist/index.js discover",
     "discover:regional": "npm run build && node dist/index.js discover --regional-only",
     "enrich": "npm run build && node dist/index.js enrich",
+    "backfill-valedictions": "npm run build && node dist/index.js backfill-valedictions",
     "pipeline": "npm run build && node dist/index.js run",
     "outreach:config": "node scripts/generate-supabase-config.js",
     "outreach:superjobs": "npm run build && node scripts/export-superjobs.js",

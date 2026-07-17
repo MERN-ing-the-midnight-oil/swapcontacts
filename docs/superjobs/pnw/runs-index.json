@@ -1,0 +1,11 @@
+[
+  {
+    "runId": "2026-07-10T02:54:17.554Z",
+    "completedAt": "2026-07-10T03:06:14.933Z",
+    "contactCount": 21,
+    "eventCount": 52,
+    "withContact": 21,
+    "discoveryModel": "claude-opus-4-5",
+    "enrichmentModel": "claude-sonnet-4-5"
+  }
+]

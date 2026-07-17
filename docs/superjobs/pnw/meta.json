@@ -1,0 +1,13 @@
+{
+  "superjobId": "pnw",
+  "label": "Pacific Northwest",
+  "queryPlace": "Oregon, Idaho, and Hawaii",
+  "completedAt": "2026-07-10T03:06:14.933Z",
+  "eventCount": 52,
+  "contactCount": 52,
+  "withContact": 52,
+  "discoveryModel": "claude-opus-4-5",
+  "enrichmentModel": "claude-sonnet-4-5",
+  "runId": "2026-07-10T02:54:17.554Z",
+  "enrichedAt": "2026-07-10T03:28:56.767Z"
+}

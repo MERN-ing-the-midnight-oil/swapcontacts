@@ -32,6 +32,8 @@ export interface EnrichedContact {
   notes: string;
   /** Friendly opener referencing upcoming swap timing, for outreach templates. */
   eventSpecificLine: string;
+  /** Tailored sign-off phrase for outreach templates (falls back to "Sincerely"). */
+  valediction: string;
   enrichedAt: string;
   contactFound: boolean;
 }
@@ -67,6 +69,7 @@ export interface RunOptions {
   enrichLimit?: number;
   discoveryModel?: string;
   enrichmentModel?: string;
+  backfillValedictions?: boolean;
 }
 
 export interface RawDiscoveryResult {
@@ -88,4 +91,5 @@ export interface RawEnrichmentResult {
   website: string;
   notes: string;
   eventSpecificLine: string;
+  valediction: string;
 }

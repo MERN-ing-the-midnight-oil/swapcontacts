@@ -2,14 +2,15 @@ import Anthropic from '@anthropic-ai/sdk';
 import { SwapEvent, EnrichedContact, RawEnrichmentResult } from './types';
 import { normalizeLinkedinPeople } from './linkedin-people';
 import { resolveEventSpecificLine } from './event-specific-line';
+import { resolveValediction, needsValedictionBackfill } from './valediction';
 import {
   getClient,
   callWithRetry,
   extractTextFromResponse,
   extractJsonObject,
 } from './search';
-import { saveDebugResponse, markEnriched, saveContact } from './storage';
-import { logError, logContactResults } from './logger';
+import { saveDebugResponse, markEnriched, saveContact, loadContacts, rewriteContacts } from './storage';
+import { logError, logContactResults, logInfo, logSuccess, logRunning, startSpinner, stopSpinner } from './logger';
 
 import { DEFAULT_ENRICHMENT_MODEL } from './models';
 const WEB_SEARCH_TOOL = {
@@ -44,11 +45,13 @@ Search the web to find their:
 6. When their next swap is (or typically runs) — check event pages, Facebook events, news, and registration posts
 
 Return ONLY a valid JSON object. No markdown, no backticks, no explanation.
-{"email":"","phone":"","facebook":"","linkedinPeople":[{"name":"","location":"","role":""}],"website":"","notes":"1 sentence about the org","eventSpecificLine":""}
+{"email":"","phone":"","facebook":"","linkedinPeople":[{"name":"","location":"","role":""}],"website":"","notes":"1 sentence about the org","eventSpecificLine":"","valediction":""}
 
 For linkedinPeople: each entry needs name (required), location (city/state when known, else event area), and role ("Director", "Organizer", or "Volunteer" when known). Return [] if none found. Never guess or fabricate names or contact info.
 
-For eventSpecificLine: one short friendly opener about their upcoming or typical swap timing, using the real event name. Example: "Looks like the Seattle Bike Swap is coming up this spring — hope planning's going well." Use natural season/month phrasing ("this fall", "this October"). Return "" if timing is unknown — do not guess dates.`;
+For eventSpecificLine: one short friendly opener about their upcoming or typical swap timing, using the real event name. Example: "Looks like the Seattle Bike Swap is coming up this spring — hope planning's going well." Use natural season/month phrasing ("this fall", "this October"). Return "" if timing is unknown — do not guess dates.
+
+For valediction: a short tailored sign-off phrase to use instead of "Sincerely". Make it specific to the *kind* of swap — not a generic sport greeting. Use insider jargon or culture from that community. Examples: "Keep your stick on the ice" for a hockey consignment event, "See you on the trails" for a ski/nordic swap, "Happy riding" for a bicycle swap. For a motorbike/motorcycle swap, prefer something like "Keep the rubber side down" over a generic "Stay safe" or "Ride safe". One brief phrase only, no comma, no name. Return "" if nothing fits naturally — the app will fall back to "Sincerely".`;
 }
 
 export async function enrichEvent(
@@ -118,6 +121,7 @@ export async function enrichEvent(
     website: parsed.website || '',
     notes: parsed.notes || '',
     eventSpecificLine: resolveEventSpecificLine(event, parsed.eventSpecificLine),
+    valediction: resolveValediction(parsed.valediction, event.type),
     enrichedAt: new Date().toISOString(),
     contactFound,
   };
@@ -128,4 +132,92 @@ export async function enrichEvent(
   logContactResults({ email, phone, facebook, linkedinPeopleCount: linkedinPeople.length });
 
   return contact;
+}
+
+function buildValedictionBackfillPrompt(contact: EnrichedContact): string {
+  return `Suggest a short tailored email sign-off phrase for this nonprofit gear swap organizer instead of "Sincerely".
+
+Make it specific to the *kind* of swap — not a generic sport greeting. Use insider jargon or culture from that community.
+
+Organization: "${contact.orgName}"
+Event type: ${contact.type} swap
+Location: ${contact.location}
+Notes: ${contact.notes || '(none)'}
+
+Examples: "Happy riding" for a bicycle swap, "See you on the trails" for a ski/nordic swap, "Keep your stick on the ice" for hockey gear. For a motorbike/motorcycle swap, prefer something like "Keep the rubber side down" over a generic "Stay safe" or "Ride safe".
+
+Return ONLY valid JSON. No markdown, no backticks, no explanation.
+{"valediction":""}
+
+One brief phrase only — no comma, no name. Return "" if nothing fits naturally.`;
+}
+
+export async function backfillValedictionForContact(
+  contact: EnrichedContact,
+  model: string = DEFAULT_ENRICHMENT_MODEL
+): Promise<string> {
+  const anthropic = getClient();
+  const prompt = buildValedictionBackfillPrompt(contact);
+
+  const response = await callWithRetry(
+    () =>
+      anthropic.messages.create({
+        model,
+        max_tokens: 128,
+        messages: [{ role: 'user', content: prompt }],
+      }) as Promise<Anthropic.Message>,
+    `Valediction ${contact.sourceId}`
+  );
+
+  const rawText = extractTextFromResponse(response.content);
+  const jsonStr = extractJsonObject(rawText);
+  if (!jsonStr) {
+    return resolveValediction('', contact.type);
+  }
+
+  try {
+    const parsed = JSON.parse(jsonStr) as { valediction?: string };
+    return resolveValediction(parsed.valediction, contact.type);
+  } catch {
+    return resolveValediction('', contact.type);
+  }
+}
+
+export async function backfillValedictions(
+  outputDir: string,
+  model: string = DEFAULT_ENRICHMENT_MODEL,
+  limit?: number
+): Promise<number> {
+  const contacts = await loadContacts(outputDir);
+  let targets = Array.from(contacts.values()).filter((c) =>
+    needsValedictionBackfill(c.valediction)
+  );
+  if (limit && limit > 0) {
+    targets = targets.slice(0, limit);
+  }
+
+  if (targets.length === 0) {
+    logInfo('No contacts need valediction backfill.');
+    return 0;
+  }
+
+  logInfo(`Backfilling valedictions for ${targets.length} contact(s)...`);
+
+  for (const [index, contact] of targets.entries()) {
+    logRunning(`▶ [${index + 1}/${targets.length}] ${contact.orgName}`);
+    const spinner = startSpinner(`Generating sign-off for ${contact.orgName}...`);
+    try {
+      const valediction = await backfillValedictionForContact(contact, model);
+      contacts.set(contact.sourceId, { ...contact, valediction });
+      stopSpinner(true, `${contact.orgName}: ${valediction}`);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      stopSpinner(false, `Failed: ${contact.orgName}`);
+      logError(`  ✗ ${contact.orgName}: ${msg}`);
+    }
+  }
+
+  await rewriteContacts(contacts, outputDir);
+  logSuccess(`Updated valedictions for ${targets.length} contact(s).`);
+  return targets.length;
 }
