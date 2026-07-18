@@ -913,7 +913,7 @@ npm run outreach:sync   # copy contacts.csv into this app</div>
   <header class="mobile-header">
     <div class="mobile-header-top">
       <h1>swap/outreach</h1>
-      <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Reload the latest site version without reinstalling your home screen shortcut" aria-label="Hard refresh">Hard refresh</button>
+      <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Update app without clearing contacted progress" aria-label="Hard refresh">Hard refresh</button>
     </div>
     <div class="mobile-superjob-row">
       <select class="superjob-select" id="mobile-superjob-select" onchange="onSuperjobSelectChange(this)" aria-label="Select superjob region">
@@ -966,6 +966,8 @@ let claudeModels = [];
 let modelDefaults = { discovery: 'claude-opus-4-5', enrichment: 'claude-sonnet-4-5' };
 const MODEL_PREFS_KEY = 'swap_superjob_models_v1';
 const LAST_SUPERJOB_KEY = 'swap_last_superjob_v1';
+const LAST_CONTACT_KEY = 'swap_last_contact_v1';
+const OUTREACH_RELOAD_BACKUP_KEY = 'swap_outreach_reload_backup_v1';
 let apiAvailable = false;
 let apiChecked = false;
 let catalogFetched = false;
@@ -2000,6 +2002,63 @@ function isMobileUserAgent() {
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 }
 
+function lastContactStorageKey() {
+  return activeSuperjobId ? `${LAST_CONTACT_KEY}_sj_${activeSuperjobId}` : LAST_CONTACT_KEY;
+}
+
+function saveLastContactId(id) {
+  if (!id) return;
+  try { localStorage.setItem(lastContactStorageKey(), id); } catch (e) {}
+}
+
+function loadLastContactId() {
+  try { return localStorage.getItem(lastContactStorageKey()) || null; } catch (e) { return null; }
+}
+
+/** Snapshot outreach into a dedicated backup key so a reload cannot drop contacted status. */
+function stashOutreachForReload() {
+  try {
+    saveOutreachLocalOnly();
+    const snapshot = buildCloudOutreachSnapshot();
+    localStorage.setItem(OUTREACH_RELOAD_BACKUP_KEY, JSON.stringify({
+      at: Date.now(),
+      activeSuperjobId,
+      currentId: currentId || loadLastContactId(),
+      snapshot,
+    }));
+  } catch (e) {}
+}
+
+/** Merge any reload backup into local + in-memory outreach (contacted flags are OR'd). */
+function restoreStashedOutreach(opts = {}) {
+  const { clear = false } = opts;
+  let backup;
+  try {
+    const raw = localStorage.getItem(OUTREACH_RELOAD_BACKUP_KEY);
+    if (!raw) return null;
+    backup = JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+  if (!backup?.snapshot || typeof backup.snapshot !== 'object') {
+    try { localStorage.removeItem(OUTREACH_RELOAD_BACKUP_KEY); } catch (e) {}
+    return null;
+  }
+  try {
+    const merged = mergeCloudSnapshots(buildCloudOutreachSnapshot(), backup.snapshot);
+    // Merge again the other way so neither side can drop contacted flags.
+    const safe = mergeCloudSnapshots(merged, buildCloudOutreachSnapshot());
+    applyCloudSnapshotToLocal(safe);
+    saveOutreachLocalOnly();
+    if (backup.currentId) saveLastContactId(backup.currentId);
+    // Keep the stash until boot finishes so a mid-boot cloud pull cannot drop it.
+    if (clear) localStorage.removeItem(OUTREACH_RELOAD_BACKUP_KEY);
+    return backup;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function hardRefreshPage() {
   const buttons = document.querySelectorAll('.hard-refresh-btn');
   buttons.forEach(btn => {
@@ -2007,6 +2066,9 @@ async function hardRefreshPage() {
     if (btn.dataset.refreshLabel == null) btn.dataset.refreshLabel = btn.textContent;
     btn.textContent = 'Updating…';
   });
+  // Never let an app update wipe Send Email / Send FB progress.
+  stashOutreachForReload();
+  try { await flushOutreachPersistence(); } catch (e) {}
   const bust = Date.now().toString();
   try {
     if ('serviceWorker' in navigator) {
@@ -2018,6 +2080,7 @@ async function hardRefreshPage() {
       await Promise.all(keys.map(k => caches.delete(k)));
     }
     // Warm a bypass-cache fetch so iOS home-screen shortcuts pick up the new HTML.
+    // Only bust HTTP caches — do not touch localStorage outreach keys.
     const warmUrl = new URL(window.location.href);
     warmUrl.searchParams.set('_', bust);
     await fetch(warmUrl.pathname + warmUrl.search, {
@@ -3451,8 +3514,13 @@ async function pullAndMergeOutreach() {
     }
     return;
   }
-  const merged = mergeCloudSnapshots(localSnapshot, data.outreach);
+  // Local contacted flags always win over a emptier cloud copy (OR merge both ways).
+  const merged = mergeCloudSnapshots(
+    mergeCloudSnapshots(localSnapshot, data.outreach),
+    localSnapshot
+  );
   applyCloudSnapshotToLocal(merged);
+  restoreStashedOutreach();
   saveOutreachLocalOnly();
   if (contacts.length) {
     renderAll();
@@ -3670,6 +3738,7 @@ function normalizeContact(row) {
 
 function onContactsLoaded(sourceLabel) {
   migrateLegacyOutreachForContacts();
+  restoreStashedOutreach({ clear: true });
   document.getElementById('empty-state').style.display = contacts.length ? 'none' : '';
   document.getElementById('contact-detail').style.display = 'none';
   const carouselWrap = document.getElementById('desktop-carousel-wrap');
@@ -3677,7 +3746,12 @@ function onContactsLoaded(sourceLabel) {
   refreshPlaceholderGuides();
   renderAll();
   if (contacts.length) {
-    goToFirstUncontacted();
+    const lastId = loadLastContactId();
+    if (lastId && contacts.some((c) => c.id === lastId)) {
+      goToCarouselContact(lastId);
+    } else {
+      goToFirstUncontacted();
+    }
   } else {
     renderMobileAll();
   }
@@ -3970,6 +4044,7 @@ function goToCarouselContact(id) {
 
 function selectContact(id) {
   currentId = id;
+  saveLastContactId(id);
   document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-' + id));
   if (!isMobileView()) {
     const list = mobileContactList();
@@ -4490,10 +4565,11 @@ function syncCarouselIndexFromScroll(prefix) {
   if (best !== mobileCallIndex) {
     mobileCallIndex = best;
     updateCarouselBanner(prefix);
-    if (prefix === 'desktop') {
-      const c = mobileContactList()[best];
-      if (c) {
-        currentId = c.id;
+    const c = mobileContactList()[best];
+    if (c) {
+      currentId = c.id;
+      saveLastContactId(c.id);
+      if (prefix === 'desktop') {
         document.querySelectorAll('.contact-item').forEach(el => el.classList.toggle('active', el.id === 'ci-' + c.id));
         refreshPlaceholderGuides();
         refreshEmailHtmlPreview(c.id);
@@ -4588,6 +4664,8 @@ function mobileOpenContact(id) {
   if(idx >= 0) {
     mobileCallIndex = idx;
     const c = list[idx];
+    currentId = c.id;
+    saveLastContactId(c.id);
     mobileContactChannel = firstAvailableMobileChannel(c);
     switchMobileTab('call', document.querySelector('[data-mobile-tab="call"]'));
   } else {
@@ -4654,8 +4732,8 @@ function renderMobileSettings() {
   panel.innerHTML = `
     <label>App update</label>
     <div class="mobile-hard-refresh-card">
-      <p>Pull the latest site version into this home screen shortcut — no need to delete and re-add it.</p>
-      <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Hard refresh page">Hard refresh</button>
+      <p>Pull the latest site version into this home screen shortcut — keeps your contacted progress. No need to delete and re-add it.</p>
+      <button type="button" class="hard-refresh-btn" onclick="hardRefreshPage()" title="Update app without clearing contacted progress">Hard refresh</button>
     </div>
     <label>Cloud sync</label>
     <p class="auth-msg">${authUser?.email
@@ -5351,9 +5429,13 @@ async function bootApp() {
     if (defaultSj) activeSuperjobId = defaultSj;
   }
   loadOutreach();
+  restoreStashedOutreach();
   await authReady;
+  restoreStashedOutreach();
   await pullAndMergeServerOutreach();
   await applyRoute();
+  // Final pass after cloud/route settle; clear stash once progress is safely merged.
+  restoreStashedOutreach({ clear: true });
   window.addEventListener('pagehide', () => { flushOutreachPersistence(); });
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') flushOutreachPersistence();
