@@ -52,22 +52,23 @@ export const SUPERJOBS: Superjob[] = [
     id: 'north-coast-ca',
     label: 'North Coast California',
     queryPlace:
-      'the North Coast and far northern California (Eureka, Redding, Chico, Monterey Bay)',
-    approxPopM: 4,
+      'far northern and North Coast California plus the Monterey Bay and San Luis Obispo Central Coast — including Eureka, Arcata, Crescent City, Fort Bragg, Ukiah, Willits, Clearlake, Redding, Red Bluff, Weaverville, Mount Shasta, Yreka, Chico, Oroville, Paradise, Quincy, Santa Cruz, Monterey, Salinas, Watsonville, Carmel, Seaside, Marina, and San Luis Obispo (Del Norte, Humboldt, Mendocino, Lake, Trinity, Siskiyou, Shasta, Tehama, Butte, Glenn, Plumas, Lassen, Modoc, Santa Cruz, Monterey, San Benito, and San Luis Obispo counties). Do not include the Bay Area, Sonoma/Napa/Marin, Sacramento, Tahoe/Truckee, or Santa Barbara/Ventura',
+    approxPopM: 5,
     stateCodes: ['CA'],
   },
   {
     id: 'norcal',
     label: 'Northern California',
     queryPlace:
-      'the San Francisco Bay Area, Sacramento, and the Central Valley of California',
+      'the San Francisco Bay Area (including Marin, Sonoma, and Napa), Sacramento and the Central Valley (including Stockton, Modesto, Fresno, and Bakersfield), and the northern Sierra Nevada foothills and Tahoe area (including Auburn, Grass Valley, Nevada City, Truckee, and South Lake Tahoe) in California. Do not include Humboldt/Mendocino/Lake/Del Norte, the far-north interior around Redding/Chico/Mount Shasta, Monterey Bay, or San Luis Obispo County',
     approxPopM: 10,
     stateCodes: ['CA'],
   },
   {
     id: 'la-metro',
     label: 'Greater Los Angeles',
-    queryPlace: 'Greater Los Angeles and the Los Angeles metropolitan area, California',
+    queryPlace:
+      'Greater Los Angeles and the Los Angeles metropolitan area, California, including Ventura County and Santa Barbara (Santa Barbara and Ventura close the Central Coast south of San Luis Obispo). Do not include San Luis Obispo County, San Diego, Orange County, or the Inland Empire',
     approxPopM: 13,
     stateCodes: ['CA'],
   },
@@ -75,7 +76,7 @@ export const SUPERJOBS: Superjob[] = [
     id: 'socal-inland',
     label: 'Southern CA (non-LA)',
     queryPlace:
-      'San Diego, Orange County, the Inland Empire, and desert communities of Southern California',
+      'San Diego, Orange County, the Inland Empire, and desert communities of Southern California (including the Coachella Valley and Imperial County). Do not include Los Angeles County, Ventura, or Santa Barbara',
     approxPopM: 9,
     stateCodes: ['CA'],
   },

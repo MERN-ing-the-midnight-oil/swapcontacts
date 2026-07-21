@@ -52,7 +52,7 @@ The US is split into **superjobs** — regions of roughly **10 million people** 
 Examples:
 - **Washington + Alaska** (~8.5M) — one superjob
 - **NYC metro** (~20M) — own superjob (large metros exceed 10M and get their own)
-- **California** — split into LA, NorCal, SoCal, and North Coast superjobs
+- **California** — split into North Coast (far north + Mendocino/Lake + Monterey Bay/SLO), NorCal (Bay Area including Sonoma/Napa/Marin, Sacramento/Central Valley, Tahoe/Truckee), Greater LA (including Ventura/Santa Barbara), and SoCal inland (San Diego/OC/Inland Empire/desert). Border towns are named in each `queryPlace` so none are orphaned.
 
 Each superjob runs a **bundle** of discovery searches: gear swap, bike swap, kids equipment swap, plus ski/hockey/Nordic where the region overlaps those cultures. Facebook and Eventbrite gear passes run for superjobs ≥ ~8M pop.
 

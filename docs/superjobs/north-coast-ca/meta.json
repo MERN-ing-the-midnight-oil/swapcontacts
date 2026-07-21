@@ -1,0 +1,18 @@
+{
+  "superjobId": "north-coast-ca",
+  "label": "North Coast California",
+  "queryPlace": "far northern and North Coast California plus the Monterey Bay and San Luis Obispo Central Coast — including Eureka, Arcata, Crescent City, Fort Bragg, Ukiah, Willits, Clearlake, Redding, Red Bluff, Weaverville, Mount Shasta, Yreka, Chico, Oroville, Paradise, Quincy, Santa Cruz, Monterey, Salinas, Watsonville, Carmel, Seaside, Marina, and San Luis Obispo (Del Norte, Humboldt, Mendocino, Lake, Trinity, Siskiyou, Shasta, Tehama, Butte, Glenn, Plumas, Lassen, Modoc, Santa Cruz, Monterey, San Benito, and San Luis Obispo counties). Do not include the Bay Area, Sonoma/Napa/Marin, Sacramento, Tahoe/Truckee, or Santa Barbara/Ventura",
+  "completedAt": "2026-07-19T01:17:44.201Z",
+  "eventCount": 31,
+  "contactCount": 31,
+  "withContact": 28,
+  "discoveryModel": "manual",
+  "enrichmentModel": "manual",
+  "notes": "Manual Cursor discovery. Region expanded to include Mendocino/Lake/Del Norte and SLO Central Coast; Tahoe/Truckee assigned to norcal. Pass added Ukiah Bike Kitchen, Bike SLO Kitchen, The Switchback, Adventure's Edge Arcata. Some named border towns (Red Bluff, Oroville, Crescent City, Fort Bragg, Clearlake) still thin in public swap listings.",
+  "addedThisPass": [
+    "Ukiah Bicycle Kitchen",
+    "Bike SLO County Bike Kitchen",
+    "The Switchback Used Outdoor Gear",
+    "Adventure's Edge Arcata"
+  ]
+}

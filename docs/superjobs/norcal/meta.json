@@ -1,0 +1,13 @@
+{
+  "superjobId": "norcal",
+  "label": "Northern California",
+  "queryPlace": "the San Francisco Bay Area (including Marin, Sonoma, and Napa), Sacramento and the Central Valley (including Stockton, Modesto, Fresno, and Bakersfield), and the northern Sierra Nevada foothills and Tahoe area (including Auburn, Grass Valley, Nevada City, Truckee, and South Lake Tahoe) in California. Do not include Humboldt/Mendocino/Lake/Del Norte, the far-north interior around Redding/Chico/Mount Shasta, Monterey Bay, or San Luis Obispo County",
+  "completedAt": "2026-07-19T01:17:44.201Z",
+  "eventCount": 6,
+  "contactCount": 6,
+  "withContact": 5,
+  "discoveryModel": "manual",
+  "enrichmentModel": "manual",
+  "notes": "SEED ONLY — border clarification pass. Tahoe/Truckee/South Lake Tahoe/Roseville assigned here so they are not orphaned between north-coast-ca and norcal. Full norcal discovery still needed for Bay Area, Sacramento, and Central Valley.",
+  "seed": true
+}
